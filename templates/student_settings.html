@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Settings — EduPredict{% endblock %}
+{% block page_title %}Account Settings{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; padding-bottom: 40px;">
+  
+  <!-- Header Banner -->
+  <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff; padding: 28px; border-radius: var(--radius-lg); margin-bottom: 24px; box-shadow: var(--shadow-md);">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <div style="width: 52px; height: 52px; border-radius: 50%; background: #2563eb; color: #fff; font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        ⚙️
+      </div>
+      <div>
+        <h2 style="font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 4px;">
+          Account Security &amp; Settings
+        </h2>
+        <p style="font-size: 13px; color: #94a3b8; line-height: 1.4;">
+          Manage your password and security credentials for your student portal.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change Password Card -->
+  <div class="card" style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden;">
+    <div class="card-header" style="padding: 20px 28px; border-bottom: 1px solid #e2e8f0;">
+      <h3 style="font-size: 17px; font-weight: 700; color: #0f172a; margin: 0;">Change Password</h3>
+      <p style="font-size: 13px; color: #64748b; margin: 4px 0 0 0;">
+        Ensure your account uses a secure password of at least 6 characters.
+      </p>
+    </div>
+    <div class="card-body" style="padding: 28px;">
+      
+      <form method="POST" action="{{ url_for('student_settings') }}">
+        
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label class="form-label" for="current_password" style="font-weight: 600; color: #1e293b;">
+            Current Password <span style="color: #ef4444;">*</span>
+          </label>
+          <input 
+            type="password" 
+            id="current_password" 
+            name="current_password" 
+            class="form-control" 
+            placeholder="Enter your current password"
+            required
+          >
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label class="form-label" for="new_password" style="font-weight: 600; color: #1e293b;">
+            New Password <span style="color: #ef4444;">*</span>
+          </label>
+          <input 
+            type="password" 
+            id="new_password" 
+            name="new_password" 
+            class="form-control" 
+            placeholder="Min. 6 characters"
+            minlength="6"
+            required
+          >
+          <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">Must be at least 6 characters long</small>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 24px;">
+          <label class="form-label" for="confirm_password" style="font-weight: 600; color: #1e293b;">
+            Confirm New Password <span style="color: #ef4444;">*</span>
+          </label>
+          <input 
+            type="password" 
+            id="confirm_password" 
+            name="confirm_password" 
+            class="form-control" 
+            placeholder="Repeat new password"
+            minlength="6"
+            required
+          >
+        </div>
+
+        <div style="padding-top: 20px; border-top: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+          <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary" style="text-decoration: none;">
+            Cancel
+          </a>
+          <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-weight: 600;">
+            🔒 Update Password
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

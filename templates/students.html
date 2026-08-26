@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Students Roster{% endblock %}
+{% block page_title %}Student Directory & Academic Status{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+      <h3>Enrolled Students ({{ students|length }})</h3>
+      <!-- Search Input -->
+      <div style="position: relative;">
+        <input type="text" id="tableSearchInput" class="form-control" placeholder="Search student name, ID..." value="{{ search_query }}" style="padding: 6px 12px; font-size: 13px; width: 240px;">
+      </div>
+      <!-- Filter Dropdown -->
+      <div>
+        <a href="{{ url_for('students_list') }}" class="btn btn-secondary btn-sm {% if not filter_risk %}active{% endif %}">All</a>
+        <a href="{{ url_for('students_list', risk='high') }}" class="btn btn-secondary btn-sm {% if filter_risk == 'high' %}active{% endif %}" style="color: #ef4444;">High Risk</a>
+        <a href="{{ url_for('students_list', risk='medium') }}" class="btn btn-secondary btn-sm {% if filter_risk == 'medium' %}active{% endif %}" style="color: #f59e0b;">Medium Risk</a>
+        <a href="{{ url_for('students_list', risk='low') }}" class="btn btn-secondary btn-sm {% if filter_risk == 'low' %}active{% endif %}" style="color: #10b981;">Low Risk</a>
+      </div>
+    </div>
+    
+    {% if current_user.role in ['admin', 'teacher'] %}
+    <a href="{{ url_for('add_student') }}" class="btn btn-primary btn-sm">+ Add New Student</a>
+    {% endif %}
+  </div>
+
+  <div class="card-body" style="padding: 0;">
+    <div class="table-container">
+      <table class="table searchable-table">
+        <thead>
+          <tr>
+            <th>Student ID</th>
+            <th>Full Name</th>
+            <th>Attendance</th>
+            <th>Marks</th>
+            <th>Study Hrs</th>
+            <th>Status Tier</th>
+            <th>Risk Level</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in students %}
+          {% set s = item.student %}
+          <tr>
+            <td><code>{{ s.student_id }}</code></td>
+            <td>
+              <strong>{{ s.name }}</strong>
+              <div style="font-size: 11px; color: #64748b;">{{ s.email }}</div>
+            </td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-weight: 600;">{{ s.attendance }}%</span>
+              </div>
+            </td>
+            <td><strong>{{ s.previous_marks }}</strong>/100</td>
+            <td>{{ s.study_hours }} hrs/wk</td>
+            <td>
+              <span class="pred-badge badge-{{ item.performance.lower().replace(' ', '-') }}" style="font-size: 11px; padding: 3px 8px;">
+                {{ item.performance }}
+              </span>
+            </td>
+            <td>
+              <span class="pred-badge badge-risk-{{ item.risk_level.lower() }}" style="font-size: 11px; padding: 3px 8px;">
+                {{ item.risk_level }}
+              </span>
+            </td>
+            <td style="text-align: right;">
+              <a href="{{ url_for('student_details', id=s.id) }}" class="btn btn-secondary btn-sm" style="padding: 4px 8px; font-size: 11px;">View</a>
+              <a href="{{ url_for('prediction', student_id=s.student_id) }}" class="btn btn-primary btn-sm" style="padding: 4px 8px; font-size: 11px;">Predict</a>
+              {% if current_user.role in ['admin', 'teacher'] %}
+              <a href="{{ url_for('edit_student', id=s.id) }}" class="btn btn-secondary btn-sm" style="padding: 4px 8px; font-size: 11px;">Edit</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="8" style="text-align: center; color: #94a3b8; padding: 30px;">
+              No students found matching your criteria.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

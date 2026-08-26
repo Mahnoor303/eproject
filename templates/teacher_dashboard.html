@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Dashboard{% endblock %}
+{% block page_title %}Faculty Dashboard{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <h2 class="font-display font-bold" style="font-size: 18px; color: var(--text-primary); margin-bottom: 4px;">Faculty Overview</h2>
+  <p class="text-sm text-muted">Student performance monitoring, analytics, and early-warning risk indicators.</p>
+</div>
+
+<!-- Top Cards -->
+<div class="grid-stats">
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Total Students</div>
+      <div class="stat-value" style="color: var(--blue);">{{ total_students }}</div>
+      <div class="stat-sub">Enrolled roster</div>
+    </div>
+    <div class="stat-icon icon-blue">👨‍🎓</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Avg Attendance</div>
+      <div class="stat-value" style="color: var(--teal, #0D9488);">{% if active_count > 0 %}{{ avg_attendance }}%{% else %}N/A{% endif %}</div>
+      <div class="stat-sub">Class average</div>
+    </div>
+    <div class="stat-icon icon-cyan">📅</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Avg Marks</div>
+      <div class="stat-value" style="color: var(--green);">{% if active_count > 0 %}{{ avg_marks }}%{% else %}N/A{% endif %}</div>
+      <div class="stat-sub">Class mean score</div>
+    </div>
+    <div class="stat-icon icon-green">📊</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">At-Risk Students</div>
+      <div class="stat-value" style="color: var(--red);">{{ at_risk_count }}</div>
+      <div class="stat-sub">Need early support</div>
+    </div>
+    <div class="stat-icon icon-red">⚠️</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Total Predictions</div>
+      <div class="stat-value" style="color: var(--purple);">{{ total_predictions }}</div>
+      <div class="stat-sub">AI model inferences</div>
+    </div>
+    <div class="stat-icon icon-purple">🤖</div>
+  </div>
+</div>
+
+<!-- At-Risk Warning Banner -->
+{% if at_risk_count > 0 %}
+<div class="at-risk-banner">
+  <div>
+    <h4>⚠️ {{ at_risk_count }} Student(s) Require Academic Attention</h4>
+    <p>Identified based on low attendance, lower prior marks, or high-risk ML predictions.</p>
+  </div>
+  <a href="{{ url_for('teacher_at_risk') }}" class="btn btn-danger btn-sm">View At-Risk Students →</a>
+</div>
+{% endif %}
+
+<!-- Charts Section -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 24px;">
+  <div class="card">
+    <div class="card-header">
+      <h3>Performance Distribution</h3>
+      <span class="badge badge-info" style="font-size: 10px;">Real Data</span>
+    </div>
+    <div class="card-body">
+      {% if active_count > 0 %}
+      <div style="height: 220px; position: relative;">
+        <canvas id="perfDistChart"></canvas>
+      </div>
+      {% else %}
+      <div style="height: 220px; display: flex; align-items: center; justify-content: center;" class="text-muted text-sm">No data available yet</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Attendance Overview</h3>
+    </div>
+    <div class="card-body">
+      {% if active_count > 0 %}
+      <div style="height: 220px; position: relative;">
+        <canvas id="attOverviewChart"></canvas>
+      </div>
+      {% else %}
+      <div style="height: 220px; display: flex; align-items: center; justify-content: center;" class="text-muted text-sm">No data available yet</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Risk Distribution</h3>
+    </div>
+    <div class="card-body">
+      {% if total_students > 0 %}
+      <div style="height: 220px; position: relative;">
+        <canvas id="riskDistChart"></canvas>
+      </div>
+      {% else %}
+      <div style="height: 220px; display: flex; align-items: center; justify-content: center;" class="text-muted text-sm">No data available yet</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Tables Grid -->
+<div style="display: grid; grid-template-columns: 3fr 2fr; gap: 16px;">
+
+  <!-- Class Roster -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Class Roster</h3>
+      <a href="{{ url_for('teacher_students') }}" class="btn btn-secondary btn-sm">View All ({{ total_students }}) →</a>
+    </div>
+    <div class="card-body" style="padding: 0;">
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Student</th>
+              <th>Attendance</th>
+              <th>Marks</th>
+              <th class="text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in students_preview %}
+            <tr>
+              <td class="font-mono text-muted">{{ s.student_id }}</td>
+              <td class="font-bold">{{ s.name }}</td>
+              <td>
+                {% if s.attendance is not none %}
+                  <span class="font-bold" style="color: {{ 'var(--red)' if s.attendance < 65 else 'var(--green)' if s.attendance >= 80 else 'var(--amber)' }};">
+                    {{ s.attendance }}%
+                  </span>
+                {% else %}
+                  <span class="text-muted text-xs">Not set</span>
+                {% endif %}
+              </td>
+              <td class="font-bold">
+                {% if s.previous_marks is not none %}{{ s.previous_marks }}%{% else %}<span class="text-muted text-xs">Not set</span>{% endif %}
+              </td>
+              <td class="text-right">
+                <a href="{{ url_for('teacher_student_details', id=s.id) }}" class="btn btn-secondary btn-sm">View</a>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="5" class="text-center text-muted" style="padding: 32px;">No students enrolled.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Predictions -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Recent Predictions</h3>
+      <a href="{{ url_for('teacher_predictions') }}" class="btn btn-secondary btn-sm">All →</a>
+    </div>
+    <div class="card-body" style="padding: 0;">
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Prediction</th>
+              <th>Risk</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in recent_predictions %}
+            <tr>
+              <td>
+                <div class="font-bold text-sm">{{ p.student_name }}</div>
+                <div class="text-xs text-muted font-mono">{{ p.student_id }}</div>
+              </td>
+              <td><span class="pred-badge badge-{{ p.performance|lower|replace(' ', '-') }}">{{ p.performance }}</span></td>
+              <td>
+                <span class="pred-badge badge-risk-{{ p.risk_level|lower }}">{{ p.risk_level }}</span>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="3" class="text-center text-muted" style="padding: 32px;">No predictions yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // Performance Distribution Chart
+    var perfCtx = document.getElementById('perfDistChart');
+    if (perfCtx) {
+      new Chart(perfCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Excellent', 'Good', 'Average', 'At Risk'],
+          datasets: [{
+            data: [
+              {{ perf_distribution['Excellent']|default(0) }},
+              {{ perf_distribution['Good']|default(0) }},
+              {{ perf_distribution['Average']|default(0) }},
+              {{ perf_distribution['At Risk']|default(0) }}
+            ],
+            backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'],
+            borderWidth: 2,
+            borderColor: '#fff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '65%',
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 }, padding: 12 } }
+          }
+        }
+      });
+    }
+
+    // Attendance Overview
+    var attCtx = document.getElementById('attOverviewChart');
+    if (attCtx) {
+      new Chart(attCtx, {
+        type: 'bar',
+        data: {
+          labels: ['High (≥85%)', 'Moderate', 'Low (<70%)'],
+          datasets: [{
+            label: 'Students',
+            data: [
+              {{ att_distribution['High']|default(0) }},
+              {{ att_distribution['Moderate']|default(0) }},
+              {{ att_distribution['Low']|default(0) }}
+            ],
+            backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
+            borderRadius: 6,
+            barThickness: 32
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#F1F5F9' } }, x: { grid: { display: false } } }
+        }
+      });
+    }
+
+    // Risk Distribution
+    var riskCtx = document.getElementById('riskDistChart');
+    if (riskCtx) {
+      new Chart(riskCtx, {
+        type: 'pie',
+        data: {
+          labels: ['Low Risk', 'Medium Risk', 'High Risk', 'Not Assessed'],
+          datasets: [{
+            data: [
+              {{ risk_distribution['Low']|default(0) }},
+              {{ risk_distribution['Medium']|default(0) }},
+              {{ risk_distribution['High']|default(0) }},
+              {{ risk_distribution['Not Assessed']|default(0) }}
+            ],
+            backgroundColor: ['#10B981', '#F59E0B', '#EF4444', '#94A3B8'],
+            borderWidth: 2,
+            borderColor: '#fff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 }, padding: 12 } }
+          }
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}Add User — EduPredict Admin{% endblock %}
+{% block page_title %}➕ Provision New User Account{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+  
+  <div style="margin-bottom: 24px;">
+    <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">Add New Account</h2>
+    <p style="font-size: 13px; color: #64748b;">
+      Select the account type to provision. All accounts are saved directly into the local SQLite database.
+    </p>
+  </div>
+
+  <!-- 3 Clearly Separated Role Selection Cards / Tabs -->
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
+    
+    <!-- Option 1: Student -->
+    <button 
+      type="button" 
+      id="tab-btn-student"
+      onclick="selectRoleTab('student')"
+      class="role-select-card"
+      style="padding: 16px; border: 2px solid #3b82f6; background: #eff6ff; border-radius: 12px; text-align: left; cursor: pointer; transition: all 0.2s;"
+    >
+      <div style="font-size: 24px; margin-bottom: 8px;">👨‍🎓</div>
+      <div style="font-weight: 700; font-size: 15px; color: #1e3a8a;">Student</div>
+      <div style="font-size: 11px; color: #3b82f6; margin-top: 4px;">Enrolled learner account</div>
+    </button>
+
+    <!-- Option 2: Teacher -->
+    <button 
+      type="button" 
+      id="tab-btn-teacher"
+      onclick="selectRoleTab('teacher')"
+      class="role-select-card"
+      style="padding: 16px; border: 2px solid #e2e8f0; background: #ffffff; border-radius: 12px; text-align: left; cursor: pointer; transition: all 0.2s;"
+    >
+      <div style="font-size: 24px; margin-bottom: 8px;">👩‍🏫</div>
+      <div style="font-weight: 700; font-size: 15px; color: #0f172a;">Teacher</div>
+      <div style="font-size: 11px; color: #64748b; margin-top: 4px;">Faculty &amp; classroom mentor</div>
+    </button>
+
+    <!-- Option 3: Analyst -->
+    <button 
+      type="button" 
+      id="tab-btn-analyst"
+      onclick="selectRoleTab('analyst')"
+      class="role-select-card"
+      style="padding: 16px; border: 2px solid #e2e8f0; background: #ffffff; border-radius: 12px; text-align: left; cursor: pointer; transition: all 0.2s;"
+    >
+      <div style="font-size: 24px; margin-bottom: 8px;">📊</div>
+      <div style="font-weight: 700; font-size: 15px; color: #0f172a;">Analyst</div>
+      <div style="font-size: 11px; color: #64748b; margin-top: 4px;">Data scientist &amp; researcher</div>
+    </button>
+
+  </div>
+
+  <!-- Form Container -->
+  <div class="card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #f1f5f9;">
+      <span id="form-role-badge" class="pred-badge badge-good" style="font-size: 12px; padding: 4px 10px;">
+        Role: Student
+      </span>
+      <span style="font-size: 13px; color: #64748b;" id="form-role-desc">
+        Creating learner account. Student record will be initialized in SQLite.
+      </span>
+    </div>
+
+    <form method="POST" action="{{ url_for('admin_add_user') }}">
+      <input type="hidden" name="role" id="selected-role-input" value="{{ active_tab if active_tab in ['student', 'teacher', 'analyst'] else 'student' }}">
+
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px;">
+          Full Name <span style="color: #ef4444;">*</span>
+        </label>
+        <input 
+          type="text" 
+          name="full_name" 
+          class="form-control" 
+          required 
+          placeholder="e.g. Alex Hayes or Dr. Jane Mitchell"
+          style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;"
+        >
+      </div>
+
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px;">
+          Email Address <span style="color: #ef4444;">*</span>
+        </label>
+        <input 
+          type="email" 
+          name="email" 
+          class="form-control" 
+          required 
+          placeholder="e.g. user@edupredict.edu"
+          style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;"
+        >
+      </div>
+
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px;">
+          Username <span style="color: #ef4444;">*</span>
+        </label>
+        <input 
+          type="text" 
+          name="username" 
+          class="form-control" 
+          required 
+          placeholder="e.g. ahayes or jmitchell"
+          style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;"
+        >
+      </div>
+
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px;">
+          Initial Password <span style="color: #ef4444;">*</span>
+        </label>
+        <input 
+          type="password" 
+          name="password" 
+          class="form-control" 
+          required 
+          placeholder="Minimum 6 characters"
+          minlength="6"
+          style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;"
+        >
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; pt-4 border-top: 1px solid #f1f5f9;">
+        <div style="font-size: 12px; color: #64748b;">
+          * Note: Administrator accounts cannot be created from this form.
+        </div>
+        <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-size: 14px; font-weight: 700; border-radius: 8px;">
+          Save &amp; Create Account &rarr;
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+<script>
+function selectRoleTab(role) {
+  const roles = ['student', 'teacher', 'analyst'];
+  document.getElementById('selected-role-input').value = role;
+
+  roles.forEach(r => {
+    const btn = document.getElementById('tab-btn-' + r);
+    if (r === role) {
+      btn.style.borderColor = r === 'student' ? '#3b82f6' : (r === 'teacher' ? '#10b981' : '#8b5cf6');
+      btn.style.background = r === 'student' ? '#eff6ff' : (r === 'teacher' ? '#ecfdf5' : '#f5f3ff');
+      btn.querySelector('div:nth-child(2)').style.color = r === 'student' ? '#1e3a8a' : (r === 'teacher' ? '#065f46' : '#581c87');
+    } else {
+      btn.style.borderColor = '#e2e8f0';
+      btn.style.background = '#ffffff';
+      btn.querySelector('div:nth-child(2)').style.color = '#0f172a';
+    }
+  });
+
+  const badge = document.getElementById('form-role-badge');
+  const desc = document.getElementById('form-role-desc');
+  
+  if (role === 'student') {
+    badge.textContent = 'Role: Student';
+    badge.className = 'pred-badge badge-good';
+    desc.textContent = 'Creating learner account. Student record will be initialized in SQLite.';
+  } else if (role === 'teacher') {
+    badge.textContent = 'Role: Teacher';
+    badge.className = 'pred-badge badge-good';
+    badge.style.background = '#ecfdf5';
+    badge.style.color = '#059669';
+    desc.textContent = 'Creating teacher account with full roster monitoring access.';
+  } else if (role === 'analyst') {
+    badge.textContent = 'Role: Analyst';
+    badge.className = 'pred-badge badge-good';
+    badge.style.background = '#f5f3ff';
+    badge.style.color = '#7c3aed';
+    desc.textContent = 'Creating analyst account with dataset and report access.';
+  }
+}
+
+// Initial selection
+document.addEventListener('DOMContentLoaded', () => {
+  const initialRole = document.getElementById('selected-role-input').value || 'student';
+  selectRoleTab(initialRole);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}Performance Analytics{% endblock %}
+{% block page_title %}Performance Analytics & Academic Breakdown{% endblock %}
+
+{% block content %}
+<!-- Aggregate Statistics Grid -->
+<div class="grid-stats" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));">
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Avg Marks</div>
+      <div class="stat-value">{{ avg_marks }}%</div>
+      <div class="stat-sub">Historical mean</div>
+    </div>
+    <div class="stat-icon icon-blue">🎯</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Avg Attendance</div>
+      <div class="stat-value">{{ avg_attendance }}%</div>
+      <div class="stat-sub">Classroom presence</div>
+    </div>
+    <div class="stat-icon icon-cyan">🕒</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Avg Assignment</div>
+      <div class="stat-value">{{ avg_assignment }}%</div>
+      <div class="stat-sub">Coursework score</div>
+    </div>
+    <div class="stat-icon icon-green">📝</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Avg Quiz Score</div>
+      <div class="stat-value">{{ avg_quiz }}%</div>
+      <div class="stat-sub">Short tests mean</div>
+    </div>
+    <div class="stat-icon icon-purple">📋</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Study Hours</div>
+      <div class="stat-value">{{ avg_study_hours }}h</div>
+      <div class="stat-sub">Weekly self-study</div>
+    </div>
+    <div class="stat-icon icon-amber">📚</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">LMS Activity</div>
+      <div class="stat-value">{{ avg_lms_activity }}</div>
+      <div class="stat-sub">Platform index /100</div>
+    </div>
+    <div class="stat-icon icon-indigo">💻</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Participation</div>
+      <div class="stat-value">{{ avg_participation }}/10</div>
+      <div class="stat-sub">In-class rating</div>
+    </div>
+    <div class="stat-icon icon-pink">🙋</div>
+  </div>
+</div>
+
+<!-- Distribution & Analytical Comparison Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 20px; margin-bottom: 24px;">
+  
+  <!-- Marks Distribution Card -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Marks Range Distribution</h3>
+      <span class="badge badge-info" style="font-size: 11px;">Real Student Records</span>
+    </div>
+    <div class="card-body">
+      {% if active_count > 0 %}
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+              <span style="font-weight: 600; color: #10b981;">90–100% (High Distinction)</span>
+              <span><strong>{{ marks_dist['90-100'] }}</strong> ({{ (marks_dist['90-100'] / active_count * 100)|round(1) }}%)</span>
+            </div>
+            <div style="background: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden;">
+              <div style="background: #10b981; height: 100%; width: {{ (marks_dist['90-100'] / active_count * 100)|round }}%;"></div>
+            </div>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+              <span style="font-weight: 600; color: #3b82f6;">75–89% (Distinction)</span>
+              <span><strong>{{ marks_dist['75-89'] }}</strong> ({{ (marks_dist['75-89'] / active_count * 100)|round(1) }}%)</span>
+            </div>
+            <div style="background: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden;">
+              <div style="background: #3b82f6; height: 100%; width: {{ (marks_dist['75-89'] / active_count * 100)|round }}%;"></div>
+            </div>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+              <span style="font-weight: 600; color: #6366f1;">60–74% (Credit / Good)</span>
+              <span><strong>{{ marks_dist['60-74'] }}</strong> ({{ (marks_dist['60-74'] / active_count * 100)|round(1) }}%)</span>
+            </div>
+            <div style="background: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden;">
+              <div style="background: #6366f1; height: 100%; width: {{ (marks_dist['60-74'] / active_count * 100)|round }}%;"></div>
+            </div>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+              <span style="font-weight: 600; color: #f59e0b;">50–59% (Pass / Average)</span>
+              <span><strong>{{ marks_dist['50-59'] }}</strong> ({{ (marks_dist['50-59'] / active_count * 100)|round(1) }}%)</span>
+            </div>
+            <div style="background: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden;">
+              <div style="background: #f59e0b; height: 100%; width: {{ (marks_dist['50-59'] / active_count * 100)|round }}%;"></div>
+            </div>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+              <span style="font-weight: 600; color: #ef4444;">&lt;50% (Failing / At Risk)</span>
+              <span><strong>{{ marks_dist['<50'] }}</strong> ({{ (marks_dist['<50'] / active_count * 100)|round(1) }}%)</span>
+            </div>
+            <div style="background: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden;">
+              <div style="background: #ef4444; height: 100%; width: {{ (marks_dist['<50'] / active_count * 100)|round }}%;"></div>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <p style="text-align: center; color: #94a3b8; padding: 24px;">Not enough data available.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Attendance Tier Breakdown -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Attendance Distribution</h3>
+      <span class="badge badge-info" style="font-size: 11px;">Cohort Presence</span>
+    </div>
+    <div class="card-body">
+      {% if active_count > 0 %}
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+              <span style="font-weight: 600; color: #10b981;">High Attendance (≥85%)</span>
+              <span><strong>{{ att_dist['High (≥85%)'] }}</strong> ({{ (att_dist['High (≥85%)'] / active_count * 100)|round(1) }}%)</span>
+            </div>
+            <div style="background: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden;">
+              <div style="background: #10b981; height: 100%; width: {{ (att_dist['High (≥85%)'] / active_count * 100)|round }}%;"></div>
+            </div>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+              <span style="font-weight: 600; color: #f59e0b;">Moderate Attendance (70–84%)</span>
+              <span><strong>{{ att_dist['Moderate (70-84%)'] }}</strong> ({{ (att_dist['Moderate (70-84%)'] / active_count * 100)|round(1) }}%)</span>
+            </div>
+            <div style="background: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden;">
+              <div style="background: #f59e0b; height: 100%; width: {{ (att_dist['Moderate (70-84%)'] / active_count * 100)|round }}%;"></div>
+            </div>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+              <span style="font-weight: 600; color: #ef4444;">Low Attendance (&lt;70%)</span>
+              <span><strong>{{ att_dist['Low (<70%)'] }}</strong> ({{ (att_dist['Low (<70%)'] / active_count * 100)|round(1) }}%)</span>
+            </div>
+            <div style="background: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden;">
+              <div style="background: #ef4444; height: 100%; width: {{ (att_dist['Low (<70%)'] / active_count * 100)|round }}%;"></div>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <p style="text-align: center; color: #94a3b8; padding: 24px;">Not enough data available.</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Student Academic Roster -->
+<div class="card">
+  <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h3 style="margin: 0;">Student Academic Profiles</h3>
+      <span style="font-size: 12px; color: #64748b;">Comprehensive feature matrix from SQLite database</span>
+    </div>
+    <a href="{{ url_for('analyst_reports_export', type='performance') }}" class="btn btn-secondary btn-sm">
+      📥 Export Performance CSV
+    </a>
+  </div>
+  <div class="card-body" style="padding: 0;">
+    {% if students %}
+      <div class="table-responsive">
+        <table class="table" style="margin: 0;">
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Student Name</th>
+              <th>Attendance</th>
+              <th>Prev. Marks</th>
+              <th>Assignment</th>
+              <th>Quiz</th>
+              <th>Study Hrs</th>
+              <th>LMS Act.</th>
+              <th>Participation</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in students %}
+              <tr>
+                <td><span class="badge" style="background: #f1f5f9; color: #334155; font-family: monospace;">{{ s.student_id }}</span></td>
+                <td style="font-weight: 500;">{{ s.name }}</td>
+                <td>
+                  {% if s.attendance is not none %}
+                    <span style="font-weight: 600; {% if s.attendance < 70 %}color: #ef4444;{% elif s.attendance < 85 %}color: #f59e0b;{% else %}color: #10b981;{% endif %}">
+                      {{ s.attendance }}%
+                    </span>
+                  {% else %}
+                    <span style="color: #94a3b8;">Pending</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if s.previous_marks is not none %}
+                    <span style="font-weight: 600; {% if s.previous_marks < 50 %}color: #ef4444;{% elif s.previous_marks < 75 %}color: #f59e0b;{% else %}color: #10b981;{% endif %}">
+                      {{ s.previous_marks }}%
+                    </span>
+                  {% else %}
+                    <span style="color: #94a3b8;">Pending</span>
+                  {% endif %}
+                </td>
+                <td>{{ s.assignment_score ~ '%' if s.assignment_score is not none else '—' }}</td>
+                <td>{{ s.quiz_score ~ '%' if s.quiz_score is not none else '—' }}</td>
+                <td>{{ s.study_hours ~ ' hrs' if s.study_hours is not none else '—' }}</td>
+                <td>{{ s.lms_activity if s.lms_activity is not none else '—' }}</td>
+                <td>{{ s.participation ~ '/10' if s.participation is not none else '—' }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div style="text-align: center; padding: 36px 20px; color: #94a3b8;">
+        <p style="margin: 0; font-size: 14px;">Not enough data available.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

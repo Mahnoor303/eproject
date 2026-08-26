@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Profile — EduPredict{% endblock %}
+{% block page_title %}Faculty Account Profile{% endblock %}
+
+{% block content %}
+<!-- Page Header Info -->
+<div style="margin-bottom: 24px;">
+  <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">Faculty Profile Settings</h2>
+  <p style="font-size: 13px; color: #64748b;">
+    View your faculty credentials and update your personal display name and account username.
+  </p>
+</div>
+
+<div style="max-width: 640px;">
+  <div class="card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    
+    <!-- Profile Header Badge -->
+    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #e2e8f0;">
+      <div style="width: 60px; height: 60px; border-radius: 14px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700;">
+        👩‍🏫
+      </div>
+      <div>
+        <h3 style="font-size: 18px; font-weight: 700; color: #0f172a; margin: 0 0 4px 0;">{{ teacher.full_name or teacher.username }}</h3>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 11px; font-weight: 700; background: #ecfdf5; color: #065f46; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
+            {{ teacher.role }}
+          </span>
+          <span style="font-size: 12px; color: #64748b;">• {{ teacher.email }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Update Form -->
+    <form method="POST" action="{{ url_for('teacher_profile') }}">
+      
+      <!-- Full Name -->
+      <div class="form-group" style="margin-bottom: 18px;">
+        <label for="full_name" class="form-label" style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">
+          Full Name
+        </label>
+        <input
+          type="text"
+          id="full_name"
+          name="full_name"
+          value="{{ teacher.full_name or '' }}"
+          required
+          class="form-control"
+          style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;"
+        >
+      </div>
+
+      <!-- Email Address (Fixed / Assigned by Admin) -->
+      <div class="form-group" style="margin-bottom: 18px;">
+        <label class="form-label" style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">
+          Email Address
+        </label>
+        <input
+          type="email"
+          value="{{ teacher.email }}"
+          disabled
+          class="form-control"
+          style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; background: #f8fafc; color: #64748b; cursor: not-allowed;"
+        >
+        <small style="font-size: 11px; color: #64748b; margin-top: 4px; display: block;">
+          Email address is provisioned by the Administrator.
+        </small>
+      </div>
+
+      <!-- Username -->
+      <div class="form-group" style="margin-bottom: 18px;">
+        <label for="username" class="form-label" style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">
+          Username
+        </label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          value="{{ teacher.username }}"
+          required
+          class="form-control"
+          style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;"
+        >
+      </div>
+
+      <!-- Role (Read-only) -->
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label class="form-label" style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">
+          Assigned System Role
+        </label>
+        <input
+          type="text"
+          value="Teacher (Faculty Member)"
+          disabled
+          class="form-control"
+          style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; background: #f8fafc; color: #64748b; cursor: not-allowed;"
+        >
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="btn btn-primary" style="padding: 10px 20px; font-size: 14px; font-weight: 600; border-radius: 8px;">
+        Save Changes
+      </button>
+
+    </form>
+  </div>
+</div>
+{% endblock %}

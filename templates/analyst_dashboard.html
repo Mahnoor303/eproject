@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Analyst Dashboard{% endblock %}
+{% block page_title %}Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <h2 class="font-display font-bold" style="font-size: 18px; color: var(--text-primary); margin-bottom: 4px;">Data Analytics Overview</h2>
+  <p class="text-sm text-muted">Institutional performance metrics, risk distribution, and prediction analytics.</p>
+</div>
+
+<!-- Top Metric Cards -->
+<div class="grid-stats">
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Total Students</div>
+      <div class="stat-value" style="color: var(--blue);">{{ total_students }}</div>
+      <div class="stat-sub">Active profiles: {{ active_count }}</div>
+    </div>
+    <div class="stat-icon icon-blue">👥</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Avg Attendance</div>
+      <div class="stat-value">{{ avg_attendance }}%</div>
+      <div class="stat-sub">Institutional cohort rate</div>
+    </div>
+    <div class="stat-icon icon-cyan">🕒</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Avg Marks</div>
+      <div class="stat-value" style="color: var(--green);">{{ avg_marks }}%</div>
+      <div class="stat-sub">Historical assessment mean</div>
+    </div>
+    <div class="stat-icon icon-green">🎯</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Total Predictions</div>
+      <div class="stat-value" style="color: var(--purple);">{{ total_predictions }}</div>
+      <div class="stat-sub">Inference log records</div>
+    </div>
+    <div class="stat-icon icon-purple">🤖</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">At-Risk Students</div>
+      <div class="stat-value" style="color: var(--red);">{{ at_risk_count }}</div>
+      <div class="stat-sub">High & Moderate flags</div>
+    </div>
+    <div class="stat-icon icon-amber">⚠️</div>
+  </div>
+</div>
+
+<!-- 4 Charts Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-bottom: 24px;">
+
+  <!-- Performance Distribution -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Performance Distribution</h3>
+      <span class="badge badge-info" style="font-size: 10px;">Active Roster</span>
+    </div>
+    <div class="card-body">
+      {% if active_count > 0 %}
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          {% for label, count, color in [
+            ('🌟 Excellent (≥85%)', perf_distribution['Excellent'], 'var(--green)'),
+            ('👍 Good (70–84%)', perf_distribution['Good'], 'var(--blue)'),
+            ('⚖️ Average (50–69%)', perf_distribution['Average'], 'var(--amber)'),
+            ('⚠️ At Risk (<50%)', perf_distribution['At Risk'], 'var(--red)')
+          ] %}
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-bold" style="color: {{ color }};">{{ label }}</span>
+              <span><strong>{{ count }}</strong> ({{ (count / active_count * 100)|round(1) }}%)</span>
+            </div>
+            <div style="background: var(--border); border-radius: 9999px; height: 8px; overflow: hidden;">
+              <div style="background: {{ color }}; height: 100%; width: {{ (count / active_count * 100)|round }}%; border-radius: 9999px;"></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-center text-muted" style="padding: 24px;">No data available</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Risk Distribution -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Risk Distribution</h3>
+      <a href="{{ url_for('analyst_risk') }}" class="btn btn-secondary btn-sm">Full Analysis</a>
+    </div>
+    <div class="card-body">
+      {% set total_risk_assessed = risk_distribution['Low'] + risk_distribution['Medium'] + risk_distribution['High'] %}
+      {% if total_risk_assessed > 0 %}
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          {% for label, count, color in [
+            ('🟢 Low Risk', risk_distribution['Low'], 'var(--green)'),
+            ('🟡 Medium Risk', risk_distribution['Medium'], 'var(--amber)'),
+            ('🔴 High Risk', risk_distribution['High'], 'var(--red)')
+          ] %}
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-bold" style="color: {{ color }};">{{ label }}</span>
+              <span><strong>{{ count }}</strong> ({{ (count / total_risk_assessed * 100)|round(1) }}%)</span>
+            </div>
+            <div style="background: var(--border); border-radius: 9999px; height: 8px; overflow: hidden;">
+              <div style="background: {{ color }}; height: 100%; width: {{ (count / total_risk_assessed * 100)|round }}%; border-radius: 9999px;"></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-center text-muted" style="padding: 24px;">No data available</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Prediction Distribution -->
+  <div class="card">
+    <div class="card-header">
+      <h3>ML Prediction Distribution</h3>
+      <a href="{{ url_for('analyst_predictions') }}" class="btn btn-secondary btn-sm">History</a>
+    </div>
+    <div class="card-body">
+      {% if total_predictions > 0 %}
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          {% for label, count, color in [
+            ('Excellent Trajectory', prediction_distribution['Excellent'], 'var(--green)'),
+            ('Good Trajectory', prediction_distribution['Good'], 'var(--blue)'),
+            ('Average Trajectory', prediction_distribution['Average'], 'var(--amber)'),
+            ('At-Risk Trajectory', prediction_distribution['At Risk'], 'var(--red)')
+          ] %}
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-bold" style="color: {{ color }};">{{ label }}</span>
+              <span><strong>{{ count }}</strong> ({{ (count / total_predictions * 100)|round(1) }}%)</span>
+            </div>
+            <div style="background: var(--border); border-radius: 9999px; height: 8px; overflow: hidden;">
+              <div style="background: {{ color }}; height: 100%; width: {{ (count / total_predictions * 100)|round }}%; border-radius: 9999px;"></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-center text-muted" style="padding: 24px;">No prediction records</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Attendance Overview -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Attendance Overview</h3>
+      <a href="{{ url_for('analyst_performance') }}" class="btn btn-secondary btn-sm">Performance</a>
+    </div>
+    <div class="card-body">
+      {% if active_count > 0 %}
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          {% for label, count, color in [
+            ('High Attendance (≥85%)', att_overview['High (≥85%)'], 'var(--green)'),
+            ('Moderate (70–84%)', att_overview['Moderate (70-84%)'], 'var(--amber)'),
+            ('Low (<70%)', att_overview['Low (<70%)'], 'var(--red)')
+          ] %}
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-bold" style="color: {{ color }};">{{ label }}</span>
+              <span><strong>{{ count }}</strong> ({{ (count / active_count * 100)|round(1) }}%)</span>
+            </div>
+            <div style="background: var(--border); border-radius: 9999px; height: 8px; overflow: hidden;">
+              <div style="background: {{ color }}; height: 100%; width: {{ (count / active_count * 100)|round }}%; border-radius: 9999px;"></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-center text-muted" style="padding: 24px;">No data available</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Recent Predictions -->
+{% if recent_predictions %}
+<div class="card">
+  <div class="card-header">
+    <h3>Recent Predictions</h3>
+    <a href="{{ url_for('analyst_predictions') }}" class="btn btn-secondary btn-sm">View All →</a>
+  </div>
+  <div class="card-body" style="padding: 0;">
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Performance</th>
+            <th>Risk Level</th>
+            <th>Confidence</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in recent_predictions %}
+          <tr>
+            <td>
+              <div class="font-bold">{{ p.student_name }}</div>
+              <div class="text-xs text-muted font-mono">{{ p.student_id }}</div>
+            </td>
+            <td><span class="pred-badge badge-{{ p.performance|lower|replace(' ', '-') }}">{{ p.performance }}</span></td>
+            <td><span class="pred-badge badge-risk-{{ p.risk_level|lower }}">{{ p.risk_level }}</span></td>
+            <td class="font-bold">{{ p.confidence|round(1) if p.confidence else 'N/A' }}%</td>
+            <td class="text-xs text-muted">{{ p.created_at.strftime('%Y-%m-%d %H:%M') if p.created_at else 'Recent' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

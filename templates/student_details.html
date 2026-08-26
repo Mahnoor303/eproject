@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}{{ student.name }} — Performance Details{% endblock %}
+
+{% block content %}
+<div class="header-action-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+  <div>
+    <div style="display:flex; align-items:center; gap:0.75rem;">
+      <h1 style="font-size:1.6rem; font-weight:700; color:var(--text-main);">{{ student.name }}</h1>
+      <span class="user-role-badge" style="font-size:0.8rem;">{{ student.student_id }}</span>
+    </div>
+    <p style="color:var(--text-muted); font-size:0.9rem;">{{ student.email or 'No email recorded' }} &bull; Enrolled in Academic Tracking Pipeline</p>
+  </div>
+  <div style="display:flex; gap:0.75rem;">
+    <a href="{{ url_for('prediction', student_id=student.student_id) }}" class="btn btn-primary">
+      Run AI Prediction
+    </a>
+    <a href="{{ url_for('edit_student', id=student.id) }}" class="btn btn-secondary">
+      Edit Metrics
+    </a>
+    <a href="{{ url_for('students_list') }}" class="btn btn-secondary">
+      &larr; Back
+    </a>
+  </div>
+</div>
+
+<div class="grid-4" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:1rem; margin-bottom:1.5rem;">
+  <div class="stat-card">
+    <div class="stat-title">Attendance Rate</div>
+    <div class="stat-value" style="color: {{ 'var(--danger)' if student.attendance < 65 else 'var(--primary)' }};">
+      {{ student.attendance }}%
+    </div>
+    <div class="stat-subtitle">Min required: 75%</div>
+  </div>
+  
+  <div class="stat-card">
+    <div class="stat-title">Prior Exam Score</div>
+    <div class="stat-value">{{ student.previous_marks }}%</div>
+    <div class="stat-subtitle">Term aggregate</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-title">Weekly Study Time</div>
+    <div class="stat-value">{{ student.study_hours }} <span style="font-size:0.9rem; font-weight:normal; color:var(--text-muted);">hrs</span></div>
+    <div class="stat-subtitle">Self-reported average</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-title">LMS Engagement</div>
+    <div class="stat-value">{{ student.lms_activity }}<span style="font-size:0.9rem; font-weight:normal; color:var(--text-muted);">/100</span></div>
+    <div class="stat-subtitle">Activity Index</div>
+  </div>
+</div>
+
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
+  <!-- Academic Metrics Card -->
+  <div class="card">
+    <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:1rem; color:var(--text-main);">Comprehensive Academic Profile</h3>
+    <table class="data-table" style="width:100%;">
+      <tbody>
+        <tr>
+          <td style="color:var(--text-muted); font-weight:500;">Assignment Grade Average</td>
+          <td style="text-align:right; font-weight:600;">{{ student.assignment_score }}%</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text-muted); font-weight:500;">Quiz & Short Test Score</td>
+          <td style="text-align:right; font-weight:600;">{{ student.quiz_score }}%</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text-muted); font-weight:500;">Classroom Participation</td>
+          <td style="text-align:right; font-weight:600;">{{ student.participation }} / 10</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text-muted); font-weight:500;">Calculated Composite Index</td>
+          <td style="text-align:right; font-weight:600;">
+            {% set comp = (student.attendance*0.2 + student.previous_marks*0.25 + student.assignment_score*0.15 + student.quiz_score*0.15 + (student.study_hours/35*100)*0.1 + student.lms_activity*0.1 + (student.participation/10*100)*0.05)|round(1) %}
+            {{ comp }}%
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Latest AI Prediction Status -->
+  <div class="card">
+    <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:1rem; color:var(--text-main);">AI Inference & Risk Assessment</h3>
+    {% if latest_prediction %}
+      <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem;">
+        <div style="flex:1;">
+          <div style="font-size:0.8rem; color:var(--text-muted);">Predicted Classification</div>
+          <div style="font-size:1.4rem; font-weight:700; color:var(--primary);">{{ latest_prediction.performance }}</div>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:0.8rem; color:var(--text-muted);">Risk Level</div>
+          <span class="risk-badge {{ 'risk-high' if latest_prediction.risk_level == 'High' else 'risk-medium' if latest_prediction.risk_level == 'Medium' else 'risk-low' }}">
+            {{ latest_prediction.risk_level }} Risk
+          </span>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:0.8rem; color:var(--text-muted);">Confidence</div>
+          <div style="font-size:1.1rem; font-weight:600;">{{ latest_prediction.confidence }}%</div>
+        </div>
+      </div>
+      <div style="background:var(--bg-light); border-radius:8px; padding:0.85rem; font-size:0.85rem; line-height:1.5; color:var(--text-main); border:1px solid var(--border-color);">
+        <strong>Model Insights:</strong> {{ latest_prediction.explanation }}
+      </div>
+      <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.5rem; text-align:right;">
+        Generated on: {{ latest_prediction.created_at.strftime('%b %d, %Y at %H:%M UTC') }}
+      </div>
+    {% else %}
+      <div style="text-align:center; padding:2rem; color:var(--text-muted);">
+        <p>No model prediction has been run for this student yet.</p>
+        <a href="{{ url_for('prediction', student_id=student.student_id) }}" class="btn btn-primary" style="margin-top:0.75rem;">
+          Run Initial AI Evaluation
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Historical Predictions -->
+{% if predictions|length > 1 %}
+<div class="card">
+  <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:1rem; color:var(--text-main);">Historical AI Assessments</h3>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Predicted Performance</th>
+        <th>Risk Level</th>
+        <th>Confidence</th>
+        <th>Snapshotted Attendance</th>
+        <th>Snapshotted Prior Marks</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in predictions %}
+      <tr>
+        <td>{{ p.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td><strong>{{ p.performance }}</strong></td>
+        <td>
+          <span class="risk-badge {{ 'risk-high' if p.risk_level == 'High' else 'risk-medium' if p.risk_level == 'Medium' else 'risk-low' }}">
+            {{ p.risk_level }}
+          </span>
+        </td>
+        <td>{{ p.confidence }}%</td>
+        <td>{{ p.attendance }}%</td>
+        <td>{{ p.previous_marks }}%</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{% endblock %}

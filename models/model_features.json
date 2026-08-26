@@ -1,0 +1,19 @@
+{
+  "feature_names": [
+    "attendance",
+    "previous_marks",
+    "assignment_score",
+    "quiz_score",
+    "study_hours",
+    "lms_activity",
+    "participation"
+  ],
+  "feature_count": 7,
+  "target_classes": [
+    "At Risk",
+    "Average",
+    "Good",
+    "Excellent"
+  ],
+  "description": "Order of educational features required by the RandomForest inference pipeline."
+}

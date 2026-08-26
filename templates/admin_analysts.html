@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}All Analysts — EduPredict Admin{% endblock %}
+{% block page_title %}📊 All Analysts Management{% endblock %}
+
+{% block content %}
+<div class="card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+    <div>
+      <h2 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">Data Science &amp; Research Analysts</h2>
+      <p style="font-size: 13px; color: #64748b;">
+        Showing all analyst accounts queried from SQLite database. Total: <strong>{{ analysts_list|length }}</strong>
+      </p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <a href="{{ url_for('admin_add_user') }}?tab=analyst" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+        <span>➕</span>
+        <span>+ Add Analyst</span>
+      </a>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="toggleModal('modal-add-analyst-quick')">
+        Quick Add Modal
+      </button>
+    </div>
+  </div>
+
+  <div class="table-container" style="overflow-x: auto;">
+    <table class="table" style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="border-bottom: 2px solid #e2e8f0; text-align: left; color: #64748b; font-size: 12px;">
+          <th style="padding: 12px 14px;">Analyst Name</th>
+          <th style="padding: 12px 14px;">Email</th>
+          <th style="padding: 12px 14px;">Username</th>
+          <th style="padding: 12px 14px;">Status</th>
+          <th style="padding: 12px 14px; text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in analysts_list %}
+        <tr style="border-bottom: 1px solid #f1f5f9; font-size: 13px;">
+          <td style="padding: 14px;">
+            <div style="font-weight: 700; color: #0f172a;">{{ a.full_name or a.username }}</div>
+            <div style="font-size: 11px; color: #64748b;">ID: ANA-{{ a.id }}</div>
+          </td>
+          <td style="padding: 14px; color: #334155;">
+            {{ a.email or '—' }}
+          </td>
+          <td style="padding: 14px;">
+            <span style="font-family: monospace; font-size: 12px; color: #7c3aed; background: #f5f3ff; padding: 2px 8px; border-radius: 4px;">
+              {{ a.username }}
+            </span>
+          </td>
+          <td style="padding: 14px;">
+            <span class="pred-badge badge-good" style="font-size: 11px; padding: 3px 8px; background: #f5f3ff; color: #7c3aed; border-color: #ddd6fe;">Active Analyst</span>
+          </td>
+          <td style="padding: 14px; text-align: right;">
+            <div style="display: inline-flex; gap: 8px; align-items: center;">
+              <!-- View Details Button -->
+              <button 
+                type="button" 
+                class="btn btn-secondary btn-sm" 
+                style="padding: 4px 10px; font-size: 12px;"
+                onclick="viewAnalystDetails('{{ (a.full_name or a.username)|e }}', 'ANA-{{ a.id }}', '{{ a.email or '—' }}', '{{ a.username|e }}', '{{ a.created_at.strftime('%Y-%m-%d') if a.created_at else 'Active' }}')"
+              >
+                View
+              </button>
+
+              <!-- Remove Analyst Form with Confirmation -->
+              <form method="POST" action="{{ url_for('delete_user', id=a.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to remove this analyst?');">
+                <button type="submit" class="btn btn-danger btn-sm" style="padding: 4px 10px; font-size: 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                  Remove
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" style="text-align: center; color: #94a3b8; padding: 36px 16px;">
+            <div style="font-size: 28px; margin-bottom: 8px;">📊</div>
+            <strong style="font-size: 15px; color: #475569;">No analyst accounts found.</strong>
+            <div style="font-size: 13px; color: #64748b; margin-top: 4px;">Click "+ Add Analyst" to provision a research analyst account.</div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal: View Analyst Details -->
+<div id="modal-view-analyst" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 999; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
+  <div style="background: white; border-radius: 14px; max-width: 480px; width: 90%; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 id="view-analyst-name" style="font-size: 17px; font-weight: 700; color: #0f172a;">Analyst Details</h3>
+      <button type="button" onclick="closeAnalystDetailsModal()" style="border: none; background: none; font-size: 20px; cursor: pointer; color: #64748b;">&times;</button>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
+      <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: #f8fafc; border-radius: 6px;">
+        <span style="color: #64748b;">Analyst ID:</span>
+        <span id="view-analyst-id" style="font-weight: 600; color: #0f172a;"></span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: #f8fafc; border-radius: 6px;">
+        <span style="color: #64748b;">Email Address:</span>
+        <span id="view-analyst-email" style="font-weight: 600; color: #0f172a;"></span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: #f8fafc; border-radius: 6px;">
+        <span style="color: #64748b;">Username:</span>
+        <span id="view-analyst-username" style="font-weight: 600; color: #7c3aed;"></span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: #f8fafc; border-radius: 6px;">
+        <span style="color: #64748b;">Role:</span>
+        <span style="font-weight: 600; color: #7c3aed;">Analyst (Dataset &amp; AI Modeling)</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: #f8fafc; border-radius: 6px;">
+        <span style="color: #64748b;">Member Since:</span>
+        <span id="view-analyst-date" style="font-weight: 600; color: #0f172a;"></span>
+      </div>
+    </div>
+    <div style="margin-top: 20px; text-align: right;">
+      <button type="button" class="btn btn-secondary" onclick="closeAnalystDetailsModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Quick Add Analyst -->
+<div id="modal-add-analyst-quick" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 999; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
+  <div style="background: white; border-radius: 14px; max-width: 480px; width: 90%; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="font-size: 17px; font-weight: 700; color: #0f172a;">+ Add New Analyst</h3>
+      <button type="button" onclick="toggleModal('modal-add-analyst-quick')" style="border: none; background: none; font-size: 20px; cursor: pointer; color: #64748b;">&times;</button>
+    </div>
+    <form method="POST" action="{{ url_for('admin_add_user') }}">
+      <input type="hidden" name="role" value="analyst">
+      
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Full Name *</label>
+        <input type="text" name="full_name" class="form-control" required placeholder="e.g. David Kumar" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px;">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Email Address *</label>
+        <input type="email" name="email" class="form-control" required placeholder="e.g. d.kumar@edupredict.edu" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px;">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Username *</label>
+        <input type="text" name="username" class="form-control" required placeholder="e.g. dkumar" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px;">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 18px;">
+        <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Initial Password *</label>
+        <input type="password" name="password" class="form-control" required placeholder="Minimum 6 characters" minlength="6" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px;">
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button type="button" class="btn btn-secondary" onclick="toggleModal('modal-add-analyst-quick')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create Analyst Account</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function viewAnalystDetails(name, id, email, username, date) {
+  document.getElementById('view-analyst-name').textContent = name;
+  document.getElementById('view-analyst-id').textContent = id;
+  document.getElementById('view-analyst-email').textContent = email;
+  document.getElementById('view-analyst-username').textContent = '@' + username;
+  document.getElementById('view-analyst-date').textContent = date;
+  
+  const modal = document.getElementById('modal-view-analyst');
+  modal.style.display = 'flex';
+}
+
+function closeAnalystDetailsModal() {
+  document.getElementById('modal-view-analyst').style.display = 'none';
+}
+
+function toggleModal(id) {
+  const modal = document.getElementById(id);
+  if (modal) {
+    modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+  }
+}
+</script>
+{% endblock %}

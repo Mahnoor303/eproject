@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}User Management{% endblock %}
+
+{% block content %}
+<div class="header-action-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+  <div>
+    <h1 style="font-size:1.6rem; font-weight:700; color:var(--text-main);">User Management</h1>
+    <p style="color:var(--text-muted); font-size:0.9rem;">Provision credentials, modify permission roles, and control local authentication access.</p>
+  </div>
+</div>
+
+<div style="display:grid; grid-template-columns: 1fr 2fr; gap:1.5rem; align-items:start;">
+  
+  <!-- Add User Card -->
+  <div class="card">
+    <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:1rem; color:var(--text-main);">Create User (Teacher / Analyst)</h3>
+    <form method="POST" action="{{ url_for('add_user') }}">
+      <div class="form-group">
+        <label class="form-label" for="full_name">Full Name *</label>
+        <input type="text" id="full_name" name="full_name" class="form-control" required placeholder="e.g. Dr. Sarah Connor">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address *</label>
+        <input type="email" id="email" name="email" class="form-control" required placeholder="e.g. s.connor@edupredict.edu">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="username">Username *</label>
+        <input type="text" id="username" name="username" class="form-control" required placeholder="e.g. sconnor">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Initial Password *</label>
+        <input type="password" id="password" name="password" class="form-control" required placeholder="Minimum 6 characters" minlength="6">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="role">Role Permission *</label>
+        <select id="role" name="role" class="form-control" required>
+          <option value="teacher">Teacher (Class roster, student diagnostics & monitoring)</option>
+          <option value="analyst">Analyst (Data science, educational analytics & reports)</option>
+        </select>
+        <small style="color:var(--text-muted); font-size:0.75rem; display:block; margin-top:4px;">
+          Students register via public portal. Administrators are managed separately.
+        </small>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">
+        Create Account &rarr;
+      </button>
+    </form>
+  </div>
+
+  <!-- Users List Card -->
+  <div class="card">
+    <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:1rem; color:var(--text-main);">Active System User Accounts ({{ users|length }})</h3>
+    <div style="overflow-x:auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>User &amp; Full Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Created At</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <div class="user-avatar" style="width:28px; height:28px; font-size:0.75rem;">
+                  {{ (u.full_name or u.username)[:1]|upper }}
+                </div>
+                <div>
+                  <strong>{{ u.full_name or u.username }}</strong>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">@{{ u.username }}</div>
+                  {% if u.id == session.get('user_id') %}
+                    <span style="font-size:0.7rem; color:var(--primary); font-weight:600;">(Current Admin)</span>
+                  {% endif %}
+                </div>
+              </div>
+            </td>
+            <td style="font-size:0.85rem; color:var(--text-muted);">
+              {{ u.email or '—' }}
+            </td>
+            <td>
+              <span class="user-role-badge badge-{{ u.role }}">{{ u.role|capitalize }}</span>
+            </td>
+            <td style="font-size:0.8rem; color:var(--text-muted);">
+              {{ u.created_at.strftime('%Y-%m-%d') if u.created_at else '—' }}
+            </td>
+            <td>
+              {% if u.id != session.get('user_id') and u.role != 'admin' %}
+              <form method="POST" action="{{ url_for('delete_user', id=u.id) }}" onsubmit="return confirm('Permanently delete user {{ u.username }}?');">
+                <button type="submit" class="btn btn-secondary" style="padding:0.25rem 0.5rem; font-size:0.75rem; color:var(--danger);">
+                  Delete
+                </button>
+              </form>
+              {% else %}
+              <span style="color:var(--text-muted); font-size:0.75rem;">Protected</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

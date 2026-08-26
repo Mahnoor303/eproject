@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+{% block title %}AI Student Performance Prediction{% endblock %}
+
+{% block content %}
+<div class="header-action-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+  <div>
+    <h1 style="font-size:1.6rem; font-weight:700; color:var(--text-main); margin-bottom:0.35rem;">AI Student Performance Prediction</h1>
+    <p style="color:var(--text-muted); font-size:0.92rem; max-width:760px; line-height:1.5;">
+      Enter the student's academic information and the trained Machine Learning model will predict the expected performance level and risk level.
+    </p>
+  </div>
+  <div style="display:flex; gap:0.5rem;">
+    <a href="{{ url_for('predictions_history') }}" class="btn btn-secondary" style="display:inline-flex; align-items:center; gap:0.5rem; text-decoration:none;">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <span>View Prediction History</span>
+    </a>
+  </div>
+</div>
+
+<div style="display:grid; grid-template-columns: 1.15fr 0.85fr; gap:1.75rem; align-items:start;">
+  
+  <!-- Input Form Card -->
+  <div class="card" style="background:#ffffff; border-radius:12px; border:1px solid var(--border-color); padding:1.5rem; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; padding-bottom:0.75rem; border-bottom:1px solid var(--border-color);">
+      <div>
+        <h3 style="font-size:1.1rem; font-weight:600; color:var(--text-main); margin:0;">Student Academic Information</h3>
+        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">All fields are validated locally before running the offline Random Forest pipeline.</p>
+      </div>
+      <span style="font-size:0.75rem; font-family:monospace; background:var(--bg-light); padding:3px 8px; border-radius:4px; border:1px solid var(--border-color);">7 Features</span>
+    </div>
+
+    <form method="POST" action="{{ url_for('predict') }}" id="predictionForm" onsubmit="return validatePredictionForm(event)">
+      
+      <!-- 1. Student Selection Field -->
+      <div class="form-group" style="margin-bottom:1.25rem;">
+        <label class="form-label" for="student_id" style="font-weight:600; display:block; margin-bottom:0.4rem; color:var(--text-main);">
+          1. Student <span style="color:var(--danger);">*</span>
+        </label>
+        
+        {% if current_user.role == 'student' %}
+          <!-- Student is strictly restricted to their own record -->
+          <input type="hidden" name="student_id" value="{{ selected_student.student_id if selected_student else '' }}">
+          <div style="padding:0.75rem 1rem; background:var(--bg-light); border:1px solid var(--border-color); border-radius:6px; font-weight:600; color:var(--text-main); display:flex; justify-content:space-between; align-items:center;">
+            <span>{{ selected_student.name if selected_student else current_user.username }} ({{ selected_student.student_id if selected_student else 'N/A' }})</span>
+            <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">Your Linked Profile</span>
+          </div>
+        {% else %}
+          <!-- Teacher / Admin / Analyst can pick from database -->
+          <select id="student_id" name="student_id" class="form-control" required
+                  onchange="if(this.value) window.location.href='{{ url_for('predict') }}?student_id=' + this.value;">
+            <option value="">-- Select Student from Database --</option>
+            {% for s in students %}
+            <option value="{{ s.student_id }}" {{ 'selected' if selected_student and selected_student.student_id == s.student_id else '' }}>
+              {{ s.student_id }} — {{ s.name }} (Att: {{ s.attendance }}%, Marks: {{ s.previous_marks }})
+            </option>
+            {% endfor %}
+          </select>
+          <small style="color:var(--text-muted); font-size:0.75rem; display:block; margin-top:4px;">
+            Select an enrolled student to automatically populate recorded metrics or enter custom values.
+          </small>
+        {% endif %}
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.1rem;">
+        
+        <!-- 2. Attendance (%) -->
+        <div class="form-group">
+          <label class="form-label" for="attendance" style="font-weight:600; font-size:0.85rem; color:var(--text-main); display:flex; justify-content:space-between;">
+            <span>2. Attendance (%) <span style="color:var(--danger);">*</span></span>
+            <span style="font-weight:normal; color:var(--text-muted); font-size:0.75rem;">0–100%</span>
+          </label>
+          <input type="number" step="0.1" min="0" max="100" id="attendance" name="attendance" class="form-control" required
+                 placeholder="e.g. 88"
+                 value="{{ form_state.attendance if form_state and form_state.attendance is not none else (selected_student.attendance if selected_student else (prediction_result.attendance if prediction_result else '85.0')) }}">
+        </div>
+
+        <!-- 3. Previous Marks -->
+        <div class="form-group">
+          <label class="form-label" for="previous_marks" style="font-weight:600; font-size:0.85rem; color:var(--text-main); display:flex; justify-content:space-between;">
+            <span>3. Previous Marks <span style="color:var(--danger);">*</span></span>
+            <span style="font-weight:normal; color:var(--text-muted); font-size:0.75rem;">0–100</span>
+          </label>
+          <input type="number" step="0.1" min="0" max="100" id="previous_marks" name="previous_marks" class="form-control" required
+                 placeholder="e.g. 82"
+                 value="{{ form_state.previous_marks if form_state and form_state.previous_marks is not none else (selected_student.previous_marks if selected_student else (prediction_result.previous_marks if prediction_result else '78.0')) }}">
+        </div>
+
+        <!-- 4. Assignment Score -->
+        <div class="form-group">
+          <label class="form-label" for="assignment_score" style="font-weight:600; font-size:0.85rem; color:var(--text-main); display:flex; justify-content:space-between;">
+            <span>4. Assignment Score <span style="color:var(--danger);">*</span></span>
+            <span style="font-weight:normal; color:var(--text-muted); font-size:0.75rem;">0–100</span>
+          </label>
+          <input type="number" step="0.1" min="0" max="100" id="assignment_score" name="assignment_score" class="form-control" required
+                 placeholder="e.g. 85"
+                 value="{{ form_state.assignment_score if form_state and form_state.assignment_score is not none else (selected_student.assignment_score if selected_student else (prediction_result.assignment_score if prediction_result else '80.0')) }}">
+        </div>
+
+        <!-- 5. Quiz Score -->
+        <div class="form-group">
+          <label class="form-label" for="quiz_score" style="font-weight:600; font-size:0.85rem; color:var(--text-main); display:flex; justify-content:space-between;">
+            <span>5. Quiz Score <span style="color:var(--danger);">*</span></span>
+            <span style="font-weight:normal; color:var(--text-muted); font-size:0.75rem;">0–100</span>
+          </label>
+          <input type="number" step="0.1" min="0" max="100" id="quiz_score" name="quiz_score" class="form-control" required
+                 placeholder="e.g. 80"
+                 value="{{ form_state.quiz_score if form_state and form_state.quiz_score is not none else (selected_student.quiz_score if selected_student else (prediction_result.quiz_score if prediction_result else '75.0')) }}">
+        </div>
+
+        <!-- 6. Study Hours -->
+        <div class="form-group">
+          <label class="form-label" for="study_hours" style="font-weight:600; font-size:0.85rem; color:var(--text-main); display:flex; justify-content:space-between;">
+            <span>6. Study Hours (Weekly) <span style="color:var(--danger);">*</span></span>
+            <span style="font-weight:normal; color:var(--text-muted); font-size:0.75rem;">Min: 0</span>
+          </label>
+          <input type="number" step="0.1" min="0" max="60" id="study_hours" name="study_hours" class="form-control" required
+                 placeholder="e.g. 3.5"
+                 value="{{ form_state.study_hours if form_state and form_state.study_hours is not none else (selected_student.study_hours if selected_student else (prediction_result.study_hours if prediction_result else '10.0')) }}">
+        </div>
+
+        <!-- 7. LMS Activity -->
+        <div class="form-group">
+          <label class="form-label" for="lms_activity" style="font-weight:600; font-size:0.85rem; color:var(--text-main); display:flex; justify-content:space-between;">
+            <span>7. LMS Activity (Index) <span style="color:var(--danger);">*</span></span>
+            <span style="font-weight:normal; color:var(--text-muted); font-size:0.75rem;">0–100</span>
+          </label>
+          <input type="number" step="1" min="0" max="100" id="lms_activity" name="lms_activity" class="form-control" required
+                 placeholder="e.g. 75"
+                 value="{{ form_state.lms_activity if form_state and form_state.lms_activity is not none else (selected_student.lms_activity if selected_student else (prediction_result.lms_activity if prediction_result else '70.0')) }}">
+        </div>
+
+        <!-- 8. Participation -->
+        <div class="form-group" style="grid-column: 1 / -1;">
+          <label class="form-label" for="participation" style="font-weight:600; font-size:0.85rem; color:var(--text-main); display:flex; justify-content:space-between;">
+            <span>8. Participation Rating <span style="color:var(--danger);">*</span></span>
+            <span style="font-weight:normal; color:var(--text-muted); font-size:0.75rem;">1–10 (or 0–100)</span>
+          </label>
+          <input type="number" step="0.1" min="0" max="100" id="participation" name="participation" class="form-control" required
+                 placeholder="e.g. 8.2"
+                 value="{{ form_state.participation if form_state and form_state.participation is not none else (selected_student.participation if selected_student else (prediction_result.participation if prediction_result else '7.5')) }}">
+        </div>
+
+      </div>
+
+      <!-- Submit Section -->
+      <div style="margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-size:0.8rem; color:var(--text-muted);">
+          &bull; Results are automatically saved to SQLite database.
+        </span>
+        <button type="submit" id="predictSubmitBtn" class="btn btn-primary" style="padding:0.65rem 1.4rem; font-weight:700; letter-spacing:0.3px; display:inline-flex; align-items:center; gap:0.5rem;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+          <span>PREDICT PERFORMANCE</span>
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Prediction Result Column -->
+  <div>
+    {% if prediction_result %}
+    <div class="card" style="background:#ffffff; border-radius:12px; border:1px solid var(--border-color); border-top: 5px solid {{ 'var(--danger)' if prediction_result.risk_level == 'High' else 'var(--warning)' if prediction_result.risk_level == 'Medium' else 'var(--success)' }}; padding:1.5rem; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+      
+      <!-- Card Header -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; padding-bottom:0.75rem; border-bottom:1px solid var(--border-color);">
+        <div>
+          <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); font-weight:700;">AI PREDICTION</span>
+          <h2 style="font-size:1.3rem; font-weight:700; color:var(--text-main); margin-top:2px;">
+            {{ prediction_result.student_name }}
+          </h2>
+          <span style="font-size:0.75rem; color:var(--text-muted); font-family:monospace;">ID: {{ prediction_result.student_id }}</span>
+        </div>
+        <div style="text-align:right;">
+          <span class="risk-badge {{ 'risk-high' if prediction_result.risk_level == 'High' else 'risk-medium' if prediction_result.risk_level == 'Medium' else 'risk-low' }}" style="font-size:0.85rem; padding:0.4rem 0.85rem; border-radius:999px; font-weight:700;">
+            {{ prediction_result.risk_level | upper }} RISK
+          </span>
+          {% if prediction_result.id %}
+          <div style="font-size:0.7rem; color:var(--text-muted); margin-top:4px;">Record #{{ prediction_result.id }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Core Result Metric Badges -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem; margin-bottom:1.25rem;">
+        
+        <div style="background:var(--bg-light); padding:0.85rem; border-radius:8px; border:1px solid var(--border-color);">
+          <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; font-weight:600; letter-spacing:0.5px;">Predicted Performance</div>
+          <div style="font-size:1.35rem; font-weight:800; margin-top:4px; color: {{ 'var(--danger)' if prediction_result.performance == 'At Risk' else 'var(--warning)' if prediction_result.performance == 'Average' else 'var(--success)' }};">
+            {{ prediction_result.performance | upper }}
+          </div>
+        </div>
+
+        <div style="background:var(--bg-light); padding:0.85rem; border-radius:8px; border:1px solid var(--border-color);">
+          <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; font-weight:600; letter-spacing:0.5px;">Model Confidence</div>
+          <div style="font-size:1.35rem; font-weight:800; margin-top:4px; color:var(--text-main);">
+            {% if prediction_result.confidence is not none and prediction_result.confidence != '' %}
+              {{ prediction_result.confidence | round(1) }}%
+            {% else %}
+              <span style="font-size:1rem; font-weight:600; color:var(--text-muted);">Not available</span>
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Submitted Indicators Summary Card -->
+      <div style="background:var(--bg-light); padding:1rem; border-radius:8px; border:1px solid var(--border-color); margin-bottom:1.25rem;">
+        <div style="font-size:0.8rem; font-weight:700; color:var(--text-main); margin-bottom:0.6rem; text-transform:uppercase; letter-spacing:0.5px;">
+          Submitted Academic Indicators
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.4rem 1rem; font-size:0.84rem;">
+          <div style="display:flex; justify-content:space-between; border-bottom:1px dashed var(--border-color); padding-bottom:3px;">
+            <span style="color:var(--text-muted);">Attendance:</span>
+            <strong style="color:var(--text-main);">{{ prediction_result.attendance }}%</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; border-bottom:1px dashed var(--border-color); padding-bottom:3px;">
+            <span style="color:var(--text-muted);">Previous Marks:</span>
+            <strong style="color:var(--text-main);">{{ prediction_result.previous_marks }}</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; border-bottom:1px dashed var(--border-color); padding-bottom:3px;">
+            <span style="color:var(--text-muted);">Assignment Score:</span>
+            <strong style="color:var(--text-main);">{{ prediction_result.assignment_score if prediction_result.assignment_score is not none else 'N/A' }}</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; border-bottom:1px dashed var(--border-color); padding-bottom:3px;">
+            <span style="color:var(--text-muted);">Quiz Score:</span>
+            <strong style="color:var(--text-main);">{{ prediction_result.quiz_score if prediction_result.quiz_score is not none else 'N/A' }}</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; border-bottom:1px dashed var(--border-color); padding-bottom:3px;">
+            <span style="color:var(--text-muted);">Study Hours:</span>
+            <strong style="color:var(--text-main);">{{ prediction_result.study_hours }} hrs/wk</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; border-bottom:1px dashed var(--border-color); padding-bottom:3px;">
+            <span style="color:var(--text-muted);">LMS Activity:</span>
+            <strong style="color:var(--text-main);">{{ prediction_result.lms_activity if prediction_result.lms_activity is not none else 'N/A' }}</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; grid-column: 1 / -1; padding-top:2px;">
+            <span style="color:var(--text-muted);">Participation:</span>
+            <strong style="color:var(--text-main);">{{ prediction_result.participation if prediction_result.participation is not none else 'N/A' }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Explainability Card -->
+      {% if prediction_result.explanation %}
+      <div style="background:#eff6ff; border:1px solid #bfdbfe; padding:0.9rem 1rem; border-radius:8px; font-size:0.85rem; line-height:1.5; color:#1e3a8a; margin-bottom:1.25rem;">
+        <strong style="display:block; margin-bottom:0.25rem; color:#1e40af;">AI Model Analysis & Narrative:</strong>
+        {{ prediction_result.explanation }}
+      </div>
+      {% endif %}
+
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-muted); pt-2;">
+        <span>Saved to SQLite Database</span>
+        <a href="{{ url_for('predict') }}" style="color:var(--primary); font-weight:600; text-decoration:none;">Evaluate Another &rarr;</a>
+      </div>
+
+    </div>
+    {% else %}
+    <!-- Ready state placeholder card -->
+    <div class="card" style="background:#ffffff; border-radius:12px; border:1px dashed var(--border-color); text-align:center; padding:3.5rem 1.5rem; color:var(--text-muted);">
+      <div style="width:48px; height:48px; border-radius:50%; background:var(--bg-light); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem; color:var(--primary);">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      </div>
+      <h3 style="font-size:1.1rem; font-weight:600; color:var(--text-main); margin-bottom:0.5rem;">Awaiting Academic Input</h3>
+      <p style="font-size:0.85rem; max-width:320px; margin:0 auto; line-height:1.5;">
+        Select or adjust student indicators on the left and click <strong>PREDICT PERFORMANCE</strong> to generate real-time offline machine learning predictions.
+      </p>
+    </div>
+    {% endif %}
+
+    <!-- Recent Database Predictions Log Card -->
+    {% if recent_predictions %}
+    <div class="card" style="margin-top:1.25rem; background:#ffffff; border-radius:12px; border:1px solid var(--border-color); padding:1.25rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+        <h4 style="font-size:0.92rem; font-weight:700; color:var(--text-main); margin:0;">Recent Database Predictions</h4>
+        <a href="{{ url_for('predictions_history') }}" style="font-size:0.75rem; color:var(--primary); font-weight:600; text-decoration:none;">View All ({{ recent_predictions|length }})</a>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:0.5rem;">
+        {% for rp in recent_predictions %}
+        <a href="{{ url_for('predict') }}?prediction_id={{ rp.id }}" style="text-decoration:none; color:inherit; display:flex; justify-content:space-between; align-items:center; padding:0.55rem 0.75rem; background:var(--bg-light); border-radius:6px; font-size:0.82rem; border:1px solid var(--border-color); transition:all 0.15s ease;">
+          <div>
+            <div style="font-weight:600; color:var(--text-main);">{{ rp.student_name }}</div>
+            <div style="color:var(--text-muted); font-size:0.72rem;">{{ rp.student_id }} &bull; {{ rp.created_at.strftime('%b %d, %H:%M') if rp.created_at else 'Recent' }}</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <span style="font-weight:700; font-size:0.8rem; color: {{ 'var(--danger)' if rp.performance == 'At Risk' else 'var(--warning)' if rp.performance == 'Average' else 'var(--success)' }};">
+              {{ rp.performance }}
+            </span>
+            <span class="risk-badge {{ 'risk-high' if rp.risk_level == 'High' else 'risk-medium' if rp.risk_level == 'Medium' else 'risk-low' }}" style="font-size:0.7rem; padding:0.2rem 0.5rem;">
+              {{ rp.risk_level }}
+            </span>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+
+</div>
+
+<script>
+function validatePredictionForm(e) {
+  const form = document.getElementById('predictionForm');
+  const att = parseFloat(document.getElementById('attendance').value);
+  const prev = parseFloat(document.getElementById('previous_marks').value);
+  const assign = parseFloat(document.getElementById('assignment_score').value);
+  const quiz = parseFloat(document.getElementById('quiz_score').value);
+  const study = parseFloat(document.getElementById('study_hours').value);
+  const lms = parseFloat(document.getElementById('lms_activity').value);
+  const part = parseFloat(document.getElementById('participation').value);
+
+  if (isNaN(att) || att < 0 || att > 100) {
+    alert("Please enter a valid Attendance percentage between 0 and 100.");
+    return false;
+  }
+  if (isNaN(prev) || prev < 0 || prev > 100) {
+    alert("Please enter valid Previous Marks between 0 and 100.");
+    return false;
+  }
+  if (isNaN(assign) || assign < 0 || assign > 100) {
+    alert("Please enter a valid Assignment Score between 0 and 100.");
+    return false;
+  }
+  if (isNaN(quiz) || quiz < 0 || quiz > 100) {
+    alert("Please enter a valid Quiz Score between 0 and 100.");
+    return false;
+  }
+  if (isNaN(study) || study < 0) {
+    alert("Please enter a valid non-negative number for Weekly Study Hours.");
+    return false;
+  }
+  if (isNaN(lms) || lms < 0 || lms > 100) {
+    alert("Please enter a valid LMS Activity Index between 0 and 100.");
+    return false;
+  }
+  if (isNaN(part) || part < 0 || part > 100) {
+    alert("Please enter a valid Participation rating.");
+    return false;
+  }
+  return true;
+}
+</script>
+{% endblock %}
+

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Settings — EduPredict Admin{% endblock %}
+{% block page_title %}⚙️ System &amp; Security Settings{% endblock %}
+
+{% block content %}
+<div style="max-width: 720px; margin: 0 auto;">
+  
+  <div style="margin-bottom: 24px;">
+    <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">Security &amp; Account Settings</h2>
+    <p style="font-size: 13px; color: #64748b;">
+      Update master administrator password and manage local system preferences.
+    </p>
+  </div>
+
+  <!-- Password Change Card -->
+  <div class="card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 24px;">
+    
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #f1f5f9;">
+      <div style="width: 40px; height: 40px; border-radius: 10px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+        🔒
+      </div>
+      <div>
+        <h3 style="font-size: 16px; font-weight: 700; color: #0f172a;">Change Administrator Password</h3>
+        <p style="font-size: 12px; color: #64748b; margin-top: 2px;">Ensure a strong, unique password for the master account</p>
+      </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('admin_settings') }}">
+      
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px;">
+          Current Password <span style="color: #ef4444;">*</span>
+        </label>
+        <input 
+          type="password" 
+          name="current_password" 
+          class="form-control" 
+          required 
+          placeholder="Enter current password (default: admin123)"
+          style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;"
+        >
+      </div>
+
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px;">
+          New Password <span style="color: #ef4444;">*</span>
+        </label>
+        <input 
+          type="password" 
+          name="new_password" 
+          class="form-control" 
+          required 
+          placeholder="Minimum 6 characters"
+          minlength="6"
+          style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;"
+        >
+      </div>
+
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px;">
+          Confirm New Password <span style="color: #ef4444;">*</span>
+        </label>
+        <input 
+          type="password" 
+          name="confirm_password" 
+          class="form-control" 
+          required 
+          placeholder="Re-enter new password"
+          minlength="6"
+          style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;"
+        >
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; pt-4 border-top: 1px solid #f1f5f9;">
+        <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-size: 14px; font-weight: 700; border-radius: 8px;">
+          Update Password &rarr;
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+
+  <!-- System Info Card -->
+  <div class="card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <h3 style="font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 12px;">Database &amp; Engine Information</h3>
+    <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: #64748b;">
+      <div style="display: flex; justify-content: space-between;">
+        <span>Database Engine:</span>
+        <span style="font-weight: 600; color: #0f172a;">SQLite 3 (Local File: edupredict.db)</span>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span>Password Hashing:</span>
+        <span style="font-weight: 600; color: #0f172a;">Werkzeug scrypt/pbkdf2:sha256</span>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span>Authentication Status:</span>
+        <span style="font-weight: 600; color: #059669;">Admin Session Active</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}My Prediction — EduPredict{% endblock %}
+{% block page_title %}My Prediction{% endblock %}
+
+{% block content %}
+{% if student %}
+<div style="max-width: 960px; margin: 0 auto; padding-bottom: 40px;">
+
+  <!-- Header Banner -->
+  <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff; padding: 28px; border-radius: var(--radius-lg); margin-bottom: 24px; box-shadow: var(--shadow-md);">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <div style="font-size: 12px; color: #93c5fd; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+          Machine Learning Forecast
+        </div>
+        <h2 style="font-size: 22px; font-weight: 800; color: #fff; margin-top: 2px;">
+          Personalized AI Performance Evaluation
+        </h2>
+        <p style="font-size: 13px; color: #94a3b8; margin-top: 4px;">
+          Evaluated using real-time trained Random Forest classification model.
+        </p>
+      </div>
+      <form method="POST" action="{{ url_for('student_predict') }}">
+        <button type="submit" class="btn btn-primary" style="padding: 12px 24px; font-weight: 700; font-size: 14px; box-shadow: var(--shadow-md);">
+          🚀 Predict My Performance
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Latest Prediction Card -->
+  <div class="card" style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 28px;">
+    <div class="card-header" style="padding: 20px 28px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+      <h3 style="font-size: 17px; font-weight: 700; color: #0f172a; margin: 0;">Latest Prediction Result</h3>
+      {% if latest_prediction %}
+        <span style="font-size: 12px; color: #64748b;">
+          Assessed on: {{ latest_prediction.created_at.strftime('%b %d, %Y at %H:%M') if latest_prediction.created_at else 'Recent' }}
+        </span>
+      {% endif %}
+    </div>
+    <div class="card-body" style="padding: 28px;">
+      {% if latest_prediction %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 24px;">
+          
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 20px;">
+            <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; color: #64748b;">Predicted Outcome</div>
+            <div style="font-size: 24px; font-weight: 800; margin-top: 6px; color: {% if latest_prediction.performance == 'Excellent' %}#10b981{% elif latest_prediction.performance == 'Good' %}#2563eb{% elif latest_prediction.performance == 'Average' %}#f59e0b{% else %}#ef4444{% endif %};">
+              {{ latest_prediction.performance }}
+            </div>
+            <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Classification status</div>
+          </div>
+
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 20px;">
+            <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; color: #64748b;">Risk Assessment</div>
+            <div style="margin-top: 8px;">
+              <span class="pred-badge badge-risk-{{ latest_prediction.risk_level.lower() }}" style="font-size: 15px; padding: 6px 14px;">
+                {{ latest_prediction.risk_level }} Risk
+              </span>
+            </div>
+            <div style="font-size: 12px; color: #64748b; margin-top: 6px;">Intervention priority</div>
+          </div>
+
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 20px;">
+            <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; color: #64748b;">Model Confidence</div>
+            <div style="font-size: 24px; font-weight: 800; color: #0f172a; margin-top: 6px;">
+              {% if latest_prediction.confidence is not none %}{{ latest_prediction.confidence|round|int }}%{% else %}N/A{% endif %}
+            </div>
+            <div class="progress-bar-container" style="margin-top: 8px;">
+              <div class="progress-bar-fill fill-blue" style="width: {{ latest_prediction.confidence or 0 }}%;"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <div style="background: #f1f5f9; border-left: 4px solid #2563eb; padding: 18px 20px; border-radius: 0 var(--radius-md) var(--radius-md) 0;">
+          <div style="font-size: 13px; font-weight: 700; color: #1e293b; text-transform: uppercase; margin-bottom: 4px;">
+            Diagnostic Analysis &amp; Explanation
+          </div>
+          <p style="font-size: 14px; color: #334155; line-height: 1.6; margin: 0;">
+            {{ latest_prediction.explanation }}
+          </p>
+        </div>
+
+      {% else %}
+        <div style="text-align: center; padding: 36px 20px;">
+          <div style="width: 56px; height: 56px; border-radius: 50%; background: #e0e7ff; color: #4338ca; font-size: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+            🤖
+          </div>
+          <h4 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">No Prediction Generated Yet</h4>
+          <p style="font-size: 14px; color: #64748b; max-width: 480px; margin: 0 auto 20px;">
+            Your academic metrics are ready in SQLite. Click the button below to execute the prediction algorithm using your actual data.
+          </p>
+          <form method="POST" action="{{ url_for('student_predict') }}">
+            <button type="submit" class="btn btn-primary" style="padding: 12px 28px; font-size: 14px; font-weight: 700;">
+              Generate Initial AI Prediction &rarr;
+            </button>
+          </form>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Academic Inputs Used in Prediction -->
+  <div class="card" style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden;">
+    <div class="card-header" style="padding: 20px 28px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <h3 style="font-size: 17px; font-weight: 700; color: #0f172a; margin: 0;">Current Academic Inputs</h3>
+        <p style="font-size: 13px; color: #64748b; margin: 4px 0 0 0;">These values are evaluated by the machine learning algorithm.</p>
+      </div>
+      <a href="{{ url_for('student_academic_profile') }}" class="btn btn-secondary" style="font-size: 12px; padding: 6px 14px; text-decoration: none;">
+        ✏️ Edit Inputs
+      </a>
+    </div>
+    <div class="card-body" style="padding: 28px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+        
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 14px 16px;">
+          <span style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Attendance</span>
+          <div style="font-size: 18px; font-weight: 800; color: #0f172a; margin-top: 4px;">
+            {% if student.attendance is not none %}{{ student.attendance }}%{% else %}N/A{% endif %}
+          </div>
+        </div>
+
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 14px 16px;">
+          <span style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Previous Marks</span>
+          <div style="font-size: 18px; font-weight: 800; color: #0f172a; margin-top: 4px;">
+            {% if student.previous_marks is not none %}{{ student.previous_marks }}/100{% else %}N/A{% endif %}
+          </div>
+        </div>
+
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 14px 16px;">
+          <span style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Assignment</span>
+          <div style="font-size: 18px; font-weight: 800; color: #0f172a; margin-top: 4px;">
+            {% if student.assignment_score is not none %}{{ student.assignment_score }}/100{% else %}N/A{% endif %}
+          </div>
+        </div>
+
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 14px 16px;">
+          <span style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Quiz Score</span>
+          <div style="font-size: 18px; font-weight: 800; color: #0f172a; margin-top: 4px;">
+            {% if student.quiz_score is not none %}{{ student.quiz_score }}/100{% else %}N/A{% endif %}
+          </div>
+        </div>
+
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 14px 16px;">
+          <span style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Study Hours</span>
+          <div style="font-size: 18px; font-weight: 800; color: #0f172a; margin-top: 4px;">
+            {% if student.study_hours is not none %}{{ student.study_hours }} hrs{% else %}N/A{% endif %}
+          </div>
+        </div>
+
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 14px 16px;">
+          <span style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">LMS Activity</span>
+          <div style="font-size: 18px; font-weight: 800; color: #0f172a; margin-top: 4px;">
+            {% if student.lms_activity is not none %}{{ student.lms_activity }}/100{% else %}N/A{% endif %}
+          </div>
+        </div>
+
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 14px 16px;">
+          <span style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">Participation</span>
+          <div style="font-size: 18px; font-weight: 800; color: #0f172a; margin-top: 4px;">
+            {% if student.participation is not none %}{{ student.participation }}/100{% else %}N/A{% endif %}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+{% else %}
+<div class="card">
+  <div class="card-body" style="text-align: center; padding: 40px;">
+    <h3>No Student Record Found</h3>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

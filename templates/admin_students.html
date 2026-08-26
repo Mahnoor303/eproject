@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}All Students — EduPredict Admin{% endblock %}
+{% block page_title %}👨‍🎓 All Students Management{% endblock %}
+
+{% block content %}
+<div class="card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+    <div>
+      <h2 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">All Registered Students</h2>
+      <p style="font-size: 13px; color: #64748b;">
+        Showing all student user records stored in SQLite database. Total: <strong>{{ students_list|length }}</strong>
+      </p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <a href="{{ url_for('admin_add_user') }}?tab=student" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+        <span>➕</span>
+        <span>+ Add Student</span>
+      </a>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="toggleModal('modal-add-student-quick')">
+        Quick Add Modal
+      </button>
+    </div>
+  </div>
+
+  <div class="table-container" style="overflow-x: auto;">
+    <table class="table" style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="border-bottom: 2px solid #e2e8f0; text-align: left; color: #64748b; font-size: 12px;">
+          <th style="padding: 12px 14px;">Student Name</th>
+          <th style="padding: 12px 14px;">Email</th>
+          <th style="padding: 12px 14px;">Username</th>
+          <th style="padding: 12px 14px;">Status</th>
+          <th style="padding: 12px 14px; text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in students_list %}
+        <tr style="border-bottom: 1px solid #f1f5f9; font-size: 13px;">
+          <td style="padding: 14px;">
+            <div style="font-weight: 700; color: #0f172a;">{{ s.name }}</div>
+            <div style="font-size: 11px; color: #64748b;">ID: {{ s.student_id }}</div>
+          </td>
+          <td style="padding: 14px; color: #334155;">
+            {{ s.email or '—' }}
+          </td>
+          <td style="padding: 14px;">
+            <span style="font-family: monospace; font-size: 12px; color: #2563eb; background: #eff6ff; padding: 2px 8px; border-radius: 4px;">
+              {{ s.user.username if s.user else s.student_id }}
+            </span>
+          </td>
+          <td style="padding: 14px;">
+            {% if s.profile_completed %}
+              <span class="pred-badge badge-good" style="font-size: 11px; padding: 3px 8px;">Active (Profile Completed)</span>
+            {% else %}
+              <span class="pred-badge badge-average" style="font-size: 11px; padding: 3px 8px;">Active (Enrolled)</span>
+            {% endif %}
+          </td>
+          <td style="padding: 14px; text-align: right;">
+            <div style="display: inline-flex; gap: 8px; align-items: center;">
+              <!-- View Button -->
+              <button 
+                type="button" 
+                class="btn btn-secondary btn-sm" 
+                style="padding: 4px 10px; font-size: 12px;"
+                onclick="viewStudentDetails('{{ s.name|e }}', '{{ s.student_id|e }}', '{{ s.email or '—' }}', '{{ s.user.username if s.user else s.student_id }}', '{{ s.attendance or 'Not set' }}', '{{ s.previous_marks or 'Not set' }}', '{{ s.study_hours or 'Not set' }}')"
+              >
+                View
+              </button>
+
+              <!-- Remove Form with Confirmation -->
+              <form method="POST" action="{{ url_for('delete_student_admin', id=s.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to remove this student?');">
+                <button type="submit" class="btn btn-danger btn-sm" style="padding: 4px 10px; font-size: 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                  Remove
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" style="text-align: center; color: #94a3b8; padding: 36px 16px;">
+            <div style="font-size: 28px; margin-bottom: 8px;">👨‍🎓</div>
+            <strong style="font-size: 15px; color: #475569;">No student records found in SQLite.</strong>
+            <div style="font-size: 13px; color: #64748b; margin-top: 4px;">Click "+ Add Student" above or have students register via public portal.</div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal: View Student Details -->
+<div id="modal-view-student" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 999; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
+  <div style="background: white; border-radius: 14px; max-width: 480px; width: 90%; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 id="view-student-name" style="font-size: 17px; font-weight: 700; color: #0f172a;">Student Details</h3>
+      <button type="button" onclick="closeStudentDetailsModal()" style="border: none; background: none; font-size: 20px; cursor: pointer; color: #64748b;">&times;</button>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
+      <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: #f8fafc; border-radius: 6px;">
+        <span style="color: #64748b;">Student ID:</span>
+        <span id="view-student-id" style="font-weight: 600; color: #0f172a;"></span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: #f8fafc; border-radius: 6px;">
+        <span style="color: #64748b;">Email Address:</span>
+        <span id="view-student-email" style="font-weight: 600; color: #0f172a;"></span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: #f8fafc; border-radius: 6px;">
+        <span style="color: #64748b;">Username:</span>
+        <span id="view-student-username" style="font-weight: 600; color: #2563eb;"></span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: #f8fafc; border-radius: 6px;">
+        <span style="color: #64748b;">Attendance:</span>
+        <span id="view-student-attendance" style="font-weight: 600; color: #0f172a;"></span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: #f8fafc; border-radius: 6px;">
+        <span style="color: #64748b;">Previous Marks:</span>
+        <span id="view-student-marks" style="font-weight: 600; color: #0f172a;"></span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 8px 12px; background: #f8fafc; border-radius: 6px;">
+        <span style="color: #64748b;">Study Hours:</span>
+        <span id="view-student-hours" style="font-weight: 600; color: #0f172a;"></span>
+      </div>
+    </div>
+    <div style="margin-top: 20px; text-align: right;">
+      <button type="button" class="btn btn-secondary" onclick="closeStudentDetailsModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Quick Add Student -->
+<div id="modal-add-student-quick" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 999; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
+  <div style="background: white; border-radius: 14px; max-width: 480px; width: 90%; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="font-size: 17px; font-weight: 700; color: #0f172a;">+ Add New Student</h3>
+      <button type="button" onclick="toggleModal('modal-add-student-quick')" style="border: none; background: none; font-size: 20px; cursor: pointer; color: #64748b;">&times;</button>
+    </div>
+    <form method="POST" action="{{ url_for('admin_add_user') }}">
+      <input type="hidden" name="role" value="student">
+      
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Full Name *</label>
+        <input type="text" name="full_name" class="form-control" required placeholder="e.g. Alex Hayes" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px;">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Email Address *</label>
+        <input type="email" name="email" class="form-control" required placeholder="e.g. alex.hayes@edupredict.edu" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px;">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Username *</label>
+        <input type="text" name="username" class="form-control" required placeholder="e.g. ahayes" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px;">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 18px;">
+        <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Password *</label>
+        <input type="password" name="password" class="form-control" required placeholder="Minimum 6 characters" minlength="6" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px;">
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button type="button" class="btn btn-secondary" onclick="toggleModal('modal-add-student-quick')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create Student</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function viewStudentDetails(name, id, email, username, attendance, marks, hours) {
+  document.getElementById('view-student-name').textContent = name;
+  document.getElementById('view-student-id').textContent = id;
+  document.getElementById('view-student-email').textContent = email;
+  document.getElementById('view-student-username').textContent = '@' + username;
+  document.getElementById('view-student-attendance').textContent = attendance !== 'Not set' ? attendance + '%' : 'Not set';
+  document.getElementById('view-student-marks').textContent = marks !== 'Not set' ? marks + '/100' : 'Not set';
+  document.getElementById('view-student-hours').textContent = hours !== 'Not set' ? hours + ' hrs/wk' : 'Not set';
+  
+  const modal = document.getElementById('modal-view-student');
+  modal.style.display = 'flex';
+}
+
+function closeStudentDetailsModal() {
+  document.getElementById('modal-view-student').style.display = 'none';
+}
+
+function toggleModal(id) {
+  const modal = document.getElementById(id);
+  if (modal) {
+    modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+  }
+}
+</script>
+{% endblock %}

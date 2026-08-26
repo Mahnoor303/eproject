@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduPredict — AI-Based Student Performance & Educational Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-light: #818CF8;
+      --primary-dark: #3730A3;
+      --primary-50: #EEF2FF;
+      --blue: #3B82F6;
+      --blue-50: #EFF6FF;
+      --green: #10B981;
+      --green-50: #ECFDF5;
+      --red: #EF4444;
+      --amber: #F59E0B;
+      --purple: #8B5CF6;
+      --purple-50: #F5F3FF;
+      --cyan: #06B6D4;
+      --text-primary: #0F172A;
+      --text-secondary: #475569;
+      --text-muted: #94A3B8;
+      --border: #E2E8F0;
+      --border-light: #F1F5F9;
+      --bg-body: #F8FAFC;
+      --bg-card: #FFFFFF;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+      --shadow-lg: 0 10px 15px rgba(0,0,0,0.08);
+      --font-display: 'Plus Jakarta Sans', 'Inter', sans-serif;
+      --font-body: 'Inter', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-body);
+      color: var(--text-primary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Navbar */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid transparent;
+      padding: 0 40px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+    }
+    .nav.scrolled {
+      border-bottom-color: var(--border);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; color: inherit;
+    }
+    .nav-logo {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 800; font-size: 12px;
+      font-family: var(--font-display);
+    }
+    .nav-name {
+      font-family: var(--font-display);
+      font-weight: 800; font-size: 17px;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+    }
+    .nav-links { display: flex; gap: 32px; align-items: center; list-style: none; }
+    .nav-links a {
+      color: var(--text-secondary); text-decoration: none;
+      font-weight: 500; font-size: 14px;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--primary); }
+    .nav-actions { display: flex; gap: 8px; align-items: center; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 18px; font-size: 13px; font-weight: 600;
+      border-radius: 8px; text-decoration: none;
+      transition: all 0.2s; cursor: pointer; border: none;
+      font-family: var(--font-body);
+    }
+    .btn-ghost { background: transparent; color: var(--primary); }
+    .btn-ghost:hover { background: var(--primary-50); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79,70,229,0.3); color: #fff; }
+    .btn-outline { background: #fff; color: var(--text-secondary); border: 1px solid var(--border); }
+    .btn-outline:hover { border-color: var(--primary-light); color: var(--primary); }
+
+    /* Hero */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 4rem;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 100px 40px 60px;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 14px; background: var(--primary-50);
+      color: var(--primary); font-size: 12px; font-weight: 700;
+      border-radius: 100px; margin-bottom: 20px;
+      font-family: var(--font-mono); letter-spacing: 0.5px;
+    }
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: 3.2rem; font-weight: 800;
+      line-height: 1.1; letter-spacing: -1.5px;
+      color: var(--text-primary); margin-bottom: 16px;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--primary), var(--blue));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-subtitle {
+      font-size: 1.1rem; color: var(--text-secondary);
+      line-height: 1.7; max-width: 500px; margin-bottom: 28px;
+    }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 40px; }
+    .hero-btn {
+      padding: 12px 28px; font-size: 14px; font-weight: 700;
+      border-radius: 10px; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .hero-btn-primary {
+      background: var(--primary); color: #fff;
+      box-shadow: 0 4px 14px rgba(79,70,229,0.3);
+    }
+    .hero-btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(79,70,229,0.35); color: #fff; }
+    .hero-btn-secondary {
+      background: #fff; color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .hero-btn-secondary:hover { border-color: var(--primary-light); color: var(--primary); }
+
+    .hero-stats { display: flex; gap: 32px; }
+    .hero-stat-item { display: flex; align-items: center; gap: 8px; }
+    .hero-stat-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px rgba(16,185,129,0.4); }
+    .hero-stat-text { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+
+    /* Hero Card */
+    .hero-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 28px; box-shadow: var(--shadow-lg);
+      position: relative; overflow: hidden;
+    }
+    .hero-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; background: linear-gradient(90deg, var(--primary), var(--blue), var(--green));
+    }
+    .hero-card-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 20px; padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .hero-card-header .title { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
+    .hero-card-header .badge {
+      font-size: 11px; font-weight: 700; padding: 3px 10px;
+      border-radius: 6px; background: var(--green-50); color: #065F46;
+      font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .hero-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .hero-card-stat { padding: 14px; border-radius: 10px; border: 1px solid var(--border-light); }
+    .hero-card-stat.g { background: var(--green-50); }
+    .hero-card-stat.b { background: var(--blue-50); }
+    .hero-card-stat .label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; font-family: var(--font-mono); margin-bottom: 4px; }
+    .hero-card-stat .value { font-size: 18px; font-weight: 800; font-family: var(--font-display); }
+    .hero-card-stat.g .value { color: #065F46; }
+    .hero-card-stat.b .value { color: #1E40AF; }
+    .hero-card-info {
+      background: var(--primary-50); padding: 14px; border-radius: 10px;
+      font-size: 13px; color: var(--text-secondary); line-height: 1.6;
+      border: 1px solid #E0E7FF; margin-bottom: 16px;
+    }
+    .hero-card-info strong { color: var(--primary); }
+    .hero-card-footer {
+      display: flex; justify-content: space-between;
+      font-size: 12px; color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* Sections */
+    .section { padding: 80px 40px; max-width: 1200px; margin: 0 auto; }
+    .section-alt { background: var(--border-light); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .section-alt .section-inner { max-width: 1200px; margin: 0 auto; padding: 80px 40px; }
+    .section-header { text-align: center; margin-bottom: 48px; }
+    .section-tag {
+      font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+      color: var(--primary); text-transform: uppercase; letter-spacing: 1.5px;
+      display: block; margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: var(--font-display); font-size: 2rem; font-weight: 800;
+      color: var(--text-primary); letter-spacing: -0.5px; margin-bottom: 12px;
+    }
+    .section-desc { font-size: 1rem; color: var(--text-muted); max-width: 560px; margin: 0 auto; line-height: 1.7; }
+
+    /* Cards Grid */
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+    .feature-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 28px;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .feature-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: #CBD5E1; }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 16px;
+    }
+    .fi-purple { background: var(--primary-50); color: var(--primary); }
+    .fi-blue { background: var(--blue-50); color: var(--blue); }
+    .fi-green { background: var(--green-50); color: var(--green); }
+    .fi-red { background: #FEF2F2; color: var(--red); }
+    .fi-amber { background: #FFFBEB; color: var(--amber); }
+    .fi-cyan { background: #ECFEFF; color: var(--cyan); }
+    .feature-card h3 { font-family: var(--font-display); font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .feature-card p { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+
+    /* Steps */
+    .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .step-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 28px;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .step-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .step-num {
+      font-family: var(--font-display); font-size: 2rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--blue));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 12px; line-height: 1;
+    }
+    .step-card h3 { font-family: var(--font-display); font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .step-card p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* Roles */
+    .roles-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .role-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 24px;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .role-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .role-tag {
+      display: inline-block; font-size: 11px; font-weight: 700;
+      padding: 3px 10px; border-radius: 6px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      font-family: var(--font-mono); margin-bottom: 12px;
+    }
+    .role-tag.student { background: #FFFBEB; color: #B45309; }
+    .role-tag.teacher { background: var(--green-50); color: #065F46; }
+    .role-tag.analyst { background: var(--purple-50); color: var(--purple); }
+    .role-tag.admin { background: #FEF2F2; color: #991B1B; }
+    .role-card h3 { font-family: var(--font-display); font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+    .role-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .role-card li { font-size: 13px; color: var(--text-secondary); display: flex; align-items: flex-start; gap: 8px; }
+    .role-card li::before { content: "✓"; color: var(--green); font-weight: 700; font-size: 12px; margin-top: 1px; }
+
+    /* Contact */
+    .contact-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 32px; box-shadow: var(--shadow-sm);
+    }
+    .contact-info { padding: 24px; background: var(--border-light); border-radius: 14px; border: 1px solid var(--border); }
+    .contact-info h3 { font-family: var(--font-display); font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+    .contact-info p { font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px; }
+    .contact-detail { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-secondary); margin-bottom: 10px; }
+    .contact-detail code {
+      font-family: var(--font-mono); font-size: 12px; background: var(--primary-50);
+      padding: 2px 8px; border-radius: 4px; color: var(--primary); font-weight: 600;
+    }
+    .form-group { margin-bottom: 14px; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; }
+    .form-control {
+      width: 100%; padding: 10px 14px; font-size: 14px;
+      font-family: var(--font-body); color: var(--text-primary);
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 8px; outline: none; transition: all 0.15s;
+    }
+    .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
+    textarea.form-control { resize: vertical; min-height: 100px; }
+
+    /* Footer */
+    .footer {
+      background: var(--text-primary); color: #94A3B8;
+      padding: 48px 40px 24px; font-size: 13px;
+    }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;
+      margin-bottom: 32px;
+    }
+    .footer-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .footer-brand .logo {
+      width: 32px; height: 32px; background: var(--primary);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 800; font-size: 11px; font-family: var(--font-display);
+    }
+    .footer-brand span { font-family: var(--font-display); font-weight: 700; font-size: 15px; color: #F1F5F9; }
+    .footer p { line-height: 1.7; max-width: 320px; }
+    .footer h4 { color: #E2E8F0; font-size: 13px; font-weight: 700; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .footer a { color: #94A3B8; text-decoration: none; display: block; margin-bottom: 8px; transition: color 0.15s; }
+    .footer a:hover { color: #E2E8F0; }
+    .footer-bottom { max-width: 1200px; margin: 0 auto; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; font-size: 12px; }
+
+    @media (max-width: 768px) {
+      .hero { grid-template-columns: 1fr; padding: 100px 20px 40px; }
+      .hero h1 { font-size: 2.2rem; }
+      .nav-links { display: none; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .section, .section-alt .section-inner { padding: 48px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="nav" id="navbar">
+    <a href="{{ url_for('index') }}" class="nav-brand">
+      <div class="nav-logo">EP</div>
+      <span class="nav-name">EduPredict</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#roles">Roles</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="{{ url_for('login') }}" class="btn btn-ghost">Sign In</a>
+      <a href="{{ url_for('register') }}" class="btn btn-primary">Get Started</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div>
+      <div class="hero-badge">AI-POWERED ANALYTICS</div>
+      <h1>Smart Student<br><span class="gradient">Performance</span> Analytics</h1>
+      <p class="hero-subtitle">
+        An AI-based educational analytics system that uses machine learning to predict student performance, detect at-risk learners, and provide actionable insights for educators.
+      </p>
+      <div class="hero-actions">
+        <a href="{{ url_for('register') }}" class="hero-btn hero-btn-primary">
+          Start Free Trial
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a href="{{ url_for('login') }}" class="hero-btn hero-btn-secondary">Sign In to Dashboard</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat-item"><div class="hero-stat-dot"></div><span class="hero-stat-text">Offline ML Engine</span></div>
+        <div class="hero-stat-item"><div class="hero-stat-dot"></div><span class="hero-stat-text">Real-time Predictions</span></div>
+        <div class="hero-stat-item"><div class="hero-stat-dot"></div><span class="hero-stat-text">Privacy-First Design</span></div>
+      </div>
+    </div>
+
+    <!-- Hero Dashboard Card -->
+    <div class="hero-card">
+      <div class="hero-card-header">
+        <span class="title">AI Performance Dashboard</span>
+        <span class="badge">Live</span>
+      </div>
+      <div class="hero-card-grid">
+        <div class="hero-card-stat g">
+          <div class="label">Model Accuracy</div>
+          <div class="value">96.1%</div>
+        </div>
+        <div class="hero-card-stat b">
+          <div class="label">Risk Detection</div>
+          <div class="value">Real-time</div>
+        </div>
+      </div>
+      <div class="hero-card-info">
+        <strong>Random Forest Classifier</strong> trained on student performance data with 7 academic features. Predictions include performance classification, risk level, and model confidence.
+      </div>
+      <div class="hero-card-footer">
+        <span>EduPredict v1.0</span>
+        <span>7 Features &middot; 4 Classes</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <div class="section-alt" id="features">
+    <div class="section-inner">
+      <div class="section-header">
+        <span class="section-tag">Capabilities</span>
+        <h2 class="section-title">Intelligent Education Analytics</h2>
+        <p class="section-desc">From data ingestion to AI predictions, EduPredict provides a complete analytics pipeline for educational institutions.</p>
+      </div>
+      <div class="cards-grid">
+        <div class="feature-card">
+          <div class="feature-icon fi-purple">🤖</div>
+          <h3>AI Predictions</h3>
+          <p>Random Forest ML model predicts student performance with 96%+ accuracy using 7 academic features and generates risk classifications.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon fi-blue">📊</div>
+          <h3>Analytics Dashboard</h3>
+          <p>Real-time visual analytics with performance distributions, attendance tracking, and comprehensive student engagement metrics.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon fi-red">⚠️</div>
+          <h3>Risk Detection</h3>
+          <p>Automated early-warning system identifies at-risk students based on attendance, academic performance, and predicted outcomes.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon fi-green">🔒</div>
+          <h3>Role-Based Access</h3>
+          <p>Four distinct user roles — Student, Teacher, Analyst, Admin — each with dedicated dashboards and strict permission boundaries.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon fi-amber">💾</div>
+          <h3>Offline ML Engine</h3>
+          <p>Complete machine learning pipeline runs locally with scikit-learn. No external API calls or cloud dependencies required.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon fi-cyan">📁</div>
+          <h3>CSV Data Import</h3>
+          <p>Bulk import student records from CSV files, auto-generate predictions, and export comprehensive reports for institutional analysis.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How It Works -->
+  <section class="section" id="how-it-works">
+    <div class="section-header">
+      <span class="section-tag">Process</span>
+      <h2 class="section-title">How EduPredict Works</h2>
+      <p class="section-desc">Four simple steps from raw data to actionable AI-powered student insights.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <h3>Data Collection</h3>
+        <p>Students and teachers input academic metrics — attendance, marks, study hours, LMS activity, and more.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <h3>Feature Processing</h3>
+        <p>7 academic features are extracted, validated, and normalized through the scikit-learn pipeline.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <h3>ML Prediction</h3>
+        <p>Random Forest Classifier evaluates features and predicts performance tier, risk level, and confidence score.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">04</div>
+        <h3>Actionable Insights</h3>
+        <p>Results are saved to the database and displayed through role-specific dashboards with visual analytics.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Roles Section -->
+  <div class="section-alt" id="roles">
+    <div class="section-inner">
+      <div class="section-header">
+        <span class="section-tag">Access Control</span>
+        <h2 class="section-title">Four Role-Based Portals</h2>
+        <p class="section-desc">Each user role has a dedicated dashboard with relevant analytics and management tools.</p>
+      </div>
+      <div class="roles-grid">
+        <div class="role-card">
+          <span class="role-tag student">Student</span>
+          <h3>Student Portal</h3>
+          <ul>
+            <li>View personal AI prediction results</li>
+            <li>Track academic performance metrics</li>
+            <li>View prediction history and trends</li>
+            <li>Manage academic profile data</li>
+          </ul>
+        </div>
+        <div class="role-card">
+          <span class="role-tag teacher">Teacher</span>
+          <h3>Faculty Portal</h3>
+          <ul>
+            <li>Monitor all student performance</li>
+            <li>Identify at-risk students early</li>
+            <li>Run AI predictions for students</li>
+            <li>View class-wide analytics</li>
+          </ul>
+        </div>
+        <div class="role-card">
+          <span class="role-tag analyst">Analyst</span>
+          <h3>Analytics Portal</h3>
+          <ul>
+            <li>Comprehensive performance analytics</li>
+            <li>Risk distribution analysis</li>
+            <li>Prediction trend monitoring</li>
+            <li>Export CSV reports</li>
+          </ul>
+        </div>
+        <div class="role-card">
+          <span class="role-tag admin">Administrator</span>
+          <h3>Admin Portal</h3>
+          <ul>
+            <li>System overview and user management</li>
+            <li>Create and manage all user accounts</li>
+            <li>Dataset management and CSV import</li>
+            <li>Model retraining and configuration</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact Section -->
+  <section class="section" id="contact">
+    <div class="section-header">
+      <span class="section-tag">Support</span>
+      <h2 class="section-title">Get in Touch</h2>
+      <p class="section-desc">Have questions or feedback? Send us a message and we'll respond promptly.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <h3>Contact Information</h3>
+        <p>EduPredict is an AI-based educational analytics platform built for university final-year projects. It operates completely offline with local ML inference.</p>
+        <div class="contact-detail">📧 <span>support@edupredict.edu</span></div>
+        <div class="contact-detail">🏫 <span>Computer Science Department</span></div>
+        <div class="contact-detail">🔐 <span>Data stays on your local server</span></div>
+      </div>
+      <form method="POST" action="{{ url_for('public_contact') }}">
+        <div class="form-group">
+          <label class="form-label">Your Name</label>
+          <input type="text" name="name" class="form-control" placeholder="Full name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" name="email" class="form-control" placeholder="you@example.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Subject</label>
+          <input type="text" name="subject" class="form-control" placeholder="How can we help?">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Message</label>
+          <textarea name="message" class="form-control" placeholder="Write your message..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 14px; font-weight: 700;">
+          Send Message
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <div class="logo">EP</div>
+          <span>EduPredict</span>
+        </div>
+        <p>AI-Based Student Performance & Educational Analytics System. Built with Flask, scikit-learn, and SQLite for offline deployment.</p>
+      </div>
+      <div>
+        <h4>Platform</h4>
+        <a href="{{ url_for('login') }}">Sign In</a>
+        <a href="{{ url_for('register') }}">Register</a>
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How It Works</a>
+      </div>
+      <div>
+        <h4>Roles</h4>
+        <a href="{{ url_for('login') }}">Student Portal</a>
+        <a href="{{ url_for('login') }}">Teacher Portal</a>
+        <a href="{{ url_for('login') }}">Analyst Portal</a>
+        <a href="{{ url_for('login') }}">Admin Portal</a>
+      </div>
+      <div>
+        <h4>Technology</h4>
+        <a href="#">Flask + SQLAlchemy</a>
+        <a href="#">scikit-learn</a>
+        <a href="#">SQLite Database</a>
+        <a href="#">Chart.js Visualizations</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; {{ current_year }} EduPredict. All rights reserved.</span>
+      <span>Built for educational research</span>
+    </div>
+  </footer>
+
+  <script>
+    // Navbar scroll effect
+    window.addEventListener('scroll', function() {
+      document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
+    });
+  </script>
+</body>
+</html>

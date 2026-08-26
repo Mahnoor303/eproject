@@ -1,0 +1,333 @@
+{% extends "base.html" %}
+
+{% block title %}Student Performance — Faculty Portal{% endblock %}
+{% block page_title %}Cohort Academic Performance Analysis{% endblock %}
+
+{% block content %}
+<!-- Page Header Info -->
+<div style="margin-bottom: 24px;">
+  <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">Student Academic Performance &amp; Trends</h2>
+  <p style="font-size: 13px; color: #64748b;">
+    Comprehensive multi-dimensional performance tracking, marks distribution histograms, and engagement correlations.
+  </p>
+</div>
+
+<!-- 5 Summary Metric Cards (Calculated from SQLite) -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px;">
+  
+  <!-- 1. Average Marks -->
+  <div class="stat-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b;">Average Marks</div>
+    <div style="font-size: 28px; font-weight: 800; color: #059669; margin: 6px 0 2px 0;">
+      {% if active_count > 0 %}{{ avg_marks }}%{% else %}N/A{% endif %}
+    </div>
+    <div style="font-size: 11px; color: #10b981; font-weight: 500;">Class average score</div>
+  </div>
+
+  <!-- 2. Average Attendance -->
+  <div class="stat-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b;">Average Attendance</div>
+    <div style="font-size: 28px; font-weight: 800; color: #0284c7; margin: 6px 0 2px 0;">
+      {% if active_count > 0 %}{{ avg_attendance }}%{% else %}N/A{% endif %}
+    </div>
+    <div style="font-size: 11px; color: #0284c7; font-weight: 500;">Participation benchmark</div>
+  </div>
+
+  <!-- 3. Average Assignment -->
+  <div class="stat-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b;">Average Assignment</div>
+    <div style="font-size: 28px; font-weight: 800; color: #4f46e5; margin: 6px 0 2px 0;">
+      {% if active_count > 0 %}{{ avg_assignment }}%{% else %}N/A{% endif %}
+    </div>
+    <div style="font-size: 11px; color: #6366f1; font-weight: 500;">Continuous assessments</div>
+  </div>
+
+  <!-- 4. Average Quiz -->
+  <div class="stat-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b;">Average Quiz</div>
+    <div style="font-size: 28px; font-weight: 800; color: #7c3aed; margin: 6px 0 2px 0;">
+      {% if active_count > 0 %}{{ avg_quiz }}%{% else %}N/A{% endif %}
+    </div>
+    <div style="font-size: 11px; color: #8b5cf6; font-weight: 500;">Knowledge checks</div>
+  </div>
+
+  <!-- 5. Average Study Hours -->
+  <div class="stat-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b;">Average Study Hours</div>
+    <div style="font-size: 28px; font-weight: 800; color: #0891b2; margin: 6px 0 2px 0;">
+      {% if active_count > 0 %}{{ avg_study_hours }} <span style="font-size: 14px; font-weight: 600;">hrs/wk</span>{% else %}N/A{% endif %}
+    </div>
+    <div style="font-size: 11px; color: #06b6d4; font-weight: 500;">Self-study effort</div>
+  </div>
+
+</div>
+
+<!-- Real Analytics Charts (2x2 Grid) -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+
+  <!-- Chart 1: Marks Distribution -->
+  <div class="card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="font-size: 15px; font-weight: 700; color: #0f172a; margin: 0;">1. Marks Distribution Range</h3>
+      <span style="font-size: 11px; background: #f1f5f9; color: #475569; padding: 3px 8px; border-radius: 6px; font-weight: 600;">Histogram</span>
+    </div>
+    {% if active_count > 0 %}
+    <div style="height: 240px; position: relative;">
+      <canvas id="marksDistChart"></canvas>
+    </div>
+    {% else %}
+    <div style="height: 240px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 13px;">
+      No academic data available
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Chart 2: Attendance vs Performance -->
+  <div class="card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="font-size: 15px; font-weight: 700; color: #0f172a; margin: 0;">2. Attendance vs. Previous Marks</h3>
+      <span style="font-size: 11px; background: #f1f5f9; color: #475569; padding: 3px 8px; border-radius: 6px; font-weight: 600;">Student Comparison</span>
+    </div>
+    {% if active_count > 0 %}
+    <div style="height: 240px; position: relative;">
+      <canvas id="attVsMarksChart"></canvas>
+    </div>
+    {% else %}
+    <div style="height: 240px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 13px;">
+      No academic data available
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Chart 3: Assignment vs Quiz Performance -->
+  <div class="card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="font-size: 15px; font-weight: 700; color: #0f172a; margin: 0;">3. Assignment vs. Quiz Scores</h3>
+      <span style="font-size: 11px; background: #f1f5f9; color: #475569; padding: 3px 8px; border-radius: 6px; font-weight: 600;">Continuous Assessment</span>
+    </div>
+    {% if active_count > 0 %}
+    <div style="height: 240px; position: relative;">
+      <canvas id="assignVsQuizChart"></canvas>
+    </div>
+    {% else %}
+    <div style="height: 240px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 13px;">
+      No academic data available
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Chart 4: Study Hours vs Marks -->
+  <div class="card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="font-size: 15px; font-weight: 700; color: #0f172a; margin: 0;">4. Study Hours vs. Marks Correlation</h3>
+      <span style="font-size: 11px; background: #f1f5f9; color: #475569; padding: 3px 8px; border-radius: 6px; font-weight: 600;">Effort vs Outcome</span>
+    </div>
+    {% if active_count > 0 %}
+    <div style="height: 240px; position: relative;">
+      <canvas id="studyVsMarksChart"></canvas>
+    </div>
+    {% else %}
+    <div style="height: 240px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 13px;">
+      No academic data available
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- Full Student Academic Indicators Table -->
+<div class="card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;">
+  <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+    <h3 style="font-size: 15px; font-weight: 700; color: #0f172a; margin: 0;">Individual Academic Breakdowns</h3>
+    <span style="font-size: 12px; color: #64748b;">
+      Total Students: {{ students|length }}
+    </span>
+  </div>
+
+  <div class="table-container" style="overflow-x: auto;">
+    <table class="table" style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+          <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #64748b; text-align: left;">Student</th>
+          <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #64748b; text-align: right;">Attendance</th>
+          <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #64748b; text-align: right;">Prev Marks</th>
+          <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #64748b; text-align: right;">Assignment</th>
+          <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #64748b; text-align: right;">Quiz</th>
+          <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #64748b; text-align: right;">Study Hrs</th>
+          <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #64748b; text-align: right;">LMS Act</th>
+          <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #64748b; text-align: right;">Partic.</th>
+          <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #64748b; text-align: right;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in students %}
+        <tr style="border-bottom: 1px solid #f1f5f9;">
+          <td style="padding: 12px 16px;">
+            <div style="font-size: 13px; font-weight: 600; color: #0f172a;">{{ s.name }}</div>
+            <div style="font-size: 11px; font-family: monospace; color: #64748b;">{{ s.student_id }}</div>
+          </td>
+          <td style="padding: 12px 16px; text-align: right; font-weight: 600;">
+            {% if s.attendance is not none %}{{ s.attendance }}%{% else %}<span style="color:#94a3b8">N/A</span>{% endif %}
+          </td>
+          <td style="padding: 12px 16px; text-align: right; font-weight: 600;">
+            {% if s.previous_marks is not none %}{{ s.previous_marks }}%{% else %}<span style="color:#94a3b8">N/A</span>{% endif %}
+          </td>
+          <td style="padding: 12px 16px; text-align: right;">
+            {% if s.assignment_score is not none %}{{ s.assignment_score }}%{% else %}<span style="color:#94a3b8">N/A</span>{% endif %}
+          </td>
+          <td style="padding: 12px 16px; text-align: right;">
+            {% if s.quiz_score is not none %}{{ s.quiz_score }}%{% else %}<span style="color:#94a3b8">N/A</span>{% endif %}
+          </td>
+          <td style="padding: 12px 16px; text-align: right;">
+            {% if s.study_hours is not none %}{{ s.study_hours }}h{% else %}<span style="color:#94a3b8">N/A</span>{% endif %}
+          </td>
+          <td style="padding: 12px 16px; text-align: right;">
+            {% if s.lms_activity is not none %}{{ s.lms_activity }}{% else %}<span style="color:#94a3b8">N/A</span>{% endif %}
+          </td>
+          <td style="padding: 12px 16px; text-align: right;">
+            {% if s.participation is not none %}{{ s.participation }}/10{% else %}<span style="color:#94a3b8">N/A</span>{% endif %}
+          </td>
+          <td style="padding: 12px 16px; text-align: right;">
+            <a href="{{ url_for('teacher_student_details', id=s.id) }}" class="btn btn-secondary btn-sm" style="padding: 4px 10px; font-size: 12px; text-decoration: none;">
+              Details
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="9" style="padding: 32px; text-align: center; color: #94a3b8; font-size: 13px;">
+            No academic records available.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    {% if active_count > 0 %}
+    // 1. Marks Distribution
+    const marksCtx = document.getElementById('marksDistChart');
+    if (marksCtx) {
+      new Chart(marksCtx, {
+        type: 'bar',
+        data: {
+          labels: ['90-100%', '75-89%', '60-74%', '50-59%', '< 50%'],
+          datasets: [{
+            label: 'Students',
+            data: [
+              {{ marks_dist['90-100']|default(0) }},
+              {{ marks_dist['75-89']|default(0) }},
+              {{ marks_dist['60-74']|default(0) }},
+              {{ marks_dist['50-59']|default(0) }},
+              {{ marks_dist['<50']|default(0) }}
+            ],
+            backgroundColor: ['#10b981', '#3b82f6', '#06b6d4', '#f59e0b', '#ef4444'],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+      });
+    }
+
+    // 2. Attendance vs Previous Marks
+    const attVsMarksCtx = document.getElementById('attVsMarksChart');
+    if (attVsMarksCtx) {
+      new Chart(attVsMarksCtx, {
+        type: 'bar',
+        data: {
+          labels: {{ student_names_json|safe }},
+          datasets: [
+            {
+              label: 'Attendance (%)',
+              data: {{ student_attendances_json|safe }},
+              backgroundColor: '#3b82f6',
+              borderRadius: 4
+            },
+            {
+              label: 'Previous Marks (%)',
+              data: {{ student_marks_json|safe }},
+              backgroundColor: '#10b981',
+              borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } },
+          scales: { y: { beginAtZero: true, max: 100 } }
+        }
+      });
+    }
+
+    // 3. Assignment vs Quiz
+    const assignVsQuizCtx = document.getElementById('assignVsQuizChart');
+    if (assignVsQuizCtx) {
+      new Chart(assignVsQuizCtx, {
+        type: 'line',
+        data: {
+          labels: {{ student_names_json|safe }},
+          datasets: [
+            {
+              label: 'Assignment Score',
+              data: {{ student_assignments_json|safe }},
+              borderColor: '#4f46e5',
+              backgroundColor: 'rgba(79, 70, 229, 0.1)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: 'Quiz Score',
+              data: {{ student_quizzes_json|safe }},
+              borderColor: '#7c3aed',
+              backgroundColor: 'rgba(124, 58, 237, 0.1)',
+              tension: 0.3,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } },
+          scales: { y: { beginAtZero: true, max: 100 } }
+        }
+      });
+    }
+
+    // 4. Study Hours vs Marks
+    const studyCtx = document.getElementById('studyVsMarksChart');
+    if (studyCtx) {
+      new Chart(studyCtx, {
+        type: 'bar',
+        data: {
+          labels: {{ student_names_json|safe }},
+          datasets: [{
+            label: 'Study Hours (hrs/wk)',
+            data: {{ student_study_hours_json|safe }},
+            backgroundColor: '#0891b2',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    }
+    {% endif %}
+  });
+</script>
+{% endblock %}

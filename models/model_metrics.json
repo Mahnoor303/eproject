@@ -1,0 +1,100 @@
+{
+  "model_type": "Random Forest Classifier",
+  "algorithm": "scikit-learn Pipeline (StandardScaler + RandomForestClassifier)",
+  "n_estimators": 120,
+  "max_depth": 9,
+  "train_records": 304,
+  "test_records": 76,
+  "total_records": 380,
+  "accuracy": 94.74,
+  "precision": 95.1,
+  "recall": 94.74,
+  "f1_score": 94.6,
+  "classes": [
+    "At Risk",
+    "Average",
+    "Excellent",
+    "Good"
+  ],
+  "confusion_matrix": [
+    [
+      19,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      20,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      23,
+      0
+    ],
+    [
+      0,
+      0,
+      3,
+      10
+    ]
+  ],
+  "feature_importances": {
+    "attendance": 0.27,
+    "assignment_score": 0.2189,
+    "quiz_score": 0.1392,
+    "previous_marks": 0.1344,
+    "lms_activity": 0.1199,
+    "participation": 0.0619,
+    "study_hours": 0.0557
+  },
+  "features": [
+    {
+      "name": "Attendance",
+      "key": "attendance",
+      "importance": 0.27,
+      "range": "0 - 100%"
+    },
+    {
+      "name": "Previous Marks",
+      "key": "previous_marks",
+      "importance": 0.1344,
+      "range": "0 - 100"
+    },
+    {
+      "name": "Assignment Score",
+      "key": "assignment_score",
+      "importance": 0.2189,
+      "range": "0 - 100"
+    },
+    {
+      "name": "Quiz Score",
+      "key": "quiz_score",
+      "importance": 0.1392,
+      "range": "0 - 100"
+    },
+    {
+      "name": "Study Hours",
+      "key": "study_hours",
+      "importance": 0.0557,
+      "range": "0 - 40 hrs/wk"
+    },
+    {
+      "name": "LMS Activity",
+      "key": "lms_activity",
+      "importance": 0.1199,
+      "range": "0 - 100"
+    },
+    {
+      "name": "Participation",
+      "key": "participation",
+      "importance": 0.0619,
+      "range": "1 - 10"
+    }
+  ],
+  "trained_at": "2026-08-25 23:22:04 UTC",
+  "dataset_source": "data/sample_students.csv"
+}

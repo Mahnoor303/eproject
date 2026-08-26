@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Analyst Profile{% endblock %}
+{% block page_title %}Analyst Account Profile{% endblock %}
+
+{% block content %}
+<div style="max-width: 680px; margin: 0 auto;">
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h3 style="margin: 0;">Account Information</h3>
+        <span style="font-size: 12px; color: #64748b;">Manage your analyst personal information</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('analyst_profile') }}">
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label class="form-label" for="full_name" style="font-weight: 600;">Full Name</label>
+          <input 
+            type="text" 
+            id="full_name" 
+            name="full_name" 
+            class="form-control" 
+            value="{{ analyst.full_name or '' }}" 
+            required
+            placeholder="e.g. Dr. Jane Data"
+          />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label class="form-label" for="username" style="font-weight: 600;">Username</label>
+          <input 
+            type="text" 
+            id="username" 
+            name="username" 
+            class="form-control" 
+            value="{{ analyst.username }}" 
+            required
+            placeholder="e.g. analyst_jane"
+          />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label class="form-label" for="email" style="font-weight: 600;">Email Address</label>
+          <input 
+            type="email" 
+            id="email" 
+            class="form-control" 
+            value="{{ analyst.email or 'N/A' }}" 
+            disabled 
+            style="background: #f1f5f9; cursor: not-allowed;"
+          />
+          <small style="color: #64748b; font-size: 12px; margin-top: 4px; display: block;">
+            Email is managed and assigned by the Administrator.
+          </small>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 24px;">
+          <label class="form-label" for="role" style="font-weight: 600;">System Role</label>
+          <input 
+            type="text" 
+            id="role" 
+            class="form-control" 
+            value="Analyst" 
+            disabled 
+            style="background: #f1f5f9; cursor: not-allowed; font-weight: 600; color: #4f46e5;"
+          />
+          <small style="color: #64748b; font-size: 12px; margin-top: 4px; display: block;">
+            Role permissions are fixed and assigned by the Administrator.
+          </small>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+          <a href="{{ url_for('analyst_dashboard') }}" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">Save Profile Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

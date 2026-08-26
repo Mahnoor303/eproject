@@ -1,0 +1,381 @@
+student_id,name,email,attendance,previous_marks,assignment_score,quiz_score,study_hours,lms_activity,participation,performance
+STU1001,"Alexander Watson",alexander.watson1@edupredict.edu,41.7,47.3,46.4,51,7.6,38,4,At Risk
+STU1002,"Sophia Silva",sophia.silva2@edupredict.edu,45.9,49.6,53.9,52,11.2,51.5,2.9,At Risk
+STU1003,"Marcus Muller",marcus.muller3@edupredict.edu,45.3,45.8,42.6,42.7,7.7,34.8,3.3,At Risk
+STU1004,"Emma Taylor",emma.taylor4@edupredict.edu,46.2,55.1,46.8,54.5,11.9,52.9,3.1,At Risk
+STU1005,"Liam Garcia",liam.garcia5@edupredict.edu,56.7,44.9,51.5,51,11.8,58.6,4.1,At Risk
+STU1006,"Aaliyah Young",aaliyah.young6@edupredict.edu,53.6,45.3,48.2,55.4,10.9,46.4,5.2,At Risk
+STU1007,"Ethan O'Connor",ethan.o'connor7@edupredict.edu,41.2,46.4,45.8,38,5.5,37.2,3.5,At Risk
+STU1008,"Olivia Patel",olivia.patel8@edupredict.edu,56.2,55.1,62.6,48.4,10.7,50.2,4.3,At Risk
+STU1009,"Daniel Novak",daniel.novak9@edupredict.edu,55.7,50.1,48.3,56.4,11,55.4,4.3,At Risk
+STU1010,"Chloe Thomas",chloe.thomas10@edupredict.edu,38,56.7,45.9,45.7,6.3,27.8,3.1,At Risk
+STU1011,"Lucas Clark",lucas.clark11@edupredict.edu,51.8,43.7,52.9,43,10,51.7,4.3,At Risk
+STU1012,"Ava Allen",ava.allen12@edupredict.edu,48.6,45.2,48.4,49.4,9,49,4.3,At Risk
+STU1013,"Noah Khan",noah.khan13@edupredict.edu,49.2,47.5,49.7,46.7,8.9,48.9,3,At Risk
+STU1014,"Isabella Campbell",isabella.campbell14@edupredict.edu,56.6,47.5,56.2,48.6,10,59,3.6,At Risk
+STU1015,"James Chen",james.chen15@edupredict.edu,55.3,52.5,57.1,56.3,13.6,66.8,4.7,At Risk
+STU1016,"Mia Jackson",mia.jackson16@edupredict.edu,53,61.5,61.4,52.9,11.8,57.7,4.5,At Risk
+STU1017,"Benjamin Robinson",benjamin.robinson17@edupredict.edu,60.6,50.7,69.5,60.3,17.2,76.1,5,Average
+STU1018,"Charlotte Sanchez",charlotte.sanchez18@edupredict.edu,50.2,54.1,49.2,49.8,10.5,55.3,3.4,At Risk
+STU1019,"Henry Zhang",henry.zhang19@edupredict.edu,53.6,50,57.6,44.5,8.6,51.9,2.9,At Risk
+STU1020,"Amelia Rossi",amelia.rossi20@edupredict.edu,39,46.7,54.3,52.6,10.4,46.3,3.5,At Risk
+STU1021,"Sebastian Gupta",sebastian.gupta21@edupredict.edu,42.9,37.3,39.9,41.6,7.1,29.8,2.9,At Risk
+STU1022,"Harper White",harper.white22@edupredict.edu,45.5,43.7,46.1,40.5,11.1,55.7,3.8,At Risk
+STU1023,"Jack Lewis",jack.lewis23@edupredict.edu,57.4,62.6,64.3,71,14.2,65.2,5.1,At Risk
+STU1024,"Evelyn Hayes",evelyn.hayes24@edupredict.edu,57,58.4,60.5,57.2,13.2,75,5.1,At Risk
+STU1025,"Owen Bennett",owen.bennett25@edupredict.edu,48.7,47.6,53.6,50.3,11.4,44.7,4.2,At Risk
+STU1026,"Abigail Wilson",abigail.wilson26@edupredict.edu,55.9,61.3,64.6,63.2,12.3,54.7,4.7,At Risk
+STU1027,"Samuel Santos",samuel.santos27@edupredict.edu,63,49.8,47.2,60.4,11.1,55.8,4.8,At Risk
+STU1028,"Emily Harris",emily.harris28@edupredict.edu,47,47.1,39.1,37.2,4.7,36.3,3.5,At Risk
+STU1029,"David Walker",david.walker29@edupredict.edu,43.6,44.7,46.6,39.8,9.3,48.6,3.7,At Risk
+STU1030,"Elizabeth Martinez",elizabeth.martinez30@edupredict.edu,56,37.5,49.4,43.9,9.7,56.6,4.1,At Risk
+STU1031,"Joseph Rivera",joseph.rivera31@edupredict.edu,65.2,66.4,73.7,70.8,14.2,64.5,5.7,Average
+STU1032,"Sofia Tanaka",sofia.tanaka32@edupredict.edu,72.2,59.8,56.5,53,9.2,66.4,4.5,Average
+STU1033,"John Schmidt",john.schmidt33@edupredict.edu,49.8,55,59.9,58.2,11.2,55.5,4.6,At Risk
+STU1034,"Avery Martin",avery.martin34@edupredict.edu,55.7,59.9,65.4,64.7,14.3,70.4,4.7,At Risk
+STU1035,"Wyatt Perez",wyatt.perez35@edupredict.edu,48.6,61.9,61.3,55.5,11,53.7,4.5,At Risk
+STU1036,"Ella Vance",ella.vance36@edupredict.edu,43,47.2,55.5,56.1,11.7,54.7,3,At Risk
+STU1037,"Matthew Dubois",matthew.dubois37@edupredict.edu,54.8,54.3,55.8,49.8,9.4,50.5,3.9,At Risk
+STU1038,"Scarlett Kim",scarlett.kim38@edupredict.edu,66.7,53.3,64.8,55.4,13.5,67.4,6.2,Average
+STU1039,"Luke Anderson",luke.anderson39@edupredict.edu,52,54,52.3,56.9,14.4,55.8,4.7,At Risk
+STU1040,"Grace Thompson",grace.thompson40@edupredict.edu,68.6,49.3,67.2,59.8,11.2,54.9,6.1,Average
+STU1041,"Asher Hall",asher.hall41@edupredict.edu,60.8,62.5,70.1,75.3,18.1,70.6,6.3,Average
+STU1042,"Chloe Watson",chloe.watson42@edupredict.edu,57.9,62.2,57.5,66.9,13.6,59.7,4.2,At Risk
+STU1043,"Carter Silva",carter.silva43@edupredict.edu,51.7,59.9,56,58.4,14.2,58.2,4.8,At Risk
+STU1044,"Victoria Muller",victoria.muller44@edupredict.edu,60.4,50.7,64.9,50.2,13.2,58.4,4.4,Average
+STU1045,"Julian Taylor",julian.taylor45@edupredict.edu,59.7,51.7,63.7,59.6,13.6,62.2,4.3,At Risk
+STU1046,"Riley Garcia",riley.garcia46@edupredict.edu,59.1,59.9,66.9,61.7,15.6,62.3,4.8,At Risk
+STU1047,"Grayson Young",grayson.young47@edupredict.edu,68.3,59.6,66.8,67.7,14.6,72.7,5.4,Average
+STU1048,"Aria O'Connor",aria.o'connor48@edupredict.edu,46.8,48.8,47.7,50.5,10.7,51.1,3.4,At Risk
+STU1049,"Leo Patel",leo.patel49@edupredict.edu,61.5,51.7,62.9,63.7,11.3,56.7,4.7,Average
+STU1050,"Lily Novak",lily.novak50@edupredict.edu,44.2,50.6,43.8,58.3,10.9,49,2.9,At Risk
+STU1051,"Jayden Thomas",jayden.thomas51@edupredict.edu,55.1,59.7,63.2,56.1,12.7,58.3,5.1,At Risk
+STU1052,"Aubrey Clark",aubrey.clark52@edupredict.edu,42.8,35,48.7,50.2,14.3,48.5,4.5,At Risk
+STU1053,"Gabriel Allen",gabriel.allen53@edupredict.edu,52.7,64.8,73.4,60.5,12.8,60.1,4.3,At Risk
+STU1054,"Zoey Khan",zoey.khan54@edupredict.edu,66.9,54.6,69.2,63.9,14.3,71.1,6.2,Average
+STU1055,"Isaac Campbell",isaac.campbell55@edupredict.edu,50.4,57.8,55.4,53.4,9.8,45,4.3,At Risk
+STU1056,"Penelope Chen",penelope.chen56@edupredict.edu,56.6,48.5,56.5,54.7,12.5,57.7,4.4,At Risk
+STU1057,"Anthony Jackson",anthony.jackson57@edupredict.edu,63.3,51.4,61.7,63.6,17,63.6,4.9,Average
+STU1058,"Lillian Robinson",lillian.robinson58@edupredict.edu,56.6,55.4,60.9,62.2,17.2,80.4,6,At Risk
+STU1059,"Jaxon Sanchez",jaxon.sanchez59@edupredict.edu,56.5,52.8,53.2,54.2,9.6,45.4,3.9,At Risk
+STU1060,"Addison Zhang",addison.zhang60@edupredict.edu,69.8,54,68.9,58.2,13.5,73.4,5,Average
+STU1061,"Alexander Rossi",alexander.rossi61@edupredict.edu,62.6,61.8,60.9,58.8,11.7,57,4.3,Average
+STU1062,"Sophia Gupta",sophia.gupta62@edupredict.edu,56.2,56.4,56.9,51.7,9.7,62,5.3,At Risk
+STU1063,"Marcus White",marcus.white63@edupredict.edu,54.1,50.3,55.9,50.8,9.2,43.7,4.3,At Risk
+STU1064,"Emma Lewis",emma.lewis64@edupredict.edu,58.7,49.7,57.1,60.1,12.6,50.1,4.9,At Risk
+STU1065,"Liam Hayes",liam.hayes65@edupredict.edu,47.2,62.3,62.9,74.5,14.1,54.8,4.6,At Risk
+STU1066,"Aaliyah Bennett",aaliyah.bennett66@edupredict.edu,53.4,51.5,62.4,50,8.1,38.1,4.2,At Risk
+STU1067,"Ethan Wilson",ethan.wilson67@edupredict.edu,55.2,60.1,56.5,59.4,12.3,58.3,4.4,At Risk
+STU1068,"Olivia Santos",olivia.santos68@edupredict.edu,41.7,53.7,47.1,53.2,8.4,45.6,3.8,At Risk
+STU1069,"Daniel Harris",daniel.harris69@edupredict.edu,52.4,50.3,52.9,54.5,12.5,55.4,5.3,At Risk
+STU1070,"Chloe Walker",chloe.walker70@edupredict.edu,64.2,55.3,61.2,53.7,10.2,59,5.3,Average
+STU1071,"Lucas Martinez",lucas.martinez71@edupredict.edu,41,53.2,47.7,47,8.1,39.3,4.1,At Risk
+STU1072,"Ava Rivera",ava.rivera72@edupredict.edu,60.9,55.7,60.7,59.1,12.1,53.3,4.9,Average
+STU1073,"Noah Tanaka",noah.tanaka73@edupredict.edu,60.9,53.9,46.2,55.8,10.7,61.6,4.1,At Risk
+STU1074,"Isabella Schmidt",isabella.schmidt74@edupredict.edu,61.5,59.1,62.4,66.1,12.9,56.3,4.7,Average
+STU1075,"James Martin",james.martin75@edupredict.edu,49.6,42,52,47.6,8.9,44.3,3.5,At Risk
+STU1076,"Mia Perez",mia.perez76@edupredict.edu,62.6,71.3,64.8,68.3,13.3,62.8,5,Average
+STU1077,"Benjamin Vance",benjamin.vance77@edupredict.edu,49,53.7,58.3,52,9.5,47.8,4.3,At Risk
+STU1078,"Charlotte Dubois",charlotte.dubois78@edupredict.edu,59.4,66.2,64,65.6,12.8,61.9,5.3,At Risk
+STU1079,"Henry Kim",henry.kim79@edupredict.edu,59.9,56,58.1,56.5,13.1,67,4.8,At Risk
+STU1080,"Amelia Anderson",amelia.anderson80@edupredict.edu,55.8,55.3,44.6,56.3,11.5,55.3,3.9,At Risk
+STU1081,"Sebastian Thompson",sebastian.thompson81@edupredict.edu,58.9,62.2,64.2,63.7,15.5,73.8,5,At Risk
+STU1082,"Harper Hall",harper.hall82@edupredict.edu,63.6,54.5,55.9,62.9,13.2,60.8,5.2,Average
+STU1083,"Jack Watson",jack.watson83@edupredict.edu,57.6,65.1,59,63.4,11.3,64.1,5,At Risk
+STU1084,"Evelyn Silva",evelyn.silva84@edupredict.edu,53.8,59.5,59.8,62.3,10,62.4,3.8,At Risk
+STU1085,"Owen Muller",owen.muller85@edupredict.edu,54.5,42.5,55.5,53.6,11.2,54,4.3,At Risk
+STU1086,"Abigail Taylor",abigail.taylor86@edupredict.edu,68.3,77.6,85.9,78.2,20.5,76.4,7.2,Good
+STU1087,"Samuel Garcia",samuel.garcia87@edupredict.edu,64.4,64.3,65.3,77.9,17.2,72.1,5.6,Average
+STU1088,"Emily Young",emily.young88@edupredict.edu,60.9,53.3,57.6,57.7,10.9,56.8,4.3,Average
+STU1089,"David O'Connor",david.o'connor89@edupredict.edu,57.3,47.3,55.8,51.1,13,56.2,4.1,At Risk
+STU1090,"Elizabeth Patel",elizabeth.patel90@edupredict.edu,64.8,51,71,61.1,17.1,68.2,5.8,Average
+STU1091,"Joseph Novak",joseph.novak91@edupredict.edu,53.7,56.3,60.6,56.2,10.9,58.9,4.1,At Risk
+STU1092,"Sofia Thomas",sofia.thomas92@edupredict.edu,65.7,53.8,61.6,54.5,13.2,62.8,5.3,Average
+STU1093,"John Clark",john.clark93@edupredict.edu,65.6,57.4,63.7,60.1,14.1,67.7,5.8,Average
+STU1094,"Avery Allen",avery.allen94@edupredict.edu,48,64.4,62.7,61.4,12.9,55,5.2,At Risk
+STU1095,"Wyatt Khan",wyatt.khan95@edupredict.edu,56.6,57.7,62.8,54.4,12.5,55.6,4.5,At Risk
+STU1096,"Ella Campbell",ella.campbell96@edupredict.edu,69.8,62.9,64.7,75.3,12.1,68.4,5,Average
+STU1097,"Matthew Chen",matthew.chen97@edupredict.edu,67.4,71.6,75.5,67.2,14.2,71.8,5.4,Average
+STU1098,"Scarlett Jackson",scarlett.jackson98@edupredict.edu,55.9,65.4,64.9,68.2,11.1,60.7,5.4,At Risk
+STU1099,"Luke Robinson",luke.robinson99@edupredict.edu,63.5,64.9,63.8,67.2,15.1,75,5.3,Average
+STU1100,"Grace Sanchez",grace.sanchez100@edupredict.edu,64.2,55.1,57.8,60.3,13.2,66,5.3,Average
+STU1101,"Asher Zhang",asher.zhang101@edupredict.edu,57.9,59.4,70.1,62.7,18.6,77,5.6,At Risk
+STU1102,"Chloe Rossi",chloe.rossi102@edupredict.edu,53.1,56.3,53.9,61,14.4,63.8,4.8,At Risk
+STU1103,"Carter Gupta",carter.gupta103@edupredict.edu,56.3,69.7,64.6,70.5,14.7,68.8,5,At Risk
+STU1104,"Victoria White",victoria.white104@edupredict.edu,60.6,63,63.1,65.8,15.8,69.4,5.2,Average
+STU1105,"Julian Lewis",julian.lewis105@edupredict.edu,67.6,73.1,66,70,15.4,71.9,5.4,Average
+STU1106,"Riley Hayes",riley.hayes106@edupredict.edu,74.2,67.4,68.4,70.6,14.5,73.4,6.1,Average
+STU1107,"Grayson Bennett",grayson.bennett107@edupredict.edu,65.5,63.1,65.8,70.8,17.5,87.6,6.3,Average
+STU1108,"Aria Wilson",aria.wilson108@edupredict.edu,62.6,72,65.8,76.9,15.5,78.5,5.4,Average
+STU1109,"Leo Santos",leo.santos109@edupredict.edu,51,59.1,59.4,63.1,12,61.6,5.2,At Risk
+STU1110,"Lily Harris",lily.harris110@edupredict.edu,61.7,65.8,64.5,67.6,11.5,59.9,4.9,Average
+STU1111,"Jayden Walker",jayden.walker111@edupredict.edu,73.8,57.6,65.1,73.8,15.9,77.6,6.4,Average
+STU1112,"Aubrey Martinez",aubrey.martinez112@edupredict.edu,61.1,67.6,70.7,74.4,17.9,73,6.1,Average
+STU1113,"Gabriel Rivera",gabriel.rivera113@edupredict.edu,64,63.7,68.7,60.8,13.7,62.9,5.3,Average
+STU1114,"Zoey Tanaka",zoey.tanaka114@edupredict.edu,71.5,56.5,67.9,66,15.8,83.2,6.1,Average
+STU1115,"Isaac Schmidt",isaac.schmidt115@edupredict.edu,69.7,79.4,77.5,77.7,17,74.6,5.7,Good
+STU1116,"Penelope Martin",penelope.martin116@edupredict.edu,57.3,58.4,55.2,63.9,13.1,62.4,5,At Risk
+STU1117,"Anthony Perez",anthony.perez117@edupredict.edu,68.7,62.2,73.9,69.2,17,73.5,5.5,Average
+STU1118,"Lillian Vance",lillian.vance118@edupredict.edu,72.2,81,78.8,82.4,15.4,72.7,7.8,Good
+STU1119,"Jaxon Dubois",jaxon.dubois119@edupredict.edu,56.5,56.4,61,50.7,10.3,52,3.3,At Risk
+STU1120,"Addison Kim",addison.kim120@edupredict.edu,69,65.9,70.6,61,13.1,62.4,7.2,Average
+STU1121,"Alexander Anderson",alexander.anderson121@edupredict.edu,56.8,56.9,59,57.9,13,59.8,5.1,At Risk
+STU1122,"Sophia Thompson",sophia.thompson122@edupredict.edu,62.3,60.3,69.1,67.6,16.9,77.2,5.4,Average
+STU1123,"Marcus Hall",marcus.hall123@edupredict.edu,68.6,58.9,68.2,71.7,18.9,72.7,5.1,Average
+STU1124,"Emma Watson",emma.watson124@edupredict.edu,76,67.2,71.5,67.7,16.8,75.9,6.2,Average
+STU1125,"Liam Silva",liam.silva125@edupredict.edu,55.5,62.3,69.1,60,10.5,56.7,5,At Risk
+STU1126,"Aaliyah Muller",aaliyah.muller126@edupredict.edu,72.6,79.8,81.8,85.1,18.1,71.7,6.5,Good
+STU1127,"Ethan Taylor",ethan.taylor127@edupredict.edu,63,55.4,61.7,66.5,14,68,5.1,Average
+STU1128,"Olivia Garcia",olivia.garcia128@edupredict.edu,70,71.4,68,74.3,14,73.8,6.8,Average
+STU1129,"Daniel Young",daniel.young129@edupredict.edu,58.7,72.4,69.9,74.3,17.6,74,5.3,At Risk
+STU1130,"Chloe O'Connor",chloe.o'connor130@edupredict.edu,70.4,69.7,79.8,74.4,18.3,81.2,6,Average
+STU1131,"Lucas Patel",lucas.patel131@edupredict.edu,69.7,64.2,64.6,71.3,18.3,77.7,7.2,Average
+STU1132,"Ava Novak",ava.novak132@edupredict.edu,64.1,68.9,70.4,77.4,16.4,74.1,6.1,Average
+STU1133,"Noah Thomas",noah.thomas133@edupredict.edu,60.7,61.6,67.3,64.5,15.6,73.2,4.7,Average
+STU1134,"Isabella Clark",isabella.clark134@edupredict.edu,57.9,62,63.9,65.8,15.8,68.6,5.6,At Risk
+STU1135,"James Allen",james.allen135@edupredict.edu,50.5,58.8,59.1,52.6,10.4,48.8,4.7,At Risk
+STU1136,"Mia Khan",mia.khan136@edupredict.edu,68.4,70,70.8,79.1,18.9,78.4,5.8,Average
+STU1137,"Benjamin Campbell",benjamin.campbell137@edupredict.edu,56.7,65.2,67.5,69.7,14.5,57,4.8,At Risk
+STU1138,"Charlotte Chen",charlotte.chen138@edupredict.edu,69.1,73.2,75.7,77,17.6,79.2,6.2,Good
+STU1139,"Henry Jackson",henry.jackson139@edupredict.edu,76.6,77.3,83.7,82.6,20.9,81.8,6.4,Good
+STU1140,"Amelia Robinson",amelia.robinson140@edupredict.edu,66.6,75,77.8,77,16.7,84,6.1,Good
+STU1141,"Sebastian Sanchez",sebastian.sanchez141@edupredict.edu,62.2,74.5,78.5,76.9,16.1,67.9,5.5,Average
+STU1142,"Harper Zhang",harper.zhang142@edupredict.edu,57.1,57,63,57.1,15.2,68.3,4.6,At Risk
+STU1143,"Jack Rossi",jack.rossi143@edupredict.edu,73.6,69.1,72.3,72.5,19.5,92.6,6.3,Good
+STU1144,"Evelyn Gupta",evelyn.gupta144@edupredict.edu,77.3,79.9,76.5,81.7,19.8,91.3,6.7,Good
+STU1145,"Owen White",owen.white145@edupredict.edu,66.8,56.2,62.2,68.7,15.8,79.8,6.1,Average
+STU1146,"Abigail Lewis",abigail.lewis146@edupredict.edu,72.1,66.5,74.2,64,15.9,70,5.8,Average
+STU1147,"Samuel Hayes",samuel.hayes147@edupredict.edu,72.3,70.3,74.8,65,15.9,74.2,5.5,Average
+STU1148,"Emily Bennett",emily.bennett148@edupredict.edu,69.6,60.7,68.7,62.2,15.1,70.1,5.4,Average
+STU1149,"David Wilson",david.wilson149@edupredict.edu,64.6,66.8,72.5,66.1,16.5,71.2,6.2,Average
+STU1150,"Elizabeth Santos",elizabeth.santos150@edupredict.edu,66,57.7,67.4,71.7,15.3,69.8,4.9,Average
+STU1151,"Joseph Harris",joseph.harris151@edupredict.edu,58.9,71.6,73.9,73.6,13.6,69.1,4.9,At Risk
+STU1152,"Sofia Walker",sofia.walker152@edupredict.edu,64.5,58.9,61.7,67,16.8,76.4,6.9,Average
+STU1153,"John Martinez",john.martinez153@edupredict.edu,61.9,59.1,65.7,62.4,16.7,63.9,5.7,Average
+STU1154,"Avery Rivera",avery.rivera154@edupredict.edu,65.2,71.6,74.2,71.4,16,68.1,5.4,Average
+STU1155,"Wyatt Tanaka",wyatt.tanaka155@edupredict.edu,67.2,65.3,72.2,79.1,19.6,78.2,6.2,Average
+STU1156,"Ella Schmidt",ella.schmidt156@edupredict.edu,64.3,62.6,62.5,68.1,14.3,73.8,5.4,Average
+STU1157,"Matthew Martin",matthew.martin157@edupredict.edu,70.7,62.5,61.4,60.7,14.3,75.3,7.1,Average
+STU1158,"Scarlett Perez",scarlett.perez158@edupredict.edu,59.6,64.9,66.1,63.5,14.5,74.5,5.4,At Risk
+STU1159,"Luke Vance",luke.vance159@edupredict.edu,68.8,66.1,74.1,73,14.7,72.7,6.7,Average
+STU1160,"Grace Dubois",grace.dubois160@edupredict.edu,69.4,74.5,79.7,76.7,17,76.8,6.5,Good
+STU1161,"Asher Kim",asher.kim161@edupredict.edu,76.8,63.6,75,74.2,20.6,92.2,7.2,Good
+STU1162,"Chloe Anderson",chloe.anderson162@edupredict.edu,77.6,66.4,70.1,76.6,19,83,6.8,Good
+STU1163,"Carter Thompson",carter.thompson163@edupredict.edu,75.6,70.1,78.1,67.7,18.6,86.3,6.3,Good
+STU1164,"Victoria Hall",victoria.hall164@edupredict.edu,67.2,67.4,67.7,71.1,16.3,76.9,6.7,Average
+STU1165,"Julian Watson",julian.watson165@edupredict.edu,64.6,71,71.6,78.7,20.9,81.6,5.8,Average
+STU1166,"Riley Silva",riley.silva166@edupredict.edu,76.4,73.8,83.7,81.2,19.5,93.2,7.5,Good
+STU1167,"Grayson Muller",grayson.muller167@edupredict.edu,64.1,64.5,74,67.6,16.7,84.1,6,Average
+STU1168,"Aria Taylor",aria.taylor168@edupredict.edu,61,59.8,62.9,59.5,13,58.9,4.6,Average
+STU1169,"Leo Garcia",leo.garcia169@edupredict.edu,68.4,66.5,73.8,72.4,16.4,72.9,4.8,Average
+STU1170,"Lily Young",lily.young170@edupredict.edu,78.3,78.8,82.4,84.2,20.9,91.8,6.7,Good
+STU1171,"Jayden O'Connor",jayden.o'connor171@edupredict.edu,78.6,76.3,75.9,80.4,15.5,78,7.1,Good
+STU1172,"Aubrey Patel",aubrey.patel172@edupredict.edu,59.9,67.5,67,72.1,16.3,55.2,5.4,At Risk
+STU1173,"Gabriel Novak",gabriel.novak173@edupredict.edu,77.9,77.8,79.3,70.8,14.2,79.6,6,Good
+STU1174,"Zoey Thomas",zoey.thomas174@edupredict.edu,65.1,56.5,61.1,57.9,13.4,61.7,4.7,Average
+STU1175,"Isaac Clark",isaac.clark175@edupredict.edu,63,77.5,72.2,73,17.2,76.6,5.9,Average
+STU1176,"Penelope Allen",penelope.allen176@edupredict.edu,62.3,61.4,63.9,65.4,17,62,6.5,Average
+STU1177,"Anthony Khan",anthony.khan177@edupredict.edu,68.8,80.2,75.5,80.4,19.1,81.4,5.5,Good
+STU1178,"Lillian Campbell",lillian.campbell178@edupredict.edu,68,59.6,73.8,71.5,17.2,74.8,6,Average
+STU1179,"Jaxon Chen",jaxon.chen179@edupredict.edu,77.4,64.5,78.8,74.5,19.1,82.9,6.9,Good
+STU1180,"Addison Jackson",addison.jackson180@edupredict.edu,90.3,71,83.1,83.6,19.7,98,8.3,Good
+STU1181,"Alexander Robinson",alexander.robinson181@edupredict.edu,69.9,71.9,82.2,84.9,21.6,82.8,7,Good
+STU1182,"Sophia Sanchez",sophia.sanchez182@edupredict.edu,84,75.9,80.8,82.4,18.8,82.3,8.4,Good
+STU1183,"Marcus Zhang",marcus.zhang183@edupredict.edu,72.5,70.7,71.2,69.1,16,83.3,7.3,Average
+STU1184,"Emma Rossi",emma.rossi184@edupredict.edu,69.5,55.4,73.7,63.2,16.5,77.4,5.8,Average
+STU1185,"Liam Gupta",liam.gupta185@edupredict.edu,74.2,66.3,81.6,76.3,17,86.4,7.2,Good
+STU1186,"Aaliyah White",aaliyah.white186@edupredict.edu,86,62.2,83.4,79.4,19,98,7.3,Good
+STU1187,"Ethan Lewis",ethan.lewis187@edupredict.edu,69.2,68.6,73.4,72.5,17.9,76.9,5.4,Average
+STU1188,"Olivia Hayes",olivia.hayes188@edupredict.edu,70.6,74.8,71.4,72.8,16.5,78.2,6.9,Average
+STU1189,"Daniel Bennett",daniel.bennett189@edupredict.edu,57.2,58.1,64.1,63.9,14.4,67.2,4.6,At Risk
+STU1190,"Chloe Wilson",chloe.wilson190@edupredict.edu,69.6,60.8,67.8,55.1,14.3,65.8,6.5,Average
+STU1191,"Lucas Santos",lucas.santos191@edupredict.edu,72.2,66,67.8,70.9,16.5,82.6,7.1,Average
+STU1192,"Ava Harris",ava.harris192@edupredict.edu,77.4,71.2,82.8,81.4,19.6,82.9,6.8,Good
+STU1193,"Noah Walker",noah.walker193@edupredict.edu,75.9,80,84.8,82.9,16.3,78.7,7.2,Good
+STU1194,"Isabella Martinez",isabella.martinez194@edupredict.edu,71.4,71,76.4,68.3,16.5,83.3,6.6,Average
+STU1195,"James Rivera",james.rivera195@edupredict.edu,69.2,67.1,76.5,69.2,18.1,77.7,6.1,Average
+STU1196,"Mia Tanaka",mia.tanaka196@edupredict.edu,79.1,76.5,80.3,72.9,19.2,85.8,7.5,Good
+STU1197,"Benjamin Schmidt",benjamin.schmidt197@edupredict.edu,59.3,65.6,63.7,69.9,15.9,71.4,5.6,At Risk
+STU1198,"Charlotte Martin",charlotte.martin198@edupredict.edu,74.1,79.4,81,83.3,20.2,92.4,7.2,Good
+STU1199,"Henry Perez",henry.perez199@edupredict.edu,84.2,72.9,85.2,86,25.1,98,8.2,Good
+STU1200,"Amelia Vance",amelia.vance200@edupredict.edu,66.9,78.2,72.6,79.4,18.3,77.8,5.4,Good
+STU1201,"Sebastian Dubois",sebastian.dubois201@edupredict.edu,72.6,64.5,69.1,69.6,14.6,74.7,6.6,Average
+STU1202,"Harper Kim",harper.kim202@edupredict.edu,64.8,67.8,63.2,65.6,13,62.9,5.9,Average
+STU1203,"Jack Anderson",jack.anderson203@edupredict.edu,76.8,68.4,74.6,75.6,17.3,73.2,7,Average
+STU1204,"Evelyn Thompson",evelyn.thompson204@edupredict.edu,57.4,65.7,63.4,61.8,14.3,73.5,4.5,At Risk
+STU1205,"Owen Hall",owen.hall205@edupredict.edu,61,60.1,60.4,63.9,12.2,61.3,4.5,Average
+STU1206,"Abigail Watson",abigail.watson206@edupredict.edu,80.3,78.4,86.4,88.3,21.4,93.4,7.7,Good
+STU1207,"Samuel Silva",samuel.silva207@edupredict.edu,68.8,73.8,75.3,78.9,17.6,78.4,6.1,Good
+STU1208,"Emily Muller",emily.muller208@edupredict.edu,67.9,67.9,73.7,75.2,18.7,85.1,6.1,Average
+STU1209,"David Taylor",david.taylor209@edupredict.edu,84.1,71.6,85.4,83.1,21.1,93.7,8,Good
+STU1210,"Elizabeth Garcia",elizabeth.garcia210@edupredict.edu,73.9,84.1,84.2,81.2,21.5,96.4,7,Good
+STU1211,"Joseph Young",joseph.young211@edupredict.edu,71,70.9,73.9,75,17.1,81.7,5.8,Average
+STU1212,"Sofia O'Connor",sofia.o'connor212@edupredict.edu,72.2,60.5,66,60.5,14.2,68.5,6.3,Average
+STU1213,"John Patel",john.patel213@edupredict.edu,89.2,77.8,87.3,87.9,23.1,98,8.3,Good
+STU1214,"Avery Novak",avery.novak214@edupredict.edu,75.7,79.8,80.2,79.4,19,80.9,6.1,Good
+STU1215,"Wyatt Thomas",wyatt.thomas215@edupredict.edu,68.5,65.7,74.3,78,18.2,85.9,6,Average
+STU1216,"Ella Clark",ella.clark216@edupredict.edu,82.5,75.1,84.9,87.4,22.9,98,7.5,Good
+STU1217,"Matthew Allen",matthew.allen217@edupredict.edu,73.3,71.6,80.7,79.1,21.1,84.3,6.3,Good
+STU1218,"Scarlett Khan",scarlett.khan218@edupredict.edu,73.3,76.4,85.8,84.2,21.6,84.6,7.1,Good
+STU1219,"Luke Campbell",luke.campbell219@edupredict.edu,72,66.3,66,70.4,14.3,73.1,6.3,Average
+STU1220,"Grace Chen",grace.chen220@edupredict.edu,77.3,76.3,87.1,83.8,20.9,90.1,6.8,Good
+STU1221,"Asher Jackson",asher.jackson221@edupredict.edu,75.4,55.4,67.8,63,17.1,88.3,6.9,Average
+STU1222,"Chloe Robinson",chloe.robinson222@edupredict.edu,57.6,68.5,66.8,77.6,18.8,71.3,5.7,At Risk
+STU1223,"Carter Sanchez",carter.sanchez223@edupredict.edu,85.1,80.9,82.3,84.4,18.3,88.2,7.7,Good
+STU1224,"Victoria Zhang",victoria.zhang224@edupredict.edu,77.9,83.9,88.3,91.9,20.1,98,7.9,Good
+STU1225,"Julian Rossi",julian.rossi225@edupredict.edu,65.7,71.1,69.5,74.6,15.1,74.9,6.7,Average
+STU1226,"Riley Gupta",riley.gupta226@edupredict.edu,79.5,79.1,87.7,80.5,21.4,81.5,6.3,Good
+STU1227,"Grayson White",grayson.white227@edupredict.edu,64.1,63,67.8,61,13.9,75.7,5.2,Average
+STU1228,"Aria Lewis",aria.lewis228@edupredict.edu,82.9,68,74.8,78.8,18.1,87.3,8.3,Good
+STU1229,"Leo Hayes",leo.hayes229@edupredict.edu,71.8,80.5,85.8,87.2,19.8,82.3,6.6,Good
+STU1230,"Lily Bennett",lily.bennett230@edupredict.edu,77.1,71.9,79.6,83.3,18.2,86.1,7.3,Good
+STU1231,"Jayden Wilson",jayden.wilson231@edupredict.edu,88.3,80.4,87,85.3,19,97.9,6.5,Good
+STU1232,"Aubrey Santos",aubrey.santos232@edupredict.edu,72.6,67.8,81.1,72.4,16.2,70.4,6.3,Average
+STU1233,"Gabriel Harris",gabriel.harris233@edupredict.edu,74.7,81.9,79.4,89.9,17.5,87.4,6.8,Good
+STU1234,"Zoey Walker",zoey.walker234@edupredict.edu,90,83.2,94.5,93.1,22.2,98,7.7,Excellent
+STU1235,"Isaac Martinez",isaac.martinez235@edupredict.edu,75.7,82.1,79.9,83.8,19.7,86.2,7.7,Good
+STU1236,"Penelope Rivera",penelope.rivera236@edupredict.edu,68.9,71.5,72,79.6,21.4,97.3,7.2,Good
+STU1237,"Anthony Tanaka",anthony.tanaka237@edupredict.edu,84,80,80.8,76.4,18.2,90.7,7.6,Good
+STU1238,"Lillian Schmidt",lillian.schmidt238@edupredict.edu,77.3,67.8,73.5,62.8,13.4,73.8,6.1,Average
+STU1239,"Jaxon Martin",jaxon.martin239@edupredict.edu,90,85.2,83.8,92.6,22.6,98,8.2,Excellent
+STU1240,"Addison Perez",addison.perez240@edupredict.edu,69.2,80.6,76.6,79,16.4,67.7,6.4,Good
+STU1241,"Alexander Vance",alexander.vance241@edupredict.edu,70.7,68.8,74.7,78,17.2,76.4,5.8,Average
+STU1242,"Sophia Dubois",sophia.dubois242@edupredict.edu,88.9,84.1,96.1,87.8,22.9,92.4,9.4,Excellent
+STU1243,"Marcus Kim",marcus.kim243@edupredict.edu,82.1,80.5,88.1,97.4,24.1,97.8,7.3,Good
+STU1244,"Emma Anderson",emma.anderson244@edupredict.edu,71.9,76.3,73.9,79.7,22.1,91.8,6.1,Good
+STU1245,"Liam Thompson",liam.thompson245@edupredict.edu,84.8,82.6,89.9,90.5,19.8,92.4,7.6,Good
+STU1246,"Aaliyah Hall",aaliyah.hall246@edupredict.edu,78.8,81.1,92.6,82.7,22,90.2,7.8,Good
+STU1247,"Ethan Watson",ethan.watson247@edupredict.edu,69,72.1,74.9,74.4,18.1,87,5.8,Average
+STU1248,"Olivia Silva",olivia.silva248@edupredict.edu,76.7,75.6,78.6,85.6,19.9,91.1,6.8,Good
+STU1249,"Daniel Muller",daniel.muller249@edupredict.edu,87.6,81.4,91.7,93.7,21.2,96.4,7.9,Good
+STU1250,"Chloe Taylor",chloe.taylor250@edupredict.edu,68.1,66.4,73.9,75.9,16.3,75.8,5.8,Average
+STU1251,"Lucas Garcia",lucas.garcia251@edupredict.edu,85.1,88.9,94.5,97.3,26.3,98,8.4,Excellent
+STU1252,"Ava Young",ava.young252@edupredict.edu,76,67.4,76.1,83.1,20.7,84.2,7.3,Good
+STU1253,"Noah O'Connor",noah.o'connor253@edupredict.edu,62.6,60.6,65.8,69.1,17.3,77.8,6,Average
+STU1254,"Isabella Patel",isabella.patel254@edupredict.edu,79.4,79.9,84.1,83.3,20.2,97.5,7,Good
+STU1255,"James Novak",james.novak255@edupredict.edu,66.7,77.7,87.3,84.1,19.1,81.6,6.7,Good
+STU1256,"Mia Thomas",mia.thomas256@edupredict.edu,80.8,68.2,80.6,78.8,21.7,92.5,7.3,Good
+STU1257,"Benjamin Clark",benjamin.clark257@edupredict.edu,70.5,76.6,89.4,75,17.5,75.4,7,Good
+STU1258,"Charlotte Allen",charlotte.allen258@edupredict.edu,74.8,90.6,84.8,98.1,22.1,93.3,6.8,Good
+STU1259,"Henry Khan",henry.khan259@edupredict.edu,86.3,81.1,81.8,79.1,16.7,88.8,7.1,Good
+STU1260,"Amelia Campbell",amelia.campbell260@edupredict.edu,78.4,62.7,77,75,21.2,91.9,7.8,Good
+STU1261,"Sebastian Chen",sebastian.chen261@edupredict.edu,74,74.6,75.4,77.1,18.6,87.9,6,Good
+STU1262,"Harper Jackson",harper.jackson262@edupredict.edu,90.9,82.1,87.8,92.5,25.6,98,8.7,Excellent
+STU1263,"Jack Robinson",jack.robinson263@edupredict.edu,60.3,72,70.5,70.2,17.4,75,6.5,Average
+STU1264,"Evelyn Sanchez",evelyn.sanchez264@edupredict.edu,70.1,81.6,76.6,90.1,22.3,96.7,7.2,Good
+STU1265,"Owen Zhang",owen.zhang265@edupredict.edu,76.1,62.6,77.6,75.3,17.9,88.2,6.7,Good
+STU1266,"Abigail Rossi",abigail.rossi266@edupredict.edu,84.6,87.8,93.3,83.8,22.1,98,8,Excellent
+STU1267,"Samuel Gupta",samuel.gupta267@edupredict.edu,73.7,76.2,70,77.3,17.1,83,7,Good
+STU1268,"Emily White",emily.white268@edupredict.edu,82.2,84.6,97.6,86.7,22.8,95.8,8.4,Excellent
+STU1269,"David Lewis",david.lewis269@edupredict.edu,77.4,74.4,79.2,80.9,20.3,98,7.1,Good
+STU1270,"Elizabeth Hayes",elizabeth.hayes270@edupredict.edu,79.3,83.7,87.3,85.2,19.5,87.7,7.2,Good
+STU1271,"Joseph Bennett",joseph.bennett271@edupredict.edu,84,84.3,89,89.3,24.7,98,7.7,Good
+STU1272,"Sofia Wilson",sofia.wilson272@edupredict.edu,72.5,79.6,78.3,81.4,19.2,76.6,6.7,Good
+STU1273,"John Santos",john.santos273@edupredict.edu,81.3,78.9,85.4,87.4,20.8,91.4,8,Good
+STU1274,"Avery Harris",avery.harris274@edupredict.edu,84.1,81.9,92,96.7,25.1,98,8.2,Excellent
+STU1275,"Wyatt Walker",wyatt.walker275@edupredict.edu,73.7,69,79.7,71.6,17.5,78.3,7.5,Good
+STU1276,"Ella Martinez",ella.martinez276@edupredict.edu,91.2,78.1,83,87.1,22.3,98,8.4,Good
+STU1277,"Matthew Rivera",matthew.rivera277@edupredict.edu,92.7,84.4,95.5,89.3,21.9,98,7.8,Excellent
+STU1278,"Scarlett Tanaka",scarlett.tanaka278@edupredict.edu,84,80.7,97.6,89.5,19.4,95.2,8.5,Good
+STU1279,"Luke Schmidt",luke.schmidt279@edupredict.edu,88.5,91.9,99,98.3,22.3,98,8,Excellent
+STU1280,"Grace Martin",grace.martin280@edupredict.edu,83.2,79.6,88,83.7,20.8,94.2,8.3,Good
+STU1281,"Asher Perez",asher.perez281@edupredict.edu,73,65.8,73.8,73.3,17.9,82.7,6.8,Average
+STU1282,"Chloe Vance",chloe.vance282@edupredict.edu,79.2,75.6,86.6,87.3,21.7,91.8,8,Good
+STU1283,"Carter Dubois",carter.dubois283@edupredict.edu,81.7,68.7,82.8,86,24.4,92,6.8,Good
+STU1284,"Victoria Kim",victoria.kim284@edupredict.edu,85.7,79.3,91.8,86.9,23.7,98,9.8,Good
+STU1285,"Julian Anderson",julian.anderson285@edupredict.edu,71.5,86.4,79.7,93.3,21.3,87.3,7.3,Good
+STU1286,"Riley Thompson",riley.thompson286@edupredict.edu,83.8,81.8,89.3,92.3,22,86.6,7.6,Good
+STU1287,"Grayson Hall",grayson.hall287@edupredict.edu,92.3,79.7,92.4,82.2,19,96.5,8.4,Good
+STU1288,"Aria Watson",aria.watson288@edupredict.edu,87,85.5,93.8,94.2,24.2,98,8.6,Excellent
+STU1289,"Leo Silva",leo.silva289@edupredict.edu,92,85.6,99,99,25.8,98,9,Excellent
+STU1290,"Lily Muller",lily.muller290@edupredict.edu,88.2,74.1,89.5,77.9,23,98,7.3,Good
+STU1291,"Jayden Taylor",jayden.taylor291@edupredict.edu,77.8,68.4,77.3,83.5,20.4,94.3,6.9,Good
+STU1292,"Aubrey Garcia",aubrey.garcia292@edupredict.edu,76.4,73,74.6,80.9,18,81.1,7.1,Good
+STU1293,"Gabriel Young",gabriel.young293@edupredict.edu,87.8,87,94.7,88.5,20.6,98,6.8,Excellent
+STU1294,"Zoey O'Connor",zoey.o'connor294@edupredict.edu,74.3,77.7,80.9,88,21.5,95.9,6.7,Good
+STU1295,"Isaac Patel",isaac.patel295@edupredict.edu,76.8,80.2,75.4,93.8,19.5,98,6.1,Good
+STU1296,"Penelope Novak",penelope.novak296@edupredict.edu,90.2,80.4,92.5,90.4,22.2,98,7.4,Good
+STU1297,"Anthony Thomas",anthony.thomas297@edupredict.edu,77.5,78,88,84,23.4,85.9,8.2,Good
+STU1298,"Lillian Clark",lillian.clark298@edupredict.edu,73.5,88,87.7,97.3,21.3,86.1,7.2,Good
+STU1299,"Jaxon Allen",jaxon.allen299@edupredict.edu,70.5,72.1,75,78.7,19.6,81.9,6.4,Good
+STU1300,"Addison Khan",addison.khan300@edupredict.edu,81.1,72.6,75.4,81,21.6,98,8.3,Good
+STU1301,"Alexander Campbell",alexander.campbell301@edupredict.edu,87.1,74.3,77.6,81.1,18.4,97.7,7.5,Good
+STU1302,"Sophia Chen",sophia.chen302@edupredict.edu,91.8,91.2,92.5,95.1,22.1,98,9.1,Excellent
+STU1303,"Marcus Jackson",marcus.jackson303@edupredict.edu,93.8,95,98.1,99,22.1,95.7,8.3,Excellent
+STU1304,"Emma Robinson",emma.robinson304@edupredict.edu,91.1,86.3,92.8,91.4,20.6,98,8.1,Excellent
+STU1305,"Liam Sanchez",liam.sanchez305@edupredict.edu,90.3,90.3,95.8,95.8,23.6,98,7.9,Excellent
+STU1306,"Aaliyah Zhang",aaliyah.zhang306@edupredict.edu,75.6,94.2,88.5,99,21.6,89.3,7.5,Excellent
+STU1307,"Ethan Rossi",ethan.rossi307@edupredict.edu,81.5,78.5,87.3,83.4,19.5,82,7.3,Good
+STU1308,"Olivia Gupta",olivia.gupta308@edupredict.edu,94.7,88.9,91.2,96.5,24.9,98,9.5,Excellent
+STU1309,"Daniel White",daniel.white309@edupredict.edu,70.8,81.6,75.7,84.5,17.8,83.6,7.5,Good
+STU1310,"Chloe Lewis",chloe.lewis310@edupredict.edu,74.3,62.7,69.2,80.3,18.2,93.2,7.2,Good
+STU1311,"Lucas Hayes",lucas.hayes311@edupredict.edu,93.7,91.4,91.8,93.5,23.7,98,8.1,Excellent
+STU1312,"Ava Bennett",ava.bennett312@edupredict.edu,90.8,91.8,99,99,28.4,98,8.1,Excellent
+STU1313,"Noah Wilson",noah.wilson313@edupredict.edu,81.6,98,98.1,99,20.8,95.8,7.1,Excellent
+STU1314,"Isabella Santos",isabella.santos314@edupredict.edu,76.7,80.1,79.4,88.2,19.5,85,7.5,Good
+STU1315,"James Harris",james.harris315@edupredict.edu,86.6,78.2,88.8,87.8,24.4,98,8.2,Good
+STU1316,"Mia Walker",mia.walker316@edupredict.edu,88.6,86.7,98.8,98.1,22.3,98,7.8,Excellent
+STU1317,"Benjamin Martinez",benjamin.martinez317@edupredict.edu,84.3,82.5,84.2,81.3,17.9,85.4,7.3,Good
+STU1318,"Charlotte Rivera",charlotte.rivera318@edupredict.edu,88.1,84.3,87.7,87.6,21.2,98,8.1,Good
+STU1319,"Henry Tanaka",henry.tanaka319@edupredict.edu,86.1,81.3,86.6,95.8,22.7,98,7.7,Good
+STU1320,"Amelia Schmidt",amelia.schmidt320@edupredict.edu,92.5,79.5,92.6,99,25.6,98,8.7,Excellent
+STU1321,"Sebastian Martin",sebastian.martin321@edupredict.edu,83.1,88,87.2,91,20.7,97.3,8.2,Good
+STU1322,"Harper Perez",harper.perez322@edupredict.edu,88.4,92.7,94.8,99,20.4,98,8.4,Excellent
+STU1323,"Jack Vance",jack.vance323@edupredict.edu,79.7,74.1,90.4,82.6,20.8,93.3,8.1,Good
+STU1324,"Evelyn Dubois",evelyn.dubois324@edupredict.edu,82.9,76.5,86.6,94.6,23.2,98,7.4,Good
+STU1325,"Owen Kim",owen.kim325@edupredict.edu,82.2,80.5,84.4,95.9,23.3,98,7.1,Good
+STU1326,"Abigail Anderson",abigail.anderson326@edupredict.edu,97,91.4,94.2,96,24.9,98,9.3,Excellent
+STU1327,"Samuel Thompson",samuel.thompson327@edupredict.edu,98.7,89.3,99,85.4,25.7,98,8.9,Excellent
+STU1328,"Emily Hall",emily.hall328@edupredict.edu,99,89.5,99,99,28.6,98,9.6,Excellent
+STU1329,"David Watson",david.watson329@edupredict.edu,86.2,71.1,90.5,83.3,22.6,98,7,Good
+STU1330,"Elizabeth Silva",elizabeth.silva330@edupredict.edu,74.9,76.5,84.1,87.9,19.7,95.3,7.3,Good
+STU1331,"Joseph Muller",joseph.muller331@edupredict.edu,92.2,94.9,99,98.2,22.5,98,8,Excellent
+STU1332,"Sofia Taylor",sofia.taylor332@edupredict.edu,96.8,96.4,99,99,25.8,98,9.5,Excellent
+STU1333,"John Garcia",john.garcia333@edupredict.edu,78.5,75.6,83.7,81.8,19.5,89.2,7.6,Good
+STU1334,"Avery Young",avery.young334@edupredict.edu,86.4,82.3,91.9,99,27.3,98,8.5,Excellent
+STU1335,"Wyatt O'Connor",wyatt.o'connor335@edupredict.edu,81.9,85.7,93.4,94.7,23.6,98,7.7,Excellent
+STU1336,"Ella Patel",ella.patel336@edupredict.edu,92.5,90.8,99,99,25.3,98,9.3,Excellent
+STU1337,"Matthew Novak",matthew.novak337@edupredict.edu,96.2,98,99,99,25,98,9.2,Excellent
+STU1338,"Scarlett Thomas",scarlett.thomas338@edupredict.edu,90.2,87.3,99,86.8,21.4,98,8,Excellent
+STU1339,"Luke Clark",luke.clark339@edupredict.edu,96.5,97.3,99,99,24.3,97.8,9.4,Excellent
+STU1340,"Grace Allen",grace.allen340@edupredict.edu,86.1,83.2,87.2,77.9,21.6,98,8.5,Good
+STU1341,"Asher Khan",asher.khan341@edupredict.edu,78.3,79.5,85.6,78.3,20.3,95.9,6.9,Good
+STU1342,"Chloe Campbell",chloe.campbell342@edupredict.edu,81.3,82.2,85.4,79.8,17.9,92.7,6.8,Good
+STU1343,"Carter Chen",carter.chen343@edupredict.edu,75.8,90.6,79.4,90.2,17.3,84.1,7.3,Good
+STU1344,"Victoria Jackson",victoria.jackson344@edupredict.edu,87.2,81.7,88.3,87.9,23.8,98,9.3,Excellent
+STU1345,"Julian Robinson",julian.robinson345@edupredict.edu,90.4,78.3,93.1,99,26.5,98,8.2,Excellent
+STU1346,"Riley Sanchez",riley.sanchez346@edupredict.edu,85.8,94.6,95.4,99,22.7,98,8.2,Excellent
+STU1347,"Grayson Zhang",grayson.zhang347@edupredict.edu,92.5,89.9,98.1,96.7,24.9,98,8.9,Excellent
+STU1348,"Aria Rossi",aria.rossi348@edupredict.edu,91.9,85,94,92.3,22.8,96.1,7.8,Excellent
+STU1349,"Leo Gupta",leo.gupta349@edupredict.edu,81.4,83.1,90.7,88.1,21.2,94.4,8.3,Good
+STU1350,"Lily White",lily.white350@edupredict.edu,83.5,88.4,88.4,95.9,20.2,98,7.8,Excellent
+STU1351,"Jayden Lewis",jayden.lewis351@edupredict.edu,91.4,91.5,92.6,99,22.9,98,8,Excellent
+STU1352,"Aubrey Hayes",aubrey.hayes352@edupredict.edu,85.3,92.6,93.6,99,25,98,8.5,Excellent
+STU1353,"Gabriel Bennett",gabriel.bennett353@edupredict.edu,89.3,74,85.1,79.5,22.3,98,8.7,Good
+STU1354,"Zoey Wilson",zoey.wilson354@edupredict.edu,81.3,78.6,83.6,84.1,21.8,98,8.3,Good
+STU1355,"Isaac Santos",isaac.santos355@edupredict.edu,81.2,78.4,82.4,87.2,20.5,91.7,6.9,Good
+STU1356,"Penelope Harris",penelope.harris356@edupredict.edu,92.2,95.1,90.8,99,25.3,98,9.4,Excellent
+STU1357,"Anthony Walker",anthony.walker357@edupredict.edu,86.3,95.3,92.4,99,23,98,8.7,Excellent
+STU1358,"Lillian Martinez",lillian.martinez358@edupredict.edu,86.8,91.1,90.8,97.7,24.4,98,8.2,Excellent
+STU1359,"Jaxon Rivera",jaxon.rivera359@edupredict.edu,92.7,93.2,99,99,26.8,98,9,Excellent
+STU1360,"Addison Tanaka",addison.tanaka360@edupredict.edu,90.2,76.5,93.4,86.4,25.6,98,8.9,Excellent
+STU1361,"Alexander Schmidt",alexander.schmidt361@edupredict.edu,95.3,86.4,99,98.3,27,98,8.4,Excellent
+STU1362,"Sophia Martin",sophia.martin362@edupredict.edu,88.2,74,79.6,84.8,24.3,93.4,8.4,Good
+STU1363,"Marcus Perez",marcus.perez363@edupredict.edu,92.6,94.7,99,97.3,23,98,8.4,Excellent
+STU1364,"Emma Vance",emma.vance364@edupredict.edu,94.3,97.4,94.9,93,20.1,98,8.9,Excellent
+STU1365,"Liam Dubois",liam.dubois365@edupredict.edu,90.6,96.2,96.3,99,25.3,98,8.5,Excellent
+STU1366,"Aaliyah Kim",aaliyah.kim366@edupredict.edu,94.7,94.2,99,99,24.1,98,8.7,Excellent
+STU1367,"Ethan Anderson",ethan.anderson367@edupredict.edu,99,96.1,99,99,24.5,98,9.2,Excellent
+STU1368,"Olivia Thompson",olivia.thompson368@edupredict.edu,91.6,93.1,89.2,99,22.4,95.2,8,Excellent
+STU1369,"Daniel Hall",daniel.hall369@edupredict.edu,93,91.3,96.8,97,23.6,98,8.6,Excellent
+STU1370,"Chloe Watson",chloe.watson370@edupredict.edu,94.7,84.7,99,99,26.9,98,9.4,Excellent
+STU1371,"Lucas Silva",lucas.silva371@edupredict.edu,97.9,97.9,99,99,25.4,98,9,Excellent
+STU1372,"Ava Muller",ava.muller372@edupredict.edu,85,91.5,96.8,98.7,26.6,98,8.8,Excellent
+STU1373,"Noah Taylor",noah.taylor373@edupredict.edu,95.1,98,95.5,99,25.6,98,9.4,Excellent
+STU1374,"Isabella Garcia",isabella.garcia374@edupredict.edu,76.2,81.9,83.7,86.6,22.9,94.3,8.1,Good
+STU1375,"James Young",james.young375@edupredict.edu,90.9,91.2,93.3,95.6,23,98,8.3,Excellent
+STU1376,"Mia O'Connor",mia.o'connor376@edupredict.edu,90.4,79.1,92,93.9,27.5,98,9.9,Excellent
+STU1377,"Benjamin Patel",benjamin.patel377@edupredict.edu,82,81.2,85.6,84.1,23,98,8.2,Good
+STU1378,"Charlotte Novak",charlotte.novak378@edupredict.edu,78,87.1,93,96.5,23.4,98,8.2,Excellent
+STU1379,"Henry Thomas",henry.thomas379@edupredict.edu,91.2,96.7,98.7,97.1,21.1,98,8.3,Excellent
+STU1380,"Amelia Clark",amelia.clark380@edupredict.edu,91.5,91.9,94.4,99,25.4,98,8.1,Excellent

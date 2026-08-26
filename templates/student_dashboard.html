@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard — {{ student.name if student else 'Student' }}{% endblock %}
+{% block page_title %}Student Dashboard{% endblock %}
+
+{% block content %}
+{% if student %}
+<div style="max-width: 1100px;">
+
+  <!-- Welcome Banner -->
+  <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: #fff; padding: 28px; border-radius: var(--radius-lg); margin-bottom: 24px;">
+    <div class="flex" style="align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+      <div class="flex" style="align-items: center; gap: 16px;">
+        <div style="width: 52px; height: 52px; border-radius: 50%; background: rgba(255,255,255,0.2); color: #fff; font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center;">
+          {{ student.name[:1]|upper }}
+        </div>
+        <div>
+          <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8;">Student Dashboard</div>
+          <h2 style="font-size: 22px; font-weight: 800; margin-top: 2px;">Welcome, {{ student.name }}</h2>
+          <div style="font-size: 13px; opacity: 0.7; margin-top: 4px;">
+            ID: <code style="background: rgba(255,255,255,0.15); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono);">{{ student.student_id }}</code>
+            <span style="margin: 0 6px;">·</span>
+            {{ student.email }}
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-1" style="flex-wrap: wrap;">
+        <a href="{{ url_for('student_academic_profile') }}" class="btn btn-sm" style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.25); text-decoration: none;">✏️ Edit Profile</a>
+        <a href="{{ url_for('student_prediction') }}" class="btn btn-sm" style="background: #fff; color: var(--primary); font-weight: 700; text-decoration: none;">🤖 My Prediction</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Prediction Summary -->
+  <div class="card" style="margin-bottom: 24px;">
+    <div class="card-header">
+      <div class="flex" style="align-items: center; gap: 8px;">
+        <span>🤖</span>
+        <h3>AI Performance Forecast</h3>
+      </div>
+      {% if latest_prediction %}
+        <span class="text-xs text-muted">Assessed: {{ latest_prediction.created_at.strftime('%b %d, %Y at %H:%M') if latest_prediction.created_at else 'Recent' }}</span>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      {% if latest_prediction %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px;">
+          <div style="background: var(--bg-muted); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px;">
+            <div class="text-xs font-bold text-muted" style="text-transform: uppercase; letter-spacing: 0.5px;">Predicted Performance</div>
+            <div style="font-size: 22px; font-weight: 800; margin-top: 4px; color: {% if latest_prediction.performance == 'Excellent' %}var(--green){% elif latest_prediction.performance == 'Good' %}var(--blue){% elif latest_prediction.performance == 'Average' %}var(--amber){% else %}var(--red){% endif %};">
+              {{ latest_prediction.performance }}
+            </div>
+          </div>
+          <div style="background: var(--bg-muted); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px;">
+            <div class="text-xs font-bold text-muted" style="text-transform: uppercase; letter-spacing: 0.5px;">Risk Level</div>
+            <div style="margin-top: 6px;">
+              <span class="pred-badge badge-risk-{{ latest_prediction.risk_level|lower }}">{{ latest_prediction.risk_level }} Risk</span>
+            </div>
+          </div>
+          <div style="background: var(--bg-muted); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px;">
+            <div class="text-xs font-bold text-muted" style="text-transform: uppercase; letter-spacing: 0.5px;">Confidence</div>
+            <div style="font-size: 22px; font-weight: 800; margin-top: 4px;">
+              {% if latest_prediction.confidence is not none %}{{ latest_prediction.confidence|round|int }}%{% else %}N/A{% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div style="background: var(--blue-50); border-left: 4px solid var(--blue); padding: 14px 18px; border-radius: 0 var(--radius-md) var(--radius-md) 0;">
+          <div class="text-xs font-bold text-primary" style="text-transform: uppercase; margin-bottom: 4px;">Diagnostic Explanation</div>
+          <p class="text-sm" style="color: var(--text-secondary); line-height: 1.6; margin: 0;">{{ latest_prediction.explanation }}</p>
+        </div>
+      {% else %}
+        <div class="text-center" style="padding: 28px 16px;">
+          <div class="text-sm font-bold text-muted mb-2">No prediction generated yet</div>
+          <p class="text-xs text-muted mb-2" style="max-width: 400px; margin: 0 auto 16px;">Execute the machine learning model to evaluate your performance prediction.</p>
+          <form method="POST" action="{{ url_for('student_predict') }}">
+            <button type="submit" class="btn btn-primary btn-sm">⚡ Predict My Performance</button>
+          </form>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Academic Metrics -->
+  <div class="mb-3">
+    <h3 class="font-display font-bold" style="font-size: 15px; margin-bottom: 14px;">Academic Metrics</h3>
+    <div class="grid-stats">
+      <div class="stat-card">
+        <div class="stat-content">
+          <div class="stat-label">Attendance Rate</div>
+          <div class="stat-value">{% if student.attendance is not none %}{{ student.attendance }}%{% else %}<span class="text-muted" style="font-size: 16px;">Not provided</span>{% endif %}</div>
+          {% if student.attendance is not none %}
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill {% if student.attendance < 65 %}fill-red{% elif student.attendance < 80 %}fill-amber{% else %}fill-green{% endif %}" style="width: {{ student.attendance }}%;"></div>
+          </div>
+          {% endif %}
+          <div class="stat-sub">Lecture attendance</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-content">
+          <div class="stat-label">Previous Marks</div>
+          <div class="stat-value">{% if student.previous_marks is not none %}{{ student.previous_marks }}/100{% else %}<span class="text-muted" style="font-size: 16px;">Not provided</span>{% endif %}</div>
+          {% if student.previous_marks is not none %}
+          <div class="progress-bar-container"><div class="progress-bar-fill fill-blue" style="width: {{ student.previous_marks }}%;"></div></div>
+          {% endif %}
+          <div class="stat-sub">Prior examination grade</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-content">
+          <div class="stat-label">Assignment Score</div>
+          <div class="stat-value">{% if student.assignment_score is not none %}{{ student.assignment_score }}/100{% else %}<span class="text-muted" style="font-size: 16px;">Not provided</span>{% endif %}</div>
+          {% if student.assignment_score is not none %}
+          <div class="progress-bar-container"><div class="progress-bar-fill fill-green" style="width: {{ student.assignment_score }}%;"></div></div>
+          {% endif %}
+          <div class="stat-sub">Coursework & projects</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-content">
+          <div class="stat-label">Study Hours</div>
+          <div class="stat-value">{% if student.study_hours is not none %}{{ student.study_hours }} hrs{% else %}<span class="text-muted" style="font-size: 16px;">Not provided</span>{% endif %}</div>
+          {% if student.study_hours is not none %}
+          <div class="progress-bar-container"><div class="progress-bar-fill fill-amber" style="width: {{ [(student.study_hours / 35.0 * 100), 100]|min }}%;"></div></div>
+          {% endif %}
+          <div class="stat-sub">Self-study per week</div>
+        </div>
+      </div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+      {% for label, value in [
+        ('Quiz Score', student.quiz_score),
+        ('LMS Activity', student.lms_activity),
+        ('Participation', student.participation)
+      ] %}
+      <div class="stat-card">
+        <div class="stat-content">
+          <div class="stat-label">{{ label }}</div>
+          <div class="stat-value">{% if value is not none %}{{ value }} <span style="font-size: 14px; color: var(--text-muted); font-weight: normal;">/ 100</span>{% else %}<span class="text-muted" style="font-size: 14px;">Not provided</span>{% endif %}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Performance Chart -->
+  <div class="card" style="margin-bottom: 24px;">
+    <div class="card-header">
+      <h3>Academic Engagement Profile</h3>
+      <span class="text-xs text-muted">Real Data</span>
+    </div>
+    <div class="card-body">
+      {% if student.attendance is not none and student.previous_marks is not none %}
+        <div style="height: 260px; position: relative;">
+          <canvas id="studentPerformanceChart"></canvas>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            var ctx = document.getElementById('studentPerformanceChart');
+            if (ctx) {
+              new Chart(ctx, {
+                type: 'bar',
+                data: {
+                  labels: ['Attendance', 'Previous Marks', 'Assignment', 'Quiz Score', 'LMS Activity', 'Participation'],
+                  datasets: [{
+                    label: 'Score',
+                    data: [
+                      {{ student.attendance or 0 }},
+                      {{ student.previous_marks or 0 }},
+                      {{ student.assignment_score or 0 }},
+                      {{ student.quiz_score or 0 }},
+                      {{ student.lms_activity or 0 }},
+                      {{ student.participation or 0 }}
+                    ],
+                    backgroundColor: ['#4F46E5', '#3B82F6', '#10B981', '#8B5CF6', '#06B6D4', '#F59E0B'],
+                    borderRadius: 6,
+                    barThickness: 36
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: {
+                    y: { beginAtZero: true, max: 100, ticks: { callback: function(v) { return v + '%'; }, stepSize: 20 }, grid: { color: '#F1F5F9' } },
+                    x: { grid: { display: false } }
+                  },
+                  plugins: { legend: { display: false } }
+                }
+              });
+            }
+          });
+        </script>
+      {% else %}
+        <div class="text-center text-muted" style="padding: 32px;">No academic data available.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Recent Prediction Logs -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Recent Prediction Logs</h3>
+      <a href="{{ url_for('student_prediction_history') }}" class="btn btn-secondary btn-sm">View History →</a>
+    </div>
+    <div class="card-body" style="padding: 0;">
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Outcome</th>
+              <th>Risk Level</th>
+              <th>Confidence</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in prediction_history[:5] %}
+            <tr>
+              <td class="text-xs text-muted">{{ p.created_at.strftime('%b %d, %Y') if p.created_at else 'Recent' }}</td>
+              <td><span class="pred-badge badge-{{ p.performance|lower|replace(' ', '-') }}">{{ p.performance }}</span></td>
+              <td><span class="pred-badge badge-risk-{{ p.risk_level|lower }}">{{ p.risk_level }}</span></td>
+              <td class="font-bold">{{ p.confidence|round|int if p.confidence is not none else 'N/A' }}%</td>
+              <td class="text-xs text-muted" style="max-width: 300px;">{{ p.explanation }}</td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="5" class="text-center text-muted" style="padding: 24px;">No prediction history yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% else %}
+<div class="card">
+  <div class="card-body text-center" style="padding: 40px;">
+    <h3>No Student Record Found</h3>
+    <p class="text-muted mt-1">Please complete your onboarding profile.</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

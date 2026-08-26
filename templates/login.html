@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — EduPredict</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-light: #818CF8;
+      --primary-dark: #3730A3;
+      --primary-50: #EEF2FF;
+      --blue: #3B82F6;
+      --blue-50: #EFF6FF;
+      --green: #10B981;
+      --green-50: #ECFDF5;
+      --red: #EF4444;
+      --red-50: #FEF2F2;
+      --amber: #F59E0B;
+      --amber-50: #FFFBEB;
+      --text-primary: #0F172A;
+      --text-secondary: #475569;
+      --text-muted: #94A3B8;
+      --border: #E2E8F0;
+      --bg: #F1F5F9;
+      --font-display: 'Plus Jakarta Sans', 'Inter', sans-serif;
+      --font-body: 'Inter', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+      padding: 20px;
+    }
+    .auth-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.06);
+    }
+    .auth-header { text-align: center; margin-bottom: 28px; }
+    .auth-brand {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-radius: 12px;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 800; font-size: 16px;
+      font-family: var(--font-display);
+      margin-bottom: 16px;
+    }
+    .auth-header h1 { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px; }
+    .auth-header p { font-size: 14px; color: var(--text-muted); }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; }
+    .form-control {
+      width: 100%; padding: 10px 14px; font-size: 14px;
+      font-family: var(--font-body); color: var(--text-primary);
+      background: #F8FAFC; border: 1px solid var(--border);
+      border-radius: 10px; outline: none; transition: all 0.15s;
+    }
+    .form-control::placeholder { color: #CBD5E1; }
+    .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.1); background: #fff; }
+    .btn-submit {
+      width: 100%; padding: 12px; font-size: 14px; font-weight: 700;
+      font-family: var(--font-body); color: #fff;
+      background: var(--primary); border: none; border-radius: 10px;
+      cursor: pointer; transition: all 0.2s; margin-top: 4px;
+    }
+    .btn-submit:hover { background: var(--primary-dark); box-shadow: 0 4px 14px rgba(79,70,229,0.3); transform: translateY(-1px); }
+    .auth-footer { text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted); }
+    .auth-footer a { color: var(--primary); font-weight: 600; text-decoration: none; }
+    .auth-footer a:hover { color: var(--primary-dark); }
+    .auth-back { text-align: center; margin-top: 12px; }
+    .auth-back a { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .auth-back a:hover { color: var(--text-secondary); }
+    .alert {
+      padding: 10px 14px; border-radius: 10px; font-size: 13px;
+      margin-bottom: 14px; border: 1px solid; font-weight: 500;
+    }
+    .alert-success { background: var(--green-50); color: #065F46; border-color: #D1FAE5; }
+    .alert-danger  { background: var(--red-50); color: #991B1B; border-color: #FECDD3; }
+    .alert-warning { background: var(--amber-50); color: #92400E; border-color: #FDE68A; }
+    .alert-info    { background: var(--blue-50); color: #1E40AF; border-color: #BFDBFE; }
+    @media (max-width: 480px) {
+      .auth-card { padding: 28px 24px; border-radius: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-brand">EP</div>
+      <h1>Welcome Back</h1>
+      <p>Sign in to your EduPredict account</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('login') }}">
+      <div class="form-group">
+        <label class="form-label" for="username">Username or Email</label>
+        <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username or email" required autofocus>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+      </div>
+      <button type="submit" class="btn-submit">Sign In</button>
+    </form>
+
+    <div class="auth-footer">
+      Don't have an account? <a href="{{ url_for('register') }}">Register here</a>
+    </div>
+    <div class="auth-back">
+      <a href="{{ url_for('index') }}">&larr; Back to homepage</a>
+    </div>
+  </div>
+</body>
+</html>

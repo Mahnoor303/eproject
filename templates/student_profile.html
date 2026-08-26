@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Student Profile — EduPredict{% endblock %}
+{% block page_title %}Student Profile{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; padding-bottom: 40px;">
+  
+  <!-- Header Banner -->
+  <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff; padding: 28px; border-radius: var(--radius-lg); margin-bottom: 24px; box-shadow: var(--shadow-md);">
+    <div style="display: flex; align-items: center; gap: 18px;">
+      <div style="width: 56px; height: 56px; border-radius: 50%; background: #2563eb; color: #fff; font-size: 24px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        {{ student_user.full_name[:1]|upper if student_user and student_user.full_name else (student_user.username[:1]|upper if student_user else 'S') }}
+      </div>
+      <div>
+        <h2 style="font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 4px;">
+          {{ student_user.full_name or student_user.username }}
+        </h2>
+        <div style="font-size: 13px; color: #94a3b8;">
+          Role: <span class="pred-badge" style="background: rgba(59, 130, 246, 0.25); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4); font-size: 11px; padding: 2px 8px;">Student</span>
+          <span style="margin: 0 6px;">&bull;</span>
+          Username: <strong>@{{ student_user.username }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Form Card -->
+  <div class="card" style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden;">
+    <div class="card-header" style="padding: 20px 28px; border-bottom: 1px solid #e2e8f0;">
+      <h3 style="font-size: 17px; font-weight: 700; color: #0f172a; margin: 0;">Account Information</h3>
+      <p style="font-size: 13px; color: #64748b; margin: 4px 0 0 0;">Update your identity and account details stored in SQLite.</p>
+    </div>
+    <div class="card-body" style="padding: 28px;">
+      
+      <form method="POST" action="{{ url_for('student_profile') }}">
+        
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label class="form-label" for="full_name" style="font-weight: 600; color: #1e293b;">Full Name</label>
+          <input 
+            type="text" 
+            id="full_name" 
+            name="full_name" 
+            class="form-control" 
+            value="{{ student_user.full_name or '' }}" 
+            placeholder="e.g. Alex Johnson"
+            required
+          >
+          <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">Your official display name</small>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label class="form-label" for="email" style="font-weight: 600; color: #1e293b;">Email Address</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            class="form-control" 
+            value="{{ student_user.email or '' }}" 
+            disabled 
+            style="background-color: #f8fafc; cursor: not-allowed;"
+          >
+          <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">Email is linked to your student registration and cannot be modified</small>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label class="form-label" for="username" style="font-weight: 600; color: #1e293b;">Username</label>
+          <input 
+            type="text" 
+            id="username" 
+            name="username" 
+            class="form-control" 
+            value="{{ student_user.username }}" 
+            placeholder="e.g. alexj"
+            required
+          >
+          <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">Unique username used to sign in to EduPredict</small>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 24px;">
+          <label class="form-label" style="font-weight: 600; color: #1e293b;">Role</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            value="Student" 
+            disabled 
+            style="background-color: #f8fafc; cursor: not-allowed; font-weight: 600;"
+          >
+          <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">Role is strictly system-managed</small>
+        </div>
+
+        <div style="padding-top: 20px; border-top: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+          <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary" style="text-decoration: none;">
+            Cancel
+          </a>
+          <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-weight: 600;">
+            💾 Save Profile Changes
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

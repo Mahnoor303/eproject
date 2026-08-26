@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+
+{% block title %}My Academic Profile — EduPredict{% endblock %}
+{% block page_title %}My Academic Profile{% endblock %}
+
+{% block content %}
+{% if student %}
+<div style="max-width: 960px; margin: 0 auto; padding-bottom: 40px;">
+  <!-- Header Banner -->
+  <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff; padding: 28px; border-radius: var(--radius-lg); margin-bottom: 24px; box-shadow: var(--shadow-md);">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div style="width: 52px; height: 52px; border-radius: 50%; background: #2563eb; color: #fff; font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          {{ student.name[:1]|upper }}
+        </div>
+        <div>
+          <h2 style="font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 4px;">My Academic Profile</h2>
+          <p style="font-size: 13px; color: #94a3b8; line-height: 1.4;">
+            View and update your academic inputs used for real-time AI performance prediction.
+          </p>
+        </div>
+      </div>
+      <div style="text-align: right;">
+        <div style="font-size: 12px; color: #94a3b8;">Student ID</div>
+        <div style="font-family: monospace; font-size: 15px; font-weight: 700; color: #93c5fd;">{{ student.student_id }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Current Metrics Overview Cards -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px;">
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-label">Attendance</div>
+        <div class="stat-value">
+          {% if student.attendance is not none %}{{ student.attendance }}%{% else %}<span style="color: #94a3b8; font-size: 16px;">Not provided</span>{% endif %}
+        </div>
+        <div class="stat-sub">Lecture presence</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-label">Previous Marks</div>
+        <div class="stat-value">
+          {% if student.previous_marks is not none %}{{ student.previous_marks }}<span style="font-size: 14px; font-weight: normal; color: #64748b;"> / 100</span>{% else %}<span style="color: #94a3b8; font-size: 16px;">Not provided</span>{% endif %}
+        </div>
+        <div class="stat-sub">Prior term score</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-label">Assignment Score</div>
+        <div class="stat-value">
+          {% if student.assignment_score is not none %}{{ student.assignment_score }}<span style="font-size: 14px; font-weight: normal; color: #64748b;"> / 100</span>{% else %}<span style="color: #94a3b8; font-size: 16px;">Not provided</span>{% endif %}
+        </div>
+        <div class="stat-sub">Coursework &amp; tasks</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-label">Quiz Score</div>
+        <div class="stat-value">
+          {% if student.quiz_score is not none %}{{ student.quiz_score }}<span style="font-size: 14px; font-weight: normal; color: #64748b;"> / 100</span>{% else %}<span style="color: #94a3b8; font-size: 16px;">Not provided</span>{% endif %}
+        </div>
+        <div class="stat-sub">Weekly quizzes</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-label">Study Hours</div>
+        <div class="stat-value">
+          {% if student.study_hours is not none %}{{ student.study_hours }} <span style="font-size: 14px; font-weight: normal; color: #64748b;">hrs/wk</span>{% else %}<span style="color: #94a3b8; font-size: 16px;">Not provided</span>{% endif %}
+        </div>
+        <div class="stat-sub">Weekly study time</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-label">LMS Activity</div>
+        <div class="stat-value">
+          {% if student.lms_activity is not none %}{{ student.lms_activity }}<span style="font-size: 14px; font-weight: normal; color: #64748b;"> / 100</span>{% else %}<span style="color: #94a3b8; font-size: 16px;">Not provided</span>{% endif %}
+        </div>
+        <div class="stat-sub">Portal engagement</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-content">
+        <div class="stat-label">Participation</div>
+        <div class="stat-value">
+          {% if student.participation is not none %}{{ student.participation }}<span style="font-size: 14px; font-weight: normal; color: #64748b;"> / 100</span>{% else %}<span style="color: #94a3b8; font-size: 16px;">Not provided</span>{% endif %}
+        </div>
+        <div class="stat-sub">Class interaction</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Academic Profile Form -->
+  <div class="card" style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden;">
+    <div class="card-header" style="padding: 20px 28px; border-bottom: 1px solid #e2e8f0;">
+      <h3 style="font-size: 17px; font-weight: 700; color: #0f172a; margin: 0;">Edit Academic Information</h3>
+      <p style="font-size: 13px; color: #64748b; margin: 4px 0 0 0;">
+        Update your real academic scores below. Saving will update your SQLite records.
+      </p>
+    </div>
+    <div class="card-body" style="padding: 28px;">
+      <form method="POST" action="{{ url_for('student_academic_profile') }}">
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;">
+          
+          <!-- Attendance -->
+          <div class="form-group">
+            <label class="form-label" for="attendance" style="font-weight: 600; color: #1e293b;">
+              Attendance Rate (%) <span style="color: #ef4444;">*</span>
+            </label>
+            <input 
+              type="number" 
+              id="attendance" 
+              name="attendance" 
+              class="form-control" 
+              placeholder="0 – 100" 
+              min="0" 
+              max="100" 
+              step="0.1" 
+              value="{{ student.attendance if student.attendance is not none else '' }}"
+              required
+            >
+            <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">Valid range: 0.0 to 100.0%</small>
+          </div>
+
+          <!-- Previous Marks -->
+          <div class="form-group">
+            <label class="form-label" for="previous_marks" style="font-weight: 600; color: #1e293b;">
+              Previous Marks (0–100) <span style="color: #ef4444;">*</span>
+            </label>
+            <input 
+              type="number" 
+              id="previous_marks" 
+              name="previous_marks" 
+              class="form-control" 
+              placeholder="0 – 100" 
+              min="0" 
+              max="100" 
+              step="0.1" 
+              value="{{ student.previous_marks if student.previous_marks is not none else '' }}"
+              required
+            >
+            <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">Prior exam average</small>
+          </div>
+
+          <!-- Assignment Score -->
+          <div class="form-group">
+            <label class="form-label" for="assignment_score" style="font-weight: 600; color: #1e293b;">
+              Assignment Score (0–100) <span style="color: #ef4444;">*</span>
+            </label>
+            <input 
+              type="number" 
+              id="assignment_score" 
+              name="assignment_score" 
+              class="form-control" 
+              placeholder="0 – 100" 
+              min="0" 
+              max="100" 
+              step="0.1" 
+              value="{{ student.assignment_score if student.assignment_score is not none else '' }}"
+              required
+            >
+            <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">Coursework completion score</small>
+          </div>
+
+          <!-- Quiz Score -->
+          <div class="form-group">
+            <label class="form-label" for="quiz_score" style="font-weight: 600; color: #1e293b;">
+              Quiz Score (0–100) <span style="color: #ef4444;">*</span>
+            </label>
+            <input 
+              type="number" 
+              id="quiz_score" 
+              name="quiz_score" 
+              class="form-control" 
+              placeholder="0 – 100" 
+              min="0" 
+              max="100" 
+              step="0.1" 
+              value="{{ student.quiz_score if student.quiz_score is not none else '' }}"
+              required
+            >
+            <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">Quizzes and test average</small>
+          </div>
+
+          <!-- Study Hours -->
+          <div class="form-group">
+            <label class="form-label" for="study_hours" style="font-weight: 600; color: #1e293b;">
+              Weekly Study Hours <span style="color: #ef4444;">*</span>
+            </label>
+            <input 
+              type="number" 
+              id="study_hours" 
+              name="study_hours" 
+              class="form-control" 
+              placeholder="Hours per week" 
+              min="0" 
+              step="0.5" 
+              value="{{ student.study_hours if student.study_hours is not none else '' }}"
+              required
+            >
+            <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">Self-directed study hours</small>
+          </div>
+
+          <!-- LMS Activity -->
+          <div class="form-group">
+            <label class="form-label" for="lms_activity" style="font-weight: 600; color: #1e293b;">
+              LMS Activity (0–100) <span style="color: #ef4444;">*</span>
+            </label>
+            <input 
+              type="number" 
+              id="lms_activity" 
+              name="lms_activity" 
+              class="form-control" 
+              placeholder="0 – 100" 
+              min="0" 
+              max="100" 
+              step="0.1" 
+              value="{{ student.lms_activity if student.lms_activity is not none else '' }}"
+              required
+            >
+            <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">Online portal login &amp; resource views</small>
+          </div>
+
+          <!-- Participation -->
+          <div class="form-group">
+            <label class="form-label" for="participation" style="font-weight: 600; color: #1e293b;">
+              Participation (0–100) <span style="color: #ef4444;">*</span>
+            </label>
+            <input 
+              type="number" 
+              id="participation" 
+              name="participation" 
+              class="form-control" 
+              placeholder="0 – 100" 
+              min="0" 
+              max="100" 
+              step="0.1" 
+              value="{{ student.participation if student.participation is not none else '' }}"
+              required
+            >
+            <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">Discussion &amp; interactive rating</small>
+          </div>
+
+        </div>
+
+        <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+          <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary" style="text-decoration: none;">
+            &larr; Back to Dashboard
+          </a>
+          <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-weight: 600;">
+            💾 Save Academic Profile
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="card">
+  <div class="card-body" style="text-align: center; padding: 40px;">
+    <h3>No Student Record Found</h3>
+    <p style="color: #64748b; margin-top: 8px;">Please contact the administrator or complete onboarding.</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,6 @@
+{
+  "name": "EduPredict",
+  "description": "AI-Based Student Performance & Educational Analytics System with machine learning predictions, risk classification, and role-based dashboards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

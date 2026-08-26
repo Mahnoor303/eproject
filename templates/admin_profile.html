@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Administrator Profile — EduPredict Admin{% endblock %}
+{% block page_title %}👤 Administrator Profile{% endblock %}
+
+{% block content %}
+<div style="max-width: 720px; margin: 0 auto;">
+  
+  <div style="margin-bottom: 24px;">
+    <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">My Administrator Account</h2>
+    <p style="font-size: 13px; color: #64748b;">
+      Manage your personal system administrator credentials and account identity.
+    </p>
+  </div>
+
+  <!-- Profile Card -->
+  <div class="card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 24px;">
+    
+    <!-- User Header -->
+    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #f1f5f9;">
+      <div style="width: 64px; height: 64px; border-radius: 50%; background: #3b82f6; color: #ffffff; font-size: 24px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);">
+        {{ (admin.full_name or admin.username)[:1]|upper }}
+      </div>
+      <div>
+        <h3 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 2px;">
+          {{ admin.full_name or 'System Administrator' }}
+        </h3>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 13px; color: #64748b;">@{{ admin.username }}</span>
+          <span style="display: inline-block; width: 4px; height: 4px; border-radius: 50%; background: #94a3b8;"></span>
+          <span class="user-role-badge badge-admin" style="font-size: 11px; padding: 2px 8px;">Administrator</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Read-Only Overview Table -->
+    <div id="profile-view-mode" style="display: flex; flex-direction: column; gap: 12px; font-size: 13px; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; padding: 12px 14px; background: #f8fafc; border-radius: 8px; border: 1px solid #f1f5f9;">
+        <span style="color: #64748b; font-weight: 500;">Full Name:</span>
+        <span style="font-weight: 700; color: #0f172a;">{{ admin.full_name or 'System Administrator' }}</span>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; padding: 12px 14px; background: #f8fafc; border-radius: 8px; border: 1px solid #f1f5f9;">
+        <span style="color: #64748b; font-weight: 500;">Email Address:</span>
+        <span style="font-weight: 700; color: #0f172a;">{{ admin.email }}</span>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; padding: 12px 14px; background: #f8fafc; border-radius: 8px; border: 1px solid #f1f5f9;">
+        <span style="color: #64748b; font-weight: 500;">Username:</span>
+        <span style="font-weight: 700; color: #2563eb; font-family: monospace;">@{{ admin.username }}</span>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; padding: 12px 14px; background: #f8fafc; border-radius: 8px; border: 1px solid #f1f5f9;">
+        <span style="color: #64748b; font-weight: 500;">Role:</span>
+        <span style="font-weight: 700; color: #d97706; background: #fffbeb; padding: 2px 8px; border-radius: 4px;">Administrator</span>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; padding: 12px 14px; background: #f8fafc; border-radius: 8px; border: 1px solid #f1f5f9;">
+        <span style="color: #64748b; font-weight: 500;">System Access:</span>
+        <span style="font-weight: 600; color: #059669;">Full Master Permissions</span>
+      </div>
+
+      <div style="margin-top: 10px; text-align: right;">
+        <button type="button" class="btn btn-primary" onclick="toggleEditMode(true)" style="padding: 8px 20px;">
+          Edit Profile
+        </button>
+      </div>
+    </div>
+
+    <!-- Edit Profile Form (Hidden by default) -->
+    <div id="profile-edit-mode" style="display: none;">
+      <form method="POST" action="{{ url_for('admin_profile') }}">
+        
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px;">
+            Full Name <span style="color: #ef4444;">*</span>
+          </label>
+          <input 
+            type="text" 
+            name="full_name" 
+            class="form-control" 
+            required 
+            value="{{ admin.full_name or 'System Administrator' }}"
+            style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;"
+          >
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px;">
+            Email Address (System Fixed)
+          </label>
+          <input 
+            type="email" 
+            name="email_display" 
+            class="form-control" 
+            disabled 
+            value="{{ admin.email }}"
+            style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; background: #f8fafc; color: #64748b; border-radius: 8px; font-size: 14px; cursor: not-allowed;"
+          >
+          <small style="color: #64748b; font-size: 11px; margin-top: 4px; display: block;">
+            The primary admin login email is protected by system security.
+          </small>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px;">
+            Username <span style="color: #ef4444;">*</span>
+          </label>
+          <input 
+            type="text" 
+            name="username" 
+            class="form-control" 
+            required 
+            value="{{ admin.username }}"
+            style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;"
+          >
+        </div>
+
+        <div class="form-group" style="margin-bottom: 24px;">
+          <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px;">
+            Role
+          </label>
+          <input 
+            type="text" 
+            disabled 
+            value="Administrator"
+            style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; background: #f8fafc; color: #64748b; border-radius: 8px; font-size: 14px; cursor: not-allowed;"
+          >
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px; pt-4 border-top: 1px solid #f1f5f9;">
+          <button type="button" class="btn btn-secondary" onclick="toggleEditMode(false)">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Profile Changes</button>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+function toggleEditMode(isEditing) {
+  document.getElementById('profile-view-mode').style.display = isEditing ? 'none' : 'flex';
+  document.getElementById('profile-edit-mode').style.display = isEditing ? 'block' : 'none';
+}
+</script>
+{% endblock %}

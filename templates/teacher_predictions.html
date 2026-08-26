@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}AI Predictions — Faculty Portal{% endblock %}
+{% block page_title %}Student AI Predictions & Risk Classifications{% endblock %}
+
+{% block content %}
+<!-- Page Header Info -->
+<div style="margin-bottom: 24px;">
+  <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">Student Performance Predictions</h2>
+  <p style="font-size: 13px; color: #64748b;">
+    Machine learning evaluation results, estimated academic risk standing, and model inference confidence scores.
+  </p>
+</div>
+
+<!-- Prediction Summary Metric Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px;">
+  
+  <!-- Total Predictions -->
+  <div class="stat-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b;">Total Evaluated</div>
+    <div style="font-size: 28px; font-weight: 800; color: #1e3a8a; margin: 6px 0 2px 0;">{{ total_evaluated }} / {{ total_students }}</div>
+    <div style="font-size: 11px; color: #3b82f6; font-weight: 500;">Enrolled students assessed</div>
+  </div>
+
+  <!-- High Risk Count -->
+  <div class="stat-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b;">High Risk</div>
+    <div style="font-size: 28px; font-weight: 800; color: #dc2626; margin: 6px 0 2px 0;">{{ high_risk_count }}</div>
+    <div style="font-size: 11px; color: #ef4444; font-weight: 500;">Immediate intervention</div>
+  </div>
+
+  <!-- Medium Risk Count -->
+  <div class="stat-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b;">Medium Risk</div>
+    <div style="font-size: 28px; font-weight: 800; color: #d97706; margin: 6px 0 2px 0;">{{ med_risk_count }}</div>
+    <div style="font-size: 11px; color: #f59e0b; font-weight: 500;">Close monitoring required</div>
+  </div>
+
+  <!-- Low Risk Count -->
+  <div class="stat-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b;">Low Risk</div>
+    <div style="font-size: 28px; font-weight: 800; color: #059669; margin: 6px 0 2px 0;">{{ low_risk_count }}</div>
+    <div style="font-size: 11px; color: #10b981; font-weight: 500;">On-track standing</div>
+  </div>
+
+  <!-- Average Confidence -->
+  <div class="stat-card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+    <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b;">Model Confidence</div>
+    <div style="font-size: 28px; font-weight: 800; color: #7c3aed; margin: 6px 0 2px 0;">
+      {% if avg_confidence > 0 %}{{ avg_confidence }}%{% else %}N/A{% endif %}
+    </div>
+    <div style="font-size: 11px; color: #8b5cf6; font-weight: 500;">Average certainty</div>
+  </div>
+
+</div>
+
+<!-- Predictions Table Card -->
+<div class="card" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;">
+  <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+    <h3 style="font-size: 15px; font-weight: 700; color: #0f172a; margin: 0;">Student Prediction Roster</h3>
+    <span style="font-size: 12px; color: #64748b;">
+      Total Students: {{ items|length }}
+    </span>
+  </div>
+
+  <div class="table-container" style="overflow-x: auto;">
+    <table class="table" style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+          <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #64748b; text-align: left;">Student</th>
+          <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #64748b; text-align: left;">Attendance</th>
+          <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #64748b; text-align: left;">Marks</th>
+          <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #64748b; text-align: left;">Prediction</th>
+          <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #64748b; text-align: left;">Risk Level</th>
+          <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #64748b; text-align: left;">Confidence</th>
+          <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #64748b; text-align: left;">Prediction Date</th>
+          <th style="padding: 12px 16px; font-size: 12px; font-weight: 600; color: #64748b; text-align: right;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        {% set s = item.student %}
+        {% set p = item.prediction %}
+        <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s ease;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+          
+          <!-- Student -->
+          <td style="padding: 14px 16px;">
+            <div style="font-size: 13px; font-weight: 600; color: #0f172a;">{{ s.name }}</div>
+            <div style="font-size: 11px; font-family: monospace; color: #64748b;">{{ s.student_id }}</div>
+          </td>
+
+          <!-- Attendance -->
+          <td style="padding: 14px 16px; font-size: 13px;">
+            {% if s.attendance is not none %}
+              <span style="font-weight: 600; color: {{ '#dc2626' if s.attendance < 65 else '#059669' if s.attendance >= 80 else '#d97706' }};">
+                {{ s.attendance }}%
+              </span>
+            {% else %}
+              <span style="color: #94a3b8; font-style: italic;">N/A</span>
+            {% endif %}
+          </td>
+
+          <!-- Marks -->
+          <td style="padding: 14px 16px; font-size: 13px; font-weight: 600;">
+            {% if s.previous_marks is not none %}
+              {{ s.previous_marks }}%
+            {% else %}
+              <span style="color: #94a3b8; font-style: italic;">N/A</span>
+            {% endif %}
+          </td>
+
+          <!-- Prediction -->
+          <td style="padding: 14px 16px; font-size: 13px;">
+            {% if p %}
+              <span class="user-role-badge" style="font-size: 11px; padding: 4px 8px; font-weight: 600;">
+                {{ p.performance }}
+              </span>
+            {% else %}
+              <span style="color: #94a3b8; font-style: italic; font-size: 12px;">No prediction yet</span>
+            {% endif %}
+          </td>
+
+          <!-- Risk Level -->
+          <td style="padding: 14px 16px; font-size: 13px;">
+            {% if p %}
+              <span style="font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; display: inline-block;
+                {% if p.risk_level == 'High' %}
+                  background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;
+                {% elif p.risk_level == 'Medium' %}
+                  background: #fef3c7; color: #92400e; border: 1px solid #fde68a;
+                {% else %}
+                  background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;
+                {% endif %}">
+                {{ p.risk_level }} Risk
+              </span>
+            {% else %}
+              <span style="font-size: 11px; color: #94a3b8; background: #f1f5f9; padding: 4px 8px; border-radius: 6px;">
+                Not assessed
+              </span>
+            {% endif %}
+          </td>
+
+          <!-- Confidence -->
+          <td style="padding: 14px 16px; font-size: 13px; font-weight: 600; color: #334155;">
+            {% if p and p.confidence is not none %}
+              {{ p.confidence|round(1) }}%
+            {% else %}
+              <span style="color: #94a3b8; font-style: italic; font-weight: normal;">N/A</span>
+            {% endif %}
+          </td>
+
+          <!-- Date -->
+          <td style="padding: 14px 16px; font-size: 12px; color: #64748b;">
+            {% if p and p.created_at %}
+              {{ p.created_at.strftime('%Y-%m-%d %H:%M') }}
+            {% else %}
+              <span style="color: #94a3b8; font-style: italic;">N/A</span>
+            {% endif %}
+          </td>
+
+          <!-- Action -->
+          <td style="padding: 14px 16px; text-align: right;">
+            <a href="{{ url_for('teacher_student_details', id=s.id) }}" class="btn btn-secondary btn-sm" style="padding: 6px 12px; font-size: 12px; font-weight: 600; text-decoration: none;">
+              View &rarr;
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="8" style="padding: 40px; text-align: center; color: #94a3b8; font-size: 13px;">
+            No student records found in the database.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

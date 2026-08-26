@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Dataset Explorer & Management{% endblock %}
+
+{% block content %}
+<div class="header-action-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+  <div>
+    <h1 style="font-size:1.6rem; font-weight:700; color:var(--text-main);">Dataset Explorer & Management</h1>
+    <p style="color:var(--text-muted); font-size:0.9rem;">View feature matrix, upload bulk CSV records, and synchronize training datasets.</p>
+  </div>
+  <div style="display:flex; gap:0.75rem;">
+    <a href="{{ url_for('export_students_csv') }}" class="btn btn-secondary">
+      Download CSV
+    </a>
+  </div>
+</div>
+
+<!-- Upload & Retrain Actions -->
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
+  
+  <!-- CSV Bulk Ingestion -->
+  <div class="card">
+    <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:0.75rem; color:var(--text-main);">Import Student Data (CSV)</h3>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+      Upload CSV containing headers: <code>student_id, name, email, attendance, previous_marks, assignment_score, quiz_score, study_hours, lms_activity, participation</code>.
+    </p>
+    <form method="POST" action="{{ url_for('upload_dataset') }}" enctype="multipart/form-data">
+      <div class="form-group" style="margin-bottom:1rem;">
+        <input type="file" name="dataset_file" accept=".csv" class="form-control" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">
+        Upload & Ingest Records
+      </button>
+    </form>
+  </div>
+
+  <!-- Retrain ML Model -->
+  <div class="card">
+    <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:0.75rem; color:var(--text-main);">Retrain Local ML Model</h3>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+      Trigger on-device retraining of the Random Forest Classifier on current database records and augmented synthetic cohorts.
+    </p>
+    <div style="display:flex; flex-direction:column; gap:0.75rem;">
+      <form method="POST" action="{{ url_for('retrain_model_route') }}">
+        <button type="submit" class="btn btn-secondary" style="width:100%;">
+          Retrain Random Forest Pipeline
+        </button>
+      </form>
+      <form method="POST" action="{{ url_for('reset_seed_data') }}" onsubmit="return confirm('Reset database back to initial sample roster?');">
+        <button type="submit" class="btn btn-secondary" style="width:100%; color:var(--danger);">
+          Reset to Factory Sample Data
+        </button>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<!-- Dataset Matrix Table -->
+<div class="card">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+    <h3 style="font-size:1.1rem; font-weight:600; color:var(--text-main);">Current Database Records ({{ total_records }})</h3>
+  </div>
+
+  <div style="overflow-x:auto;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Student ID</th>
+          <th>Name</th>
+          <th>Attendance</th>
+          <th>Prev Marks</th>
+          <th>Assignments</th>
+          <th>Quizzes</th>
+          <th>Study Hrs</th>
+          <th>LMS Index</th>
+          <th>Participation</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in students %}
+        <tr>
+          <td><strong>{{ s.student_id }}</strong></td>
+          <td>{{ s.name }}</td>
+          <td>{{ s.attendance }}%</td>
+          <td>{{ s.previous_marks }}%</td>
+          <td>{{ s.assignment_score }}%</td>
+          <td>{{ s.quiz_score }}%</td>
+          <td>{{ s.study_hours }} hrs</td>
+          <td>{{ s.lms_activity }}/100</td>
+          <td>{{ s.participation }}/10</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

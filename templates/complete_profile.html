@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Complete Your Academic Profile{% endblock %}
+{% block page_title %}Student Onboarding{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; padding-bottom: 40px;">
+  <!-- Welcome Banner -->
+  <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff; padding: 28px; border-radius: var(--radius-lg); margin-bottom: 24px; box-shadow: var(--shadow-md);">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <div style="width: 52px; height: 52px; border-radius: 50%; background: #3b82f6; color: #fff; font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        {{ student.name[:1]|upper if student and student.name else 'S' }}
+      </div>
+      <div>
+        <h2 style="font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 4px;">Complete Your Academic Profile</h2>
+        <p style="font-size: 14px; color: #94a3b8; line-height: 1.5;">
+          Please enter your current academic information. This information will be used to generate your personalized AI performance analysis.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Profile Completion Form Card -->
+  <div class="card" style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden;">
+    <div class="card-body" style="padding: 32px;">
+      
+      <!-- Read-Only Personal Information Summary -->
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-md); padding: 18px 20px; margin-bottom: 28px;">
+        <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px; margin-bottom: 12px;">
+          Student Identity (From Registration)
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+          <div>
+            <span style="display: block; font-size: 12px; color: #64748b;">Full Name</span>
+            <strong style="font-size: 15px; color: #0f172a;">{{ student.name }}</strong>
+          </div>
+          <div>
+            <span style="display: block; font-size: 12px; color: #64748b;">Email Address</span>
+            <strong style="font-size: 15px; color: #0f172a;">{{ student.email }}</strong>
+          </div>
+          <div>
+            <span style="display: block; font-size: 12px; color: #64748b;">Assigned Student ID</span>
+            <strong style="font-size: 15px; color: #2563eb; font-family: monospace;">{{ student.student_id }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Academic Metrics Input Form -->
+      <form method="POST" action="{{ url_for('complete_profile') }}" novalidate autocomplete="off">
+        
+        <div style="margin-bottom: 24px;">
+          <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 6px;">
+            Academic Metrics & Engagement Data
+          </h3>
+          <p style="font-size: 13px; color: #64748b;">
+            All metrics must be non-negative real values. Please do not leave any fields blank.
+          </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+          
+          <!-- 1. Attendance -->
+          <div class="form-group">
+            <label class="form-label" for="attendance" style="font-weight: 600; color: #1e293b;">
+              Attendance Rate (%) <span style="color: #ef4444;">*</span>
+            </label>
+            <div style="position: relative;">
+              <input 
+                type="number" 
+                id="attendance" 
+                name="attendance" 
+                class="form-control" 
+                placeholder="e.g. 85.0" 
+                min="0" 
+                max="100" 
+                step="0.1" 
+                value="{{ form_data.get('attendance', '') }}"
+                required
+              >
+            </div>
+            <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">
+              Current semester attendance percentage (0 – 100%)
+            </small>
+          </div>
+
+          <!-- 2. Previous Marks -->
+          <div class="form-group">
+            <label class="form-label" for="previous_marks" style="font-weight: 600; color: #1e293b;">
+              Previous Marks (0–100) <span style="color: #ef4444;">*</span>
+            </label>
+            <input 
+              type="number" 
+              id="previous_marks" 
+              name="previous_marks" 
+              class="form-control" 
+              placeholder="e.g. 78.5" 
+              min="0" 
+              max="100" 
+              step="0.1" 
+              value="{{ form_data.get('previous_marks', '') }}"
+              required
+            >
+            <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">
+              Average score in previous terms or prerequisites
+            </small>
+          </div>
+
+          <!-- 3. Assignment Score -->
+          <div class="form-group">
+            <label class="form-label" for="assignment_score" style="font-weight: 600; color: #1e293b;">
+              Assignment Score (0–100) <span style="color: #ef4444;">*</span>
+            </label>
+            <input 
+              type="number" 
+              id="assignment_score" 
+              name="assignment_score" 
+              class="form-control" 
+              placeholder="e.g. 82.0" 
+              min="0" 
+              max="100" 
+              step="0.1" 
+              value="{{ form_data.get('assignment_score', '') }}"
+              required
+            >
+            <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">
+              Mean grade across submitted course assignments
+            </small>
+          </div>
+
+          <!-- 4. Quiz Score -->
+          <div class="form-group">
+            <label class="form-label" for="quiz_score" style="font-weight: 600; color: #1e293b;">
+              Quiz Score (0–100) <span style="color: #ef4444;">*</span>
+            </label>
+            <input 
+              type="number" 
+              id="quiz_score" 
+              name="quiz_score" 
+              class="form-control" 
+              placeholder="e.g. 75.0" 
+              min="0" 
+              max="100" 
+              step="0.1" 
+              value="{{ form_data.get('quiz_score', '') }}"
+              required
+            >
+            <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">
+              Continuous evaluation and quick quiz assessment
+            </small>
+          </div>
+
+          <!-- 5. Study Hours -->
+          <div class="form-group">
+            <label class="form-label" for="study_hours" style="font-weight: 600; color: #1e293b;">
+              Weekly Study Hours <span style="color: #ef4444;">*</span>
+            </label>
+            <input 
+              type="number" 
+              id="study_hours" 
+              name="study_hours" 
+              class="form-control" 
+              placeholder="e.g. 14.0" 
+              min="0" 
+              step="0.5" 
+              value="{{ form_data.get('study_hours', '') }}"
+              required
+            >
+            <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">
+              Estimated dedicated self-study hours per week (min 0)
+            </small>
+          </div>
+
+          <!-- 6. LMS Activity Index -->
+          <div class="form-group">
+            <label class="form-label" for="lms_activity" style="font-weight: 600; color: #1e293b;">
+              LMS Activity Index (0–100) <span style="color: #ef4444;">*</span>
+            </label>
+            <input 
+              type="number" 
+              id="lms_activity" 
+              name="lms_activity" 
+              class="form-control" 
+              placeholder="e.g. 70.0" 
+              min="0" 
+              max="100" 
+              step="0.1" 
+              value="{{ form_data.get('lms_activity', '') }}"
+              required
+            >
+            <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">
+              Online learning portal login and material access frequency
+            </small>
+          </div>
+
+          <!-- 7. Class Participation -->
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label class="form-label" for="participation" style="font-weight: 600; color: #1e293b;">
+              Class Participation Score (0–100) <span style="color: #ef4444;">*</span>
+            </label>
+            <input 
+              type="number" 
+              id="participation" 
+              name="participation" 
+              class="form-control" 
+              placeholder="e.g. 80.0" 
+              min="0" 
+              max="100" 
+              step="0.1" 
+              value="{{ form_data.get('participation', '') }}"
+              required
+            >
+            <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">
+              Active engagement in lectures, discussions, and group projects
+            </small>
+          </div>
+
+        </div>
+
+        <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: flex-end; gap: 14px;">
+          <button type="submit" class="btn btn-primary" style="padding: 12px 28px; font-size: 15px; font-weight: 700; border-radius: var(--radius-md); box-shadow: var(--shadow-md);">
+            Submit &amp; Create My Dashboard &rarr;
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

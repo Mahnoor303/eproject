@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}Educational Analytics & Visualizations{% endblock %}
+
+{% block content %}
+<div class="header-action-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+  <div>
+    <h1 style="font-size:1.6rem; font-weight:700; color:var(--text-main);">Cohort Analytics & Visual Insights</h1>
+    <p style="color:var(--text-muted); font-size:0.9rem;">Distribution charts, risk breakdown, and multi-variable correlations across {{ total_students }} enrolled students.</p>
+  </div>
+  <a href="{{ url_for('export_students_csv') }}" class="btn btn-secondary">
+    Export Analytics CSV
+  </a>
+</div>
+
+{% if total_students == 0 %}
+<div class="card" style="text-align:center; padding:3rem;">
+  <p style="color:var(--text-muted);">No student records available to analyze yet.</p>
+  <a href="{{ url_for('add_student') }}" class="btn btn-primary" style="margin-top:1rem;">Add First Student</a>
+</div>
+{% else %}
+
+<!-- Key Cohort Metrics -->
+<div class="grid-4" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:1rem; margin-bottom:1.5rem;">
+  <div class="stat-card">
+    <div class="stat-title">Mean Attendance</div>
+    <div class="stat-value">{{ avg_attendance }}%</div>
+    <div class="stat-subtitle">Target: &ge; 75.0%</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-title">Mean Exam Score</div>
+    <div class="stat-value">{{ avg_previous }}%</div>
+    <div class="stat-subtitle">Prior assessment average</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-title">Mean Study Hours</div>
+    <div class="stat-value">{{ avg_study }} <span style="font-size:0.85rem; color:var(--text-muted);">hrs/wk</span></div>
+    <div class="stat-subtitle">Weekly self-study effort</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-title">LMS Engagement</div>
+    <div class="stat-value">{{ avg_lms }} <span style="font-size:0.85rem; color:var(--text-muted);">/100</span></div>
+    <div class="stat-subtitle">Platform activity score</div>
+  </div>
+</div>
+
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
+  
+  <!-- Performance Category Breakdown -->
+  <div class="card">
+    <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:1rem; color:var(--text-main);">Performance Category Distribution</h3>
+    <div style="display:flex; flex-direction:column; gap:0.85rem;">
+      {% set total = total_students if total_students > 0 else 1 %}
+      
+      {% for cat, count in perf_categories.items() %}
+      {% set pct = (count / total * 100)|round(1) %}
+      <div>
+        <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:0.3rem;">
+          <span style="font-weight:600; color:var(--text-main);">{{ cat }}</span>
+          <span style="color:var(--text-muted);">{{ count }} students ({{ pct }}%)</span>
+        </div>
+        <div style="background:var(--bg-light); border-radius:999px; height:8px; overflow:hidden; border:1px solid var(--border-color);">
+          <div style="width:{{ pct }}%; height:100%; border-radius:999px; background:
+            {% if cat == 'Excellent' %}#10b981
+            {% elif cat == 'Good' %}#3b82f6
+            {% elif cat == 'Average' %}#f59e0b
+            {% else %}#ef4444{% endif %};">
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Attendance Brackets -->
+  <div class="card">
+    <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:1rem; color:var(--text-main);">Attendance Cohort Tiers</h3>
+    <div style="display:flex; flex-direction:column; gap:0.85rem;">
+      {% for tier, count in att_brackets.items() %}
+      {% set pct = (count / total * 100)|round(1) %}
+      <div>
+        <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:0.3rem;">
+          <span style="font-weight:600; color:var(--text-main);">{{ tier }}</span>
+          <span style="color:var(--text-muted);">{{ count }} students ({{ pct }}%)</span>
+        </div>
+        <div style="background:var(--bg-light); border-radius:999px; height:8px; overflow:hidden; border:1px solid var(--border-color);">
+          <div style="width:{{ pct }}%; height:100%; border-radius:999px; background:
+            {% if 'Critical' in tier %}#ef4444
+            {% elif 'Moderate' in tier %}#f59e0b
+            {% elif 'Good' in tier %}#3b82f6
+            {% else %}#10b981{% endif %};">
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Multi-variable Component Breakdown -->
+<div class="card">
+  <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:1rem; color:var(--text-main);">Academic Parameter Summary</h3>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Metric Category</th>
+        <th>Cohort Average</th>
+        <th>Standard Benchmark</th>
+        <th>Evaluation Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Attendance Rate</strong></td>
+        <td>{{ avg_attendance }}%</td>
+        <td>&ge; 75%</td>
+        <td>
+          <span class="risk-badge {{ 'risk-low' if avg_attendance >= 75 else 'risk-high' }}">
+            {{ 'Optimal' if avg_attendance >= 75 else 'Requires Intervention' }}
+          </span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Assignment Scores</strong></td>
+        <td>{{ avg_assignment }}%</td>
+        <td>&ge; 70%</td>
+        <td>
+          <span class="risk-badge {{ 'risk-low' if avg_assignment >= 70 else 'risk-medium' }}">
+            {{ 'Satisfactory' if avg_assignment >= 70 else 'Moderate Deficit' }}
+          </span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Quiz Average</strong></td>
+        <td>{{ avg_quiz }}%</td>
+        <td>&ge; 70%</td>
+        <td>
+          <span class="risk-badge {{ 'risk-low' if avg_quiz >= 70 else 'risk-medium' }}">
+            {{ 'Satisfactory' if avg_quiz >= 70 else 'Moderate Deficit' }}
+          </span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Weekly Study Hours</strong></td>
+        <td>{{ avg_study }} hrs/wk</td>
+        <td>&ge; 10 hrs</td>
+        <td>
+          <span class="risk-badge {{ 'risk-low' if avg_study >= 10 else 'risk-medium' }}">
+            {{ 'Compliant' if avg_study >= 10 else 'Low Self-Study' }}
+          </span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Class Participation</strong></td>
+        <td>{{ avg_part }} / 10</td>
+        <td>&ge; 6.0 / 10</td>
+        <td>
+          <span class="risk-badge {{ 'risk-low' if avg_part >= 6 else 'risk-medium' }}">
+            {{ 'Active' if avg_part >= 6 else 'Passive' }}
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+{% endif %}
+{% endblock %}

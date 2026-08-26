@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction History — EduPredict{% endblock %}
+{% block page_title %}Prediction History{% endblock %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto; padding-bottom: 40px;">
+  
+  <!-- Header Banner -->
+  <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff; padding: 28px; border-radius: var(--radius-lg); margin-bottom: 24px; box-shadow: var(--shadow-md);">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <div style="font-size: 12px; color: #93c5fd; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+          Historical Assessment Logs
+        </div>
+        <h2 style="font-size: 22px; font-weight: 800; color: #fff; margin-top: 2px;">
+          My Prediction Timeline
+        </h2>
+        <p style="font-size: 13px; color: #94a3b8; margin-top: 4px;">
+          Chronological record of all ML assessments generated for your profile.
+        </p>
+      </div>
+      <form method="POST" action="{{ url_for('student_predict') }}">
+        <button type="submit" class="btn btn-primary" style="padding: 10px 20px; font-weight: 700; font-size: 13px;">
+          ⚡ Run New Prediction
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- History Table Card -->
+  <div class="card" style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden;">
+    <div class="card-header" style="padding: 20px 28px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+      <h3 style="font-size: 17px; font-weight: 700; color: #0f172a; margin: 0;">Historical Predictions</h3>
+      <span style="font-size: 13px; color: #64748b;">
+        Total recorded: <strong>{{ predictions|length if predictions else 0 }}</strong>
+      </span>
+    </div>
+    <div class="card-body" style="padding: 0;">
+      {% if predictions %}
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Date &amp; Time</th>
+                <th>Prediction</th>
+                <th>Risk Level</th>
+                <th>Confidence</th>
+                <th>Input Snapshot</th>
+                <th>Diagnostic Analysis</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in predictions %}
+              <tr>
+                <td style="font-size: 13px; color: #64748b; white-space: nowrap;">
+                  <strong>{{ p.created_at.strftime('%b %d, %Y') if p.created_at else 'Recent' }}</strong>
+                  <div style="font-size: 11px; color: #94a3b8;">{{ p.created_at.strftime('%H:%M:%S') if p.created_at else '' }}</div>
+                </td>
+                <td>
+                  <span class="pred-badge badge-{{ p.performance.lower().replace(' ', '-') }}" style="font-size: 12px; padding: 4px 10px;">
+                    {{ p.performance }}
+                  </span>
+                </td>
+                <td>
+                  <span class="pred-badge badge-risk-{{ p.risk_level.lower() }}" style="font-size: 12px; padding: 4px 10px;">
+                    {{ p.risk_level }} Risk
+                  </span>
+                </td>
+                <td>
+                  <strong style="color: #0f172a;">
+                    {% if p.confidence is not none %}{{ p.confidence|round|int }}%{% else %}N/A{% endif %}
+                  </strong>
+                </td>
+                <td style="font-size: 12px; color: #475569;">
+                  Att: <strong>{{ p.attendance|round|int if p.attendance is not none else 'N/A' }}%</strong> &bull; 
+                  Marks: <strong>{{ p.previous_marks|round|int if p.previous_marks is not none else 'N/A' }}</strong>
+                  <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
+                    Study: {{ p.study_hours|round(1) if p.study_hours is not none else 'N/A' }} hrs/wk
+                  </div>
+                </td>
+                <td style="font-size: 13px; color: #334155; max-width: 320px; line-height: 1.4;">
+                  {{ p.explanation }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div style="text-align: center; padding: 48px 24px;">
+          <div style="width: 56px; height: 56px; border-radius: 50%; background: #f1f5f9; color: #94a3b8; font-size: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+            📜
+          </div>
+          <h4 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">No predictions yet</h4>
+          <p style="font-size: 14px; color: #64748b; max-width: 440px; margin: 0 auto 20px;">
+            You have not executed any predictions yet. Head to My Prediction or click below to generate your first ML evaluation.
+          </p>
+          <form method="POST" action="{{ url_for('student_predict') }}">
+            <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-weight: 600;">
+              Generate First Prediction
+            </button>
+          </form>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

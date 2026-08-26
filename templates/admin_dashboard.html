@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+{% block page_title %}Administrator Overview{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <h2 class="font-display font-bold" style="font-size: 18px; color: var(--text-primary); margin-bottom: 4px;">System Overview & Live Statistics</h2>
+  <p class="text-sm text-muted">Real-time platform metrics queried from the SQLite database.</p>
+</div>
+
+<!-- Top Summary Cards -->
+<div class="grid-stats">
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Total Students</div>
+      <div class="stat-value" style="color: var(--blue);">{{ total_students }}</div>
+      <div class="stat-sub">Enrolled learners</div>
+    </div>
+    <div class="stat-icon icon-blue">👨‍🎓</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Total Teachers</div>
+      <div class="stat-value" style="color: var(--green);">{{ total_teachers }}</div>
+      <div class="stat-sub">Faculty staff</div>
+    </div>
+    <div class="stat-icon icon-green">👩‍🏫</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Total Analysts</div>
+      <div class="stat-value" style="color: var(--purple);">{{ total_analysts }}</div>
+      <div class="stat-sub">Data researchers</div>
+    </div>
+    <div class="stat-icon icon-purple">📊</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Total Predictions</div>
+      <div class="stat-value" style="color: var(--amber);">{{ total_predictions }}</div>
+      <div class="stat-sub">ML Inferences run</div>
+    </div>
+    <div class="stat-icon icon-amber">⚡</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Total Users</div>
+      <div class="stat-value">{{ total_users }}</div>
+      <div class="stat-sub">All database accounts</div>
+    </div>
+    <div class="stat-icon icon-indigo">👥</div>
+  </div>
+</div>
+
+<!-- Charts & Distribution Section -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; margin-bottom: 24px;">
+
+  <!-- User Distribution -->
+  <div class="card">
+    <div class="card-header">
+      <h3>User Distribution</h3>
+      <span class="badge badge-info" style="font-size: 10px;">Real-Time</span>
+    </div>
+    <div class="card-body">
+      {% set total_role_users = total_students + total_teachers + total_analysts + 1 %}
+      {% set pct_students = (total_students / total_role_users * 100)|round(1) if total_role_users > 0 else 0 %}
+      {% set pct_teachers = (total_teachers / total_role_users * 100)|round(1) if total_role_users > 0 else 0 %}
+      {% set pct_analysts = (total_analysts / total_role_users * 100)|round(1) if total_role_users > 0 else 0 %}
+      {% set pct_admin = (1 / total_role_users * 100)|round(1) if total_role_users > 0 else 0 %}
+
+      <div style="height: 12px; width: 100%; border-radius: 6px; overflow: hidden; display: flex; background: var(--border); margin-bottom: 20px;">
+        <div style="width: {{ pct_students }}%; background: var(--blue);" title="Students: {{ pct_students }}%"></div>
+        <div style="width: {{ pct_teachers }}%; background: var(--green);" title="Teachers: {{ pct_teachers }}%"></div>
+        <div style="width: {{ pct_analysts }}%; background: var(--purple);" title="Analysts: {{ pct_analysts }}%"></div>
+        <div style="width: {{ pct_admin }}%; background: var(--amber);" title="Admin: {{ pct_admin }}%"></div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        {% for label, count, pct, color in [
+          ('Students', total_students, pct_students, 'var(--blue)'),
+          ('Teachers', total_teachers, pct_teachers, 'var(--green)'),
+          ('Analysts', total_analysts, pct_analysts, 'var(--purple)'),
+          ('Administrator', 1, pct_admin, 'var(--amber)')
+        ] %}
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--bg-muted); border-radius: var(--radius-md);">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="width: 10px; height: 10px; border-radius: 3px; background: {{ color }};"></span>
+            <span class="font-bold text-sm">{{ label }}</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span class="font-extrabold text-sm">{{ count }}</span>
+            <span class="text-xs text-muted" style="width: 40px; text-align: right;">{{ pct }}%</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Navigation -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Quick Navigation</h3>
+    </div>
+    <div class="card-body">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <a href="{{ url_for('admin_students') }}" class="feature-card" style="padding: 16px; text-decoration: none; color: inherit;">
+          <div style="font-size: 20px; margin-bottom: 8px;">👨‍🎓</div>
+          <div class="font-bold text-sm">All Students</div>
+          <div class="text-xs text-muted mt-1">{{ total_students }} records →</div>
+        </a>
+        <a href="{{ url_for('admin_teachers') }}" class="feature-card" style="padding: 16px; text-decoration: none; color: inherit;">
+          <div style="font-size: 20px; margin-bottom: 8px;">👩‍🏫</div>
+          <div class="font-bold text-sm">All Teachers</div>
+          <div class="text-xs text-muted mt-1">{{ total_teachers }} faculty →</div>
+        </a>
+        <a href="{{ url_for('admin_analysts') }}" class="feature-card" style="padding: 16px; text-decoration: none; color: inherit;">
+          <div style="font-size: 20px; margin-bottom: 8px;">📊</div>
+          <div class="font-bold text-sm">All Analysts</div>
+          <div class="text-xs text-muted mt-1">{{ total_analysts }} researchers →</div>
+        </a>
+        <a href="{{ url_for('admin_add_user') }}" class="feature-card" style="padding: 16px; text-decoration: none; color: inherit; border: 1px dashed var(--primary-light);">
+          <div style="font-size: 20px; margin-bottom: 8px;">➕</div>
+          <div class="font-bold text-sm" style="color: var(--primary);">Add User</div>
+          <div class="text-xs text-muted mt-1">Provision new account →</div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Predictions -->
+<div class="card">
+  <div class="card-header">
+    <h3>Recent Predictions Log</h3>
+    <span class="text-xs text-muted">Last {{ recent_predictions|length }} records</span>
+  </div>
+  <div class="card-body" style="padding: 0;">
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Predicted Standing</th>
+            <th>Risk Level</th>
+            <th>Confidence</th>
+            <th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pred in recent_predictions %}
+          <tr>
+            <td>
+              <div class="font-bold">{{ pred.student_name or pred.student_id }}</div>
+              <div class="text-xs text-muted font-mono">{{ pred.student_id }}</div>
+            </td>
+            <td>
+              <span class="pred-badge badge-{{ pred.performance|lower|replace(' ', '-') }}">
+                {{ pred.performance }}
+              </span>
+            </td>
+            <td>
+              {% if pred.risk_level == 'High' %}
+                <span class="pred-badge badge-risk-high">High Risk</span>
+              {% elif pred.risk_level == 'Medium' %}
+                <span class="pred-badge badge-risk-medium">Medium Risk</span>
+              {% else %}
+                <span class="pred-badge badge-risk-low">Low Risk</span>
+              {% endif %}
+            </td>
+            <td class="font-bold">
+              {{ pred.confidence|round(1) if pred.confidence else 'N/A' }}%
+            </td>
+            <td class="text-xs text-muted">
+              {{ pred.created_at.strftime('%Y-%m-%d %H:%M') if pred.created_at else 'Recent' }}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="5" class="text-center text-muted" style="padding: 32px;">
+              No predictions generated yet.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

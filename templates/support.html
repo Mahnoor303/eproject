@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Help & Support{% endblock %}
+
+{% block content %}
+<div class="header-action-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+  <div>
+    <h1 style="font-size:1.6rem; font-weight:700; color:var(--text-main);">Help & Support Portal</h1>
+    <p style="color:var(--text-muted); font-size:0.9rem;">Submit feedback, review local documentation, or file support inquiries.</p>
+  </div>
+</div>
+
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; align-items:start;">
+  
+  <!-- Support Form -->
+  <div class="card">
+    <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:1rem; color:var(--text-main);">Submit a Support Inquiry</h3>
+    <form method="POST" action="{{ url_for('support') }}">
+      <div class="form-group">
+        <label class="form-label" for="name">Your Name *</label>
+        <input type="text" id="name" name="name" class="form-control" required
+               value="{{ current_user.username if current_user else '' }}" placeholder="e.g. John Smith">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="email">Contact Email</label>
+        <input type="email" id="email" name="email" class="form-control" placeholder="e.g. j.smith@edupredict.edu">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="subject">Subject / Issue Topic</label>
+        <input type="text" id="subject" name="subject" class="form-control" placeholder="e.g. ML inference parameter question">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="message">Detailed Message / Feedback *</label>
+        <textarea id="message" name="message" class="form-control" rows="4" required placeholder="Describe the issue, question, or request..."></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%;">
+        Submit Support Ticket
+      </button>
+    </form>
+  </div>
+
+  <!-- Local Documentation & FAQs -->
+  <div>
+    <div class="card" style="margin-bottom:1.5rem;">
+      <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:0.75rem; color:var(--text-main);">System Information</h3>
+      <ul style="font-size:0.85rem; color:var(--text-muted); line-height:1.7; padding-left:1.25rem;">
+        <li><strong>Architecture:</strong> Flask + SQLite + scikit-learn offline pipeline</li>
+        <li><strong>ML Classifier:</strong> Random Forest Classifier (100 estimators)</li>
+        <li><strong>Features evaluated:</strong> Attendance, Prior Marks, Assignment, Quiz, Study Hours, LMS Activity, Participation</li>
+        <li><strong>Classification labels:</strong> Excellent, Good, Average, At Risk</li>
+        <li><strong>Risk tiers:</strong> Low Risk (&lt; 20%), Medium Risk (20-50%), High Risk (&gt; 50%)</li>
+      </ul>
+    </div>
+
+    <!-- Admin View: Support Tickets -->
+    {% if tickets %}
+    <div class="card">
+      <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:1rem; color:var(--text-main);">Logged Tickets (Admin View)</h3>
+      <div style="display:flex; flex-direction:column; gap:0.75rem;">
+        {% for t in tickets %}
+        <div style="background:var(--bg-light); padding:0.75rem; border-radius:6px; border:1px solid var(--border-color); font-size:0.85rem;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
+            <strong>{{ t.subject }}</strong>
+            <span style="color:var(--text-muted); font-size:0.75rem;">{{ t.created_at.strftime('%b %d, %H:%M') }}</span>
+          </div>
+          <div style="color:var(--text-muted); font-size:0.75rem; margin-bottom:0.35rem;">From: {{ t.name }} ({{ t.email }})</div>
+          <p style="color:var(--text-main); margin:0;">{{ t.message }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+
+</div>
+{% endblock %}

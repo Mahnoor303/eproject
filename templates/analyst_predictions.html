@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}Prediction Analytics{% endblock %}
+{% block page_title %}Machine Learning Inference & Prediction Analytics{% endblock %}
+
+{% block content %}
+<!-- Top Metrics Cards -->
+<div class="grid-stats" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Total Predictions</div>
+      <div class="stat-value">{{ total_predictions }}</div>
+      <div class="stat-sub">Logged in SQLite database</div>
+    </div>
+    <div class="stat-icon icon-blue">🤖</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Average Confidence</div>
+      <div class="stat-value" style="color: #2563eb;">{{ avg_confidence }}%</div>
+      <div class="stat-sub">Model certainty score</div>
+    </div>
+    <div class="stat-icon icon-green">🎯</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">At-Risk Inferences</div>
+      <div class="stat-value" style="color: #ef4444;">{{ pred_dist['At Risk'] }}</div>
+      <div class="stat-sub">Flagged trajectories</div>
+    </div>
+    <div class="stat-icon icon-red">⚠️</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-content">
+      <div class="stat-label">Inference Timeline</div>
+      <div class="stat-value" style="font-size: 16px; font-weight: 700;">{{ date_range }}</div>
+      <div class="stat-sub">Active observation window</div>
+    </div>
+    <div class="stat-icon icon-purple">📅</div>
+  </div>
+</div>
+
+<!-- Prediction & Confidence Distribution Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 20px; margin-bottom: 24px;">
+
+  <!-- Prediction Classification Distribution -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Prediction Class Breakdown</h3>
+      <span class="badge badge-info" style="font-size: 11px;">Random Forest Model</span>
+    </div>
+    <div class="card-body">
+      {% if total_predictions > 0 %}
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+              <span style="font-weight: 600; color: #10b981;">🌟 Excellent Trajectory</span>
+              <span><strong>{{ pred_dist['Excellent'] }}</strong> ({{ (pred_dist['Excellent'] / total_predictions * 100)|round(1) }}%)</span>
+            </div>
+            <div style="background: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden;">
+              <div style="background: #10b981; height: 100%; width: {{ (pred_dist['Excellent'] / total_predictions * 100)|round }}%;"></div>
+            </div>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+              <span style="font-weight: 600; color: #3b82f6;">👍 Good Trajectory</span>
+              <span><strong>{{ pred_dist['Good'] }}</strong> ({{ (pred_dist['Good'] / total_predictions * 100)|round(1) }}%)</span>
+            </div>
+            <div style="background: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden;">
+              <div style="background: #3b82f6; height: 100%; width: {{ (pred_dist['Good'] / total_predictions * 100)|round }}%;"></div>
+            </div>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+              <span style="font-weight: 600; color: #f59e0b;">⚖️ Average Trajectory</span>
+              <span><strong>{{ pred_dist['Average'] }}</strong> ({{ (pred_dist['Average'] / total_predictions * 100)|round(1) }}%)</span>
+            </div>
+            <div style="background: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden;">
+              <div style="background: #f59e0b; height: 100%; width: {{ (pred_dist['Average'] / total_predictions * 100)|round }}%;"></div>
+            </div>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+              <span style="font-weight: 600; color: #ef4444;">⚠️ At Risk Trajectory</span>
+              <span><strong>{{ pred_dist['At Risk'] }}</strong> ({{ (pred_dist['At Risk'] / total_predictions * 100)|round(1) }}%)</span>
+            </div>
+            <div style="background: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden;">
+              <div style="background: #ef4444; height: 100%; width: {{ (pred_dist['At Risk'] / total_predictions * 100)|round }}%;"></div>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <p style="text-align: center; color: #94a3b8; padding: 24px;">No prediction data available.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Confidence Score Distribution -->
+  <div class="card">
+    <div class="card-header">
+      <h3>Model Confidence Range</h3>
+      <span class="badge badge-info" style="font-size: 11px;">Certainty Distribution</span>
+    </div>
+    <div class="card-body">
+      {% if total_predictions > 0 %}
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+              <span style="font-weight: 600; color: #10b981;">90–100% (High Certainty)</span>
+              <span><strong>{{ conf_dist['90-100%'] }}</strong> ({{ (conf_dist['90-100%'] / total_predictions * 100)|round(1) }}%)</span>
+            </div>
+            <div style="background: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden;">
+              <div style="background: #10b981; height: 100%; width: {{ (conf_dist['90-100%'] / total_predictions * 100)|round }}%;"></div>
+            </div>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+              <span style="font-weight: 600; color: #3b82f6;">80–89% (Moderate-High)</span>
+              <span><strong>{{ conf_dist['80-89%'] }}</strong> ({{ (conf_dist['80-89%'] / total_predictions * 100)|round(1) }}%)</span>
+            </div>
+            <div style="background: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden;">
+              <div style="background: #3b82f6; height: 100%; width: {{ (conf_dist['80-89%'] / total_predictions * 100)|round }}%;"></div>
+            </div>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+              <span style="font-weight: 600; color: #f59e0b;">70–79% (Moderate)</span>
+              <span><strong>{{ conf_dist['70-79%'] }}</strong> ({{ (conf_dist['70-79%'] / total_predictions * 100)|round(1) }}%)</span>
+            </div>
+            <div style="background: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden;">
+              <div style="background: #f59e0b; height: 100%; width: {{ (conf_dist['70-79%'] / total_predictions * 100)|round }}%;"></div>
+            </div>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+              <span style="font-weight: 600; color: #64748b;">&lt;70% (Lower Certainty)</span>
+              <span><strong>{{ conf_dist['<70%'] }}</strong> ({{ (conf_dist['<70%'] / total_predictions * 100)|round(1) }}%)</span>
+            </div>
+            <div style="background: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden;">
+              <div style="background: #64748b; height: 100%; width: {{ (conf_dist['<70%'] / total_predictions * 100)|round }}%;"></div>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <p style="text-align: center; color: #94a3b8; padding: 24px;">No prediction data available.</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Full Predictions Table -->
+<div class="card">
+  <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h3 style="margin: 0;">Inference Records Log</h3>
+      <span style="font-size: 12px; color: #64748b;">Real inference history stored in SQLite predictions table</span>
+    </div>
+    <a href="{{ url_for('analyst_reports_export', type='predictions') }}" class="btn btn-secondary btn-sm">
+      📥 Export Predictions CSV
+    </a>
+  </div>
+  <div class="card-body" style="padding: 0;">
+    {% if predictions %}
+      <div class="table-responsive">
+        <table class="table" style="margin: 0;">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Student ID</th>
+              <th>Student Name</th>
+              <th>Predicted Performance</th>
+              <th>Risk Level</th>
+              <th>Confidence</th>
+              <th>Attendance</th>
+              <th>Prev Marks</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for pred in predictions %}
+              <tr>
+                <td style="color: #64748b; font-size: 12px;">#{{ pred.id }}</td>
+                <td><span class="badge" style="background: #f1f5f9; color: #334155; font-family: monospace;">{{ pred.student_id }}</span></td>
+                <td style="font-weight: 500;">{{ pred.student_name or 'Student' }}</td>
+                <td>
+                  {% if pred.performance == 'Excellent' %}
+                    <span class="badge badge-success">🌟 {{ pred.performance }}</span>
+                  {% elif pred.performance == 'Good' %}
+                    <span class="badge badge-primary">👍 {{ pred.performance }}</span>
+                  {% elif pred.performance == 'Average' %}
+                    <span class="badge badge-warning">⚖️ {{ pred.performance }}</span>
+                  {% else %}
+                    <span class="badge badge-danger">⚠️ {{ pred.performance }}</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if pred.risk_level == 'High' %}
+                    <span class="badge badge-danger">🔴 High</span>
+                  {% elif pred.risk_level == 'Medium' %}
+                    <span class="badge badge-warning">🟡 Medium</span>
+                  {% else %}
+                    <span class="badge badge-success">🟢 Low</span>
+                  {% endif %}
+                </td>
+                <td style="font-weight: 600;">{{ pred.confidence }}%</td>
+                <td>{{ pred.attendance ~ '%' if pred.attendance is not none else '—' }}</td>
+                <td>{{ pred.previous_marks ~ '%' if pred.previous_marks is not none else '—' }}</td>
+                <td style="font-size: 12px; color: #64748b;">
+                  {{ pred.created_at.strftime('%Y-%m-%d %H:%M') if pred.created_at else 'Recent' }}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div style="text-align: center; padding: 36px 20px; color: #94a3b8;">
+        <p style="margin: 0; font-size: 14px;">No prediction data available.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
