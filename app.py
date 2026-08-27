@@ -1185,11 +1185,15 @@ def teacher_dashboard():
 
     all_predictions = Prediction.query.order_by(Prediction.created_at.desc()).all()
     total_predictions = len(all_predictions)
-    recent_predictions = all_predictions[:6]
+
+    # Filter predictions to only students in teacher's batch(es)
+    batch_student_ids = set(s.student_id for s in students)
+    filtered_predictions = [p for p in all_predictions if p.student_id in batch_student_ids]
+    recent_predictions = filtered_predictions[:6]
 
     # Map student to latest prediction
     latest_preds = {}
-    for p in all_predictions:
+    for p in filtered_predictions:
         if p.student_id not in latest_preds:
             latest_preds[p.student_id] = p
 
@@ -3954,13 +3958,31 @@ def delete_user(id):
     user_role = user.role
     user_name = user.full_name or user.username
 
-    # Clean up associated student profile and predictions if it is a student user
+    # Clean up all associated records before deleting user
     if user.role == "student":
-        Student.query.filter_by(user_id=user.id).delete()
+        student_profile = Student.query.filter_by(user_id=user.id).first()
+        if student_profile:
+            # Delete predictions for this student
+            Prediction.query.filter_by(student_id=student_profile.student_id).delete()
+            Prediction.query.filter_by(db_student_id=student_profile.id).delete()
+            # Delete messages for this student
+            Message.query.filter_by(student_id=student_profile.id).delete()
+            Student.query.filter_by(user_id=user.id).delete()
+
+    # Delete messages sent/received by this user
+    Message.query.filter_by(sender_id=user.id).delete()
+    Message.query.filter_by(receiver_id=user.id).delete()
+
+    # Delete notifications for this user
+    Notification.query.filter_by(user_id=user.id).delete()
+    Notification.query.filter_by(sender_id=user.id).delete()
+
+    # Delete predictions by student_id matching this user's username (fallback cleanup)
+    Prediction.query.filter_by(student_name=user.full_name).delete()
 
     db.session.delete(user)
     db.session.commit()
-    flash(f"{user_role.capitalize()} '{user_name}' removed successfully.", "info")
+    flash(f"{user_role.capitalize()} '{user_name}' and all associated data removed successfully.", "success")
 
     if user_role == "teacher":
         return redirect(url_for("admin_teachers"))
@@ -3980,15 +4002,32 @@ def delete_student_admin(id):
         return redirect(url_for("admin_students"))
 
     student_name = stu.name
+
+    # Clean up all associated records before deleting student
+    # Delete predictions for this student
+    Prediction.query.filter_by(student_id=stu.student_id).delete()
+    Prediction.query.filter_by(db_student_id=stu.id).delete()
+
+    # Delete messages for this student
+    Message.query.filter_by(student_id=stu.id).delete()
+
+    # Delete notifications linked to this student's messages
+    if stu.user_id:
+        Notification.query.filter_by(user_id=stu.user_id).delete()
+        Notification.query.filter_by(sender_id=stu.user_id).delete()
+
     # Delete associated user account if one was attached
     if stu.user_id:
         user = db.session.get(User, stu.user_id)
         if user and user.role != "admin":
+            # Also clean up messages sent/received by this user
+            Message.query.filter_by(sender_id=user.id).delete()
+            Message.query.filter_by(receiver_id=user.id).delete()
             db.session.delete(user)
 
     db.session.delete(stu)
     db.session.commit()
-    flash(f"Student '{student_name}' removed successfully.", "info")
+    flash(f"Student '{student_name}' and all associated data removed successfully.", "success")
     return redirect(url_for("admin_students"))
 
 
