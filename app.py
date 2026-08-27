@@ -83,10 +83,12 @@ class Student(db.Model):
     participation = db.Column(db.Float, nullable=True)    # 0 - 10 scale
     profile_completed = db.Column(db.Boolean, default=False, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    batch_id = db.Column(db.Integer, db.ForeignKey("batches.id"), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     user = db.relationship("User", backref=db.backref("student_profile", uselist=False))
     predictions = db.relationship("Prediction", backref="student_record", cascade="all, delete-orphan")
+    batch = db.relationship("Batch", backref=db.backref("students", lazy="dynamic"))
 
 
 class Prediction(db.Model):
@@ -107,6 +109,34 @@ class Prediction(db.Model):
     participation = db.Column(db.Float, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     db_student_id = db.Column(db.Integer, db.ForeignKey("students.id"), nullable=True)
+    batch_id = db.Column(db.Integer, db.ForeignKey("batches.id"), nullable=True)
+
+
+class Batch(db.Model):
+    __tablename__ = "batches"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)          # e.g. "CS-3975C1"
+    code = db.Column(db.String(50), unique=True, nullable=False)  # e.g. "3975C1"
+    teacher_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    teacher = db.relationship("User", backref=db.backref("assigned_batches", lazy="dynamic"))
+
+
+class Message(db.Model):
+    __tablename__ = "messages"
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    receiver_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)   # teacher->student (user_id)
+    student_id = db.Column(db.Integer, db.ForeignKey("students.id"), nullable=True)  # for student portal
+    subject = db.Column(db.String(200), nullable=False)
+    body = db.Column(db.Text, nullable=False)
+    is_read = db.Column(db.Boolean, default=False, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    sender = db.relationship("User", foreign_keys=[sender_id], backref="sent_messages")
+    receiver = db.relationship("User", foreign_keys=[receiver_id], backref="received_messages")
+    student_record = db.relationship("Student", backref=db.backref("messages", lazy="dynamic"))
 
 
 class SupportTicket(db.Model):
@@ -481,6 +511,22 @@ def init_database():
         except Exception:
             pass
 
+        # Migrate: add batch_id to students
+        try:
+            with db.engine.connect() as conn:
+                conn.execute(db.text("ALTER TABLE students ADD COLUMN batch_id INTEGER REFERENCES batches(id)"))
+                conn.commit()
+        except Exception:
+            pass
+
+        # Migrate: add batch_id to predictions
+        try:
+            with db.engine.connect() as conn:
+                conn.execute(db.text("ALTER TABLE predictions ADD COLUMN batch_id INTEGER REFERENCES batches(id)"))
+                conn.commit()
+        except Exception:
+            pass
+
         # 1. Initialize Single Admin Account if no Admin exists
         admin_user = User.query.filter_by(role="admin").first()
         if not admin_user:
@@ -744,7 +790,8 @@ def admin_dashboard():
 @role_required("admin")
 def admin_students():
     students = Student.query.order_by(Student.id.desc()).all()
-    return render_template("admin_students.html", students_list=students)
+    batches = Batch.query.order_by(Batch.code.asc()).all()
+    return render_template("admin_students.html", students_list=students, batches=batches)
 
 
 # ----------------------------------------------------
@@ -913,6 +960,121 @@ def admin_settings():
     return render_template("admin_settings.html", admin=admin)
 
 
+# ----------------------------------------------------
+# ADMIN PAGE 8: BATCH / CLASS MANAGEMENT
+# ----------------------------------------------------
+@app.route("/admin/classes", methods=["GET", "POST"])
+@role_required("admin")
+def admin_classes():
+    if request.method == "POST":
+        action = request.form.get("action", "create")
+
+        if action == "create":
+            batch_name = request.form.get("batch_name", "").strip()
+            batch_code = request.form.get("batch_code", "").strip().upper()
+            teacher_id = request.form.get("teacher_id", "").strip()
+
+            if not batch_name or not batch_code:
+                flash("Class name and code are required.", "warning")
+                return redirect(url_for("admin_classes"))
+
+            if Batch.query.filter_by(code=batch_code).first():
+                flash(f"Class code '{batch_code}' already exists.", "danger")
+                return redirect(url_for("admin_classes"))
+
+            teacher_user = None
+            if teacher_id and teacher_id.isdigit():
+                teacher_user = User.query.filter_by(id=int(teacher_id), role="teacher").first()
+
+            batch = Batch(name=batch_name, code=batch_code, teacher_id=teacher_user.id if teacher_user else None)
+            db.session.add(batch)
+            db.session.commit()
+            flash(f"Class '{batch_code}' created successfully!", "success")
+            return redirect(url_for("admin_classes"))
+
+        elif action == "assign":
+            batch_id = request.form.get("batch_id", "").strip()
+            teacher_id = request.form.get("assign_teacher_id", "").strip()
+
+            if not batch_id or not batch_id.isdigit():
+                flash("Invalid class selection.", "warning")
+                return redirect(url_for("admin_classes"))
+
+            batch = db.session.get(Batch, int(batch_id))
+            if not batch:
+                flash("Class not found.", "danger")
+                return redirect(url_for("admin_classes"))
+
+            if teacher_id and teacher_id.isdigit():
+                teacher_user = User.query.filter_by(id=int(teacher_id), role="teacher").first()
+                batch.teacher_id = teacher_user.id if teacher_user else None
+            else:
+                batch.teacher_id = None
+
+            db.session.commit()
+            flash(f"Class '{batch.code}' updated successfully!", "success")
+            return redirect(url_for("admin_classes"))
+
+        elif action == "delete":
+            batch_id = request.form.get("batch_id", "").strip()
+            if batch_id and batch_id.isdigit():
+                batch = db.session.get(Batch, int(batch_id))
+                if batch:
+                    # Unlink students from this batch
+                    for s in batch.students.all():
+                        s.batch_id = None
+                    db.session.delete(batch)
+                    db.session.commit()
+                    flash(f"Class '{batch.code}' deleted.", "success")
+            return redirect(url_for("admin_classes"))
+
+    # GET
+    batches = Batch.query.order_by(Batch.code.asc()).all()
+    teachers = User.query.filter_by(role="teacher").order_by(User.username.asc()).all()
+    teacher_map = {t.id: t for t in teachers}
+
+    batch_data = []
+    for b in batches:
+        student_count = Student.query.filter_by(batch_id=b.id).count()
+        teacher_name = teacher_map.get(b.teacher_id, None)
+        batch_data.append({
+            "batch": b,
+            "student_count": student_count,
+            "teacher_name": teacher_name.full_name or teacher_name.username if teacher_name else None
+        })
+
+    return render_template("admin_classes.html", batch_data=batch_data, teachers=teachers)
+
+
+# ----------------------------------------------------
+# ADMIN: Assign students to batch (bulk via admin_students)
+# ----------------------------------------------------
+@app.route("/admin/assign-student-batch", methods=["POST"])
+@role_required("admin")
+def admin_assign_student_batch():
+    student_id = request.form.get("student_id", "").strip()
+    batch_id = request.form.get("batch_id", "").strip()
+
+    if not student_id or not student_id.isdigit():
+        flash("Invalid student.", "warning")
+        return redirect(url_for("admin_students"))
+
+    student = db.session.get(Student, int(student_id))
+    if not student:
+        flash("Student not found.", "danger")
+        return redirect(url_for("admin_students"))
+
+    if batch_id and batch_id.isdigit():
+        batch = db.session.get(Batch, int(batch_id))
+        student.batch_id = batch.id if batch else None
+    else:
+        student.batch_id = None
+
+    db.session.commit()
+    flash(f"Student '{student.name}' assigned to batch '{batch.code if batch else 'None'}'.", "success")
+    return redirect(url_for("admin_students"))
+
+
 # ==========================================
 # 6.2. TEACHER SYSTEM & PORTAL ROUTES
 # ==========================================
@@ -920,7 +1082,17 @@ def admin_settings():
 @app.route("/teacher/dashboard")
 @role_required("teacher")
 def teacher_dashboard():
-    students = Student.query.order_by(Student.id.asc()).all()
+    # Get teacher's assigned batches
+    teacher_user = db.session.get(User, session.get("user_id"))
+    assigned_batch_ids = [b.id for b in Batch.query.filter_by(teacher_id=teacher_user.id).all()] if teacher_user else []
+
+    # Filter students by assigned batch(es)
+    if assigned_batch_ids:
+        students = Student.query.filter(Student.batch_id.in_(assigned_batch_ids)).order_by(Student.id.asc()).all()
+    else:
+        # No batch assigned: show all (fallback for backward compatibility)
+        students = Student.query.order_by(Student.id.asc()).all()
+
     total_students = len(students)
     active_students = [s for s in students if s.attendance is not None and s.previous_marks is not None]
     active_count = len(active_students)
@@ -1010,7 +1182,16 @@ def teacher_dashboard():
 @role_required("teacher")
 def teacher_students():
     search_query = request.args.get("q", "").strip()
-    query = Student.query
+
+    # Filter by teacher's assigned batch(es)
+    teacher_user = db.session.get(User, session.get("user_id"))
+    assigned_batch_ids = [b.id for b in Batch.query.filter_by(teacher_id=teacher_user.id).all()] if teacher_user else []
+
+    if assigned_batch_ids:
+        query = Student.query.filter(Student.batch_id.in_(assigned_batch_ids))
+    else:
+        query = Student.query
+
     if search_query:
         query = query.filter(
             (Student.name.ilike(f"%{search_query}%")) |
@@ -1141,7 +1322,12 @@ def teacher_predict_student(id):
 @role_required("teacher")
 def teacher_performance():
     import json
-    students = Student.query.order_by(Student.id.asc()).all()
+    teacher_user = db.session.get(User, session.get("user_id"))
+    assigned_batch_ids = [b.id for b in Batch.query.filter_by(teacher_id=teacher_user.id).all()] if teacher_user else []
+    if assigned_batch_ids:
+        students = Student.query.filter(Student.batch_id.in_(assigned_batch_ids)).order_by(Student.id.asc()).all()
+    else:
+        students = Student.query.order_by(Student.id.asc()).all()
     active_students = [s for s in students if s.attendance is not None and s.previous_marks is not None]
     active_count = len(active_students)
 
@@ -1199,7 +1385,12 @@ def teacher_performance():
 @app.route("/teacher/predictions")
 @role_required("teacher")
 def teacher_predictions():
-    students = Student.query.order_by(Student.id.asc()).all()
+    teacher_user = db.session.get(User, session.get("user_id"))
+    assigned_batch_ids = [b.id for b in Batch.query.filter_by(teacher_id=teacher_user.id).all()] if teacher_user else []
+    if assigned_batch_ids:
+        students = Student.query.filter(Student.batch_id.in_(assigned_batch_ids)).order_by(Student.id.asc()).all()
+    else:
+        students = Student.query.order_by(Student.id.asc()).all()
     all_preds = Prediction.query.order_by(Prediction.created_at.desc()).all()
     
     latest_preds = {}
@@ -1247,7 +1438,12 @@ def teacher_predictions():
 @app.route("/teacher/at-risk")
 @role_required("teacher")
 def teacher_at_risk():
-    students = Student.query.order_by(Student.id.asc()).all()
+    teacher_user = db.session.get(User, session.get("user_id"))
+    assigned_batch_ids = [b.id for b in Batch.query.filter_by(teacher_id=teacher_user.id).all()] if teacher_user else []
+    if assigned_batch_ids:
+        students = Student.query.filter(Student.batch_id.in_(assigned_batch_ids)).order_by(Student.id.asc()).all()
+    else:
+        students = Student.query.order_by(Student.id.asc()).all()
     all_preds = Prediction.query.order_by(Prediction.created_at.desc()).all()
     
     latest_preds = {}
@@ -1852,6 +2048,154 @@ def analyst_settings():
     return render_template("analyst_settings.html", analyst=analyst)
 
 
+# ----------------------------------------------------
+# MESSAGING SYSTEM (Teacher -> Student Feedback)
+# ----------------------------------------------------
+@app.route("/messages")
+@role_required("teacher", "student")
+def messages_list():
+    user = db.session.get(User, session["user_id"])
+    if not user:
+        flash("Session invalid.", "warning")
+        return redirect(url_for("login"))
+
+    if user.role == "teacher":
+        # Teacher sees messages they sent
+        sent = Message.query.filter_by(sender_id=user.id).order_by(Message.created_at.desc()).all()
+        # Teacher can also see replies from students
+        received = Message.query.filter_by(receiver_id=user.id).order_by(Message.created_at.desc()).all()
+        # Get students in teacher's batches for send form
+        assigned_batch_ids = [b.id for b in Batch.query.filter_by(teacher_id=user.id).all()]
+        if assigned_batch_ids:
+            students_list = Student.query.filter(Student.batch_id.in_(assigned_batch_ids)).order_by(Student.name.asc()).all()
+        else:
+            students_list = Student.query.order_by(Student.name.asc()).all()
+    else:
+        # Student sees messages sent to them
+        student = Student.query.filter_by(user_id=user.id).first()
+        sent = []
+        received = Message.query.filter(
+            (Message.receiver_id == user.id) | (Message.student_id == (student.id if student else -1))
+        ).order_by(Message.created_at.desc()).all()
+        students_list = []
+
+    return render_template("messages.html", sent=sent, received=received, user=user, students_list=students_list)
+
+
+@app.route("/messages/send", methods=["POST"])
+@role_required("teacher")
+def send_message():
+    user = db.session.get(User, session["user_id"])
+    if not user:
+        flash("Session invalid.", "warning")
+        return redirect(url_for("login"))
+
+    student_id = request.form.get("student_id", "").strip()
+    subject = request.form.get("subject", "").strip()
+    body = request.form.get("body", "").strip()
+
+    if not student_id or not subject or not body:
+        flash("All fields are required.", "warning")
+        return redirect(url_for("messages_list"))
+
+    student = None
+    if student_id.isdigit():
+        student = db.session.get(Student, int(student_id))
+    if not student:
+        flash("Student not found.", "danger")
+        return redirect(url_for("messages_list"))
+
+    msg = Message(
+        sender_id=user.id,
+        receiver_id=student.user_id,
+        student_id=student.id,
+        subject=subject,
+        body=body
+    )
+    db.session.add(msg)
+    db.session.commit()
+
+    flash(f"Message sent to {student.name}!", "success")
+    return redirect(url_for("messages_list"))
+
+
+@app.route("/messages/reply", methods=["POST"])
+@role_required("student")
+def reply_message():
+    user = db.session.get(User, session["user_id"])
+    if not user:
+        flash("Session invalid.", "warning")
+        return redirect(url_for("login"))
+
+    receiver_id = request.form.get("receiver_id", "").strip()
+    subject = request.form.get("subject", "").strip()
+    body = request.form.get("body", "").strip()
+    student = Student.query.filter_by(user_id=user.id).first()
+
+    if not receiver_id or not body:
+        flash("Message body is required.", "warning")
+        return redirect(url_for("messages_list"))
+
+    msg = Message(
+        sender_id=user.id,
+        receiver_id=int(receiver_id) if receiver_id.isdigit() else None,
+        student_id=student.id if student else None,
+        subject=subject or "Re: Feedback",
+        body=body
+    )
+    db.session.add(msg)
+    db.session.commit()
+
+    flash("Reply sent!", "success")
+    return redirect(url_for("messages_list"))
+
+
+@app.route("/messages/mark-read/<int:msg_id>", methods=["POST"])
+@role_required("teacher", "student")
+def mark_message_read(msg_id):
+    msg = db.session.get(Message, msg_id)
+    if msg:
+        msg.is_read = True
+        db.session.commit()
+    return redirect(url_for("messages_list"))
+
+
+# ----------------------------------------------------
+# STUDENT COMPARISON TOOL (Analyst)
+# ----------------------------------------------------
+@app.route("/analyst/compare", methods=["GET", "POST"])
+@role_required("analyst")
+def analyst_compare():
+    students = Student.query.order_by(Student.name.asc()).all()
+    student_a = None
+    student_b = None
+    pred_a = None
+    pred_b = None
+
+    if request.method == "POST":
+        id_a = request.form.get("student_a", "").strip()
+        id_b = request.form.get("student_b", "").strip()
+
+        if id_a.isdigit():
+            student_a = db.session.get(Student, int(id_a))
+        if id_b.isdigit():
+            student_b = db.session.get(Student, int(id_b))
+
+        if student_a:
+            pred_a = Prediction.query.filter_by(db_student_id=student_a.id).order_by(Prediction.created_at.desc()).first()
+        if student_b:
+            pred_b = Prediction.query.filter_by(db_student_id=student_b.id).order_by(Prediction.created_at.desc()).first()
+
+    return render_template(
+        "analyst_compare.html",
+        students=students,
+        student_a=student_a,
+        student_b=student_b,
+        pred_a=pred_a,
+        pred_b=pred_b
+    )
+
+
 @app.route("/student/complete-profile", methods=["GET", "POST"])
 @app.route("/student/academic-info", methods=["GET", "POST"])
 @role_required("student")
@@ -2003,13 +2347,23 @@ def complete_profile():
         student.participation = parsed["participation"]
         student.profile_completed = True
 
+        # Save batch code if provided
+        batch_code = request.form.get("batch_code", "").strip().upper()
+        if batch_code:
+            batch = Batch.query.filter_by(code=batch_code).first()
+            if batch:
+                student.batch_id = batch.id
+            else:
+                flash(f"Batch '{batch_code}' not found. Please enter a valid batch code.", "warning")
+
         db.session.commit()
 
         flash("Academic profile completed successfully! Welcome to your dashboard.", "success")
         return redirect(url_for("student_dashboard"))
 
     # GET request: render clean form with no fake defaults
-    return render_template("complete_profile.html", student=student, form_data={})
+    batches = Batch.query.order_by(Batch.code.asc()).all()
+    return render_template("complete_profile.html", student=student, form_data={}, batches=batches)
 
 
 # ----------------------------------------------------
@@ -2033,11 +2387,22 @@ def student_dashboard():
     prediction_history = Prediction.query.filter_by(student_id=student.student_id).order_by(Prediction.created_at.desc()).all()
     latest_prediction = prediction_history[0] if prediction_history else None
 
+    # Fetch unread messages for notification badge
+    unread_messages = Message.query.filter(
+        (Message.receiver_id == user.id) | (Message.student_id == student.id),
+        Message.is_read == False
+    ).count()
+    recent_messages = Message.query.filter(
+        (Message.receiver_id == user.id) | (Message.student_id == student.id)
+    ).order_by(Message.created_at.desc()).limit(5).all()
+
     return render_template(
         "student_dashboard.html",
         student=student,
         latest_prediction=latest_prediction,
-        prediction_history=prediction_history
+        prediction_history=prediction_history,
+        unread_messages=unread_messages,
+        recent_messages=recent_messages
     )
 
 
@@ -2174,11 +2539,21 @@ def student_academic_profile():
         student.participation = parsed["participation"]
         student.profile_completed = True
 
+        # Save batch code if provided
+        batch_code = request.form.get("batch_code", "").strip().upper()
+        if batch_code:
+            batch = Batch.query.filter_by(code=batch_code).first()
+            if batch:
+                student.batch_id = batch.id
+            else:
+                flash(f"Batch '{batch_code}' not found. Please enter a valid batch code.", "warning")
+
         db.session.commit()
         flash("Academic profile metrics updated successfully!", "success")
         return redirect(url_for("student_academic_profile"))
 
-    return render_template("student_academic_profile.html", student=student)
+    batches = Batch.query.order_by(Batch.code.asc()).all()
+    return render_template("student_academic_profile.html", student=student, batches=batches)
 
 
 # ----------------------------------------------------

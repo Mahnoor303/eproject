@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Messages{% endblock %}
+{% block page_title %}Teacher-Student Feedback{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <h2 class="font-display font-bold" style="font-size:18px;color:var(--text-primary);margin-bottom:4px;">
+    {% if user.role == 'teacher' %}Send Feedback to Students{% else %}My Messages{% endif %}
+  </h2>
+  <p class="text-sm text-muted">
+    {% if user.role == 'teacher' %}Send academic feedback and guidance to your students.{% else %}View feedback from your teacher and send replies.{% endif %}
+  </p>
+</div>
+
+{% if user.role == 'teacher' %}
+<!-- Teacher: Send Message Form -->
+<div class="card" style="margin-bottom:20px;">
+  <div class="card-header">
+    <h3>📤 Send Feedback</h3>
+  </div>
+  <div class="card-body">
+    <form method="POST" action="{{ url_for('send_message') }}">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="form-group" style="grid-column:1/-1;">
+          <label class="form-label" style="font-size:12px;font-weight:600;color:var(--text-secondary);">Select Student</label>
+          <select name="student_id" class="form-control" required>
+            <option value="">-- Choose a student --</option>
+            {% for s in students_list %}
+            <option value="{{ s.id }}">{{ s.name }} ({{ s.student_id }}) — Batch: {{ s.batch.code if s.batch else 'N/A' }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" style="font-size:12px;font-weight:600;color:var(--text-secondary);">Subject</label>
+          <input type="text" name="subject" class="form-control" placeholder="e.g. Attendance Warning, Good Progress" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" style="font-size:12px;font-weight:600;color:var(--text-secondary);">Message</label>
+          <textarea name="body" class="form-control" rows="3" placeholder="Write your feedback here..." required></textarea>
+        </div>
+      </div>
+      <div style="margin-top:12px;text-align:right;">
+        <button type="submit" class="btn btn-primary" style="padding:10px 24px;">Send Feedback →</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<!-- Received Messages -->
+<div class="card" style="margin-bottom:20px;">
+  <div class="card-header">
+    <h3>📥 {% if user.role == 'teacher' %}Student Replies{% else %}Feedback from Teacher{% endif %} ({{ received|length }})</h3>
+  </div>
+  <div class="card-body" style="padding:0;">
+    {% if received %}
+    <div style="display:flex;flex-direction:column;">
+      {% for msg in received %}
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);{% if not msg.is_read %}background:#EFF6FF;{% endif %}">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div>
+            <strong style="color:var(--text-primary);font-size:14px;">
+              {{ msg.sender.full_name or msg.sender.username if msg.sender else 'Unknown' }}
+            </strong>
+            <span class="text-muted text-xs" style="margin-left:8px;">{{ msg.sender.role|capitalize if msg.sender else '' }}</span>
+          </div>
+          <span class="text-muted text-xs">{{ msg.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+        </div>
+        <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:4px;">{{ msg.subject }}</div>
+        <p style="font-size:13px;color:var(--text-secondary);margin:0;line-height:1.6;">{{ msg.body }}</p>
+        {% if not msg.is_read %}
+        <form method="POST" action="{{ url_for('mark_message_read', msg_id=msg.id) }}" style="margin-top:8px;">
+          <button type="submit" class="btn btn-secondary btn-sm" style="padding:3px 10px;font-size:11px;">Mark as Read</button>
+        </form>
+        {% endif %}
+        <!-- Reply button for students -->
+        {% if user.role == 'student' and msg.sender %}
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+          <details>
+            <summary style="cursor:pointer;font-size:12px;font-weight:600;color:var(--blue);">Reply</summary>
+            <form method="POST" action="{{ url_for('reply_message') }}" style="margin-top:10px;">
+              <input type="hidden" name="receiver_id" value="{{ msg.sender_id }}">
+              <input type="hidden" name="subject" value="Re: {{ msg.subject }}">
+              <textarea name="body" class="form-control" rows="2" placeholder="Write your reply..." required style="font-size:13px;"></textarea>
+              <button type="submit" class="btn btn-primary btn-sm" style="margin-top:8px;padding:6px 16px;">Send Reply</button>
+            </form>
+          </details>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:40px;color:#94a3b8;">
+      <div style="font-size:40px;margin-bottom:12px;">📭</div>
+      <p>No messages yet.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Sent Messages -->
+{% if sent %}
+<div class="card">
+  <div class="card-header">
+    <h3>📤 Sent ({{ sent|length }})</h3>
+  </div>
+  <div class="card-body" style="padding:0;">
+    <div style="display:flex;flex-direction:column;">
+      {% for msg in sent %}
+      <div style="padding:14px 20px;border-bottom:1px solid var(--border);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <div>
+            <span class="text-muted text-xs">To:</span>
+            <strong style="font-size:13px;">
+              {{ msg.receiver.full_name or msg.receiver.username if msg.receiver else 'Student' }}
+            </strong>
+          </div>
+          <span class="text-muted text-xs">{{ msg.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+        </div>
+        <div style="font-size:13px;font-weight:600;color:var(--text-primary);">{{ msg.subject }}</div>
+        <p style="font-size:13px;color:var(--text-secondary);margin:4px 0 0;line-height:1.5;">{{ msg.body }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
