@@ -114,7 +114,7 @@
         >
       </div>
 
-      <div class="form-group" style="margin-bottom: 24px;">
+      <div class="form-group" style="margin-bottom: 16px;">
         <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px;">
           Initial Password <span style="color: #ef4444;">*</span>
         </label>
@@ -127,6 +127,39 @@
           minlength="6"
           style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;"
         >
+      </div>
+
+      <!-- Batch Code (Student Only) -->
+      <div class="form-group" style="margin-bottom: 24px;" id="batch-field">
+        <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px;">
+          Class / Batch Code <span style="color: #ef4444;">*</span>
+        </label>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <input 
+            type="text" 
+            name="batch_code" 
+            id="batch-code-input"
+            class="form-control" 
+            placeholder="e.g. 3975C1" 
+            style="flex: 1; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; text-transform: uppercase;"
+          >
+          <span style="font-size: 13px; color: #64748b; white-space: nowrap;">or select:</span>
+          <select 
+            name="batch_id" 
+            id="batch-select"
+            class="form-control"
+            onchange="document.getElementById('batch-code-input').value = this.options[this.selectedIndex].text.split(' — ')[0];"
+            style="flex: 1; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;"
+          >
+            <option value="">-- Select Class --</option>
+            {% for b in batches %}
+            <option value="{{ b.id }}">{{ b.code }} — {{ b.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">
+          Type the class code directly or select from dropdown. Student will be assigned to this class.
+        </small>
       </div>
 
       <div style="display: flex; justify-content: space-between; align-items: center; pt-4 border-top: 1px solid #f1f5f9;">
@@ -165,6 +198,8 @@ function selectRoleTab(role) {
   const badge = document.getElementById('form-role-badge');
   const desc = document.getElementById('form-role-desc');
   
+  toggleBatchField(role);
+
   if (role === 'student') {
     badge.textContent = 'Role: Student';
     badge.className = 'pred-badge badge-good';
@@ -188,6 +223,14 @@ function selectRoleTab(role) {
 document.addEventListener('DOMContentLoaded', () => {
   const initialRole = document.getElementById('selected-role-input').value || 'student';
   selectRoleTab(initialRole);
+  toggleBatchField(initialRole);
 });
+
+function toggleBatchField(role) {
+  const batchField = document.getElementById('batch-field');
+  if (batchField) {
+    batchField.style.display = role === 'student' ? 'block' : 'none';
+  }
+}
 </script>
 {% endblock %}

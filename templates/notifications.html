@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+      <h2 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">Notifications</h2>
+      <p style="font-size: 13px; color: #64748b;">Stay updated with messages and activities.</p>
+    </div>
+    {% if notifications %}
+    <form method="POST" action="{{ url_for('mark_all_notifications_read') }}">
+      <button type="submit" class="btn btn-secondary btn-sm" style="padding: 6px 16px; font-size: 12px;">
+        ✓ Mark All as Read
+      </button>
+    </form>
+    {% endif %}
+  </div>
+
+  {% if notifications %}
+  <div class="card">
+    <div class="card-body" style="padding: 0;">
+      <div style="display: flex; flex-direction: column;">
+        {% for notif in notifications %}
+        <div style="padding: 16px 20px; border-bottom: 1px solid var(--border); {% if not notif.is_read %}background: #EFF6FF;{% endif %}">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+            <div style="flex: 1;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                {% if not notif.is_read %}
+                <span style="width: 8px; height: 8px; border-radius: 50%; background: #3B82F6; flex-shrink: 0;"></span>
+                {% endif %}
+                <strong style="font-size: 14px; color: #0f172a;">{{ notif.title }}</strong>
+              </div>
+              {% if notif.body %}
+              <p style="font-size: 13px; color: #64748b; margin: 4px 0 0; line-height: 1.5;">{{ notif.body }}</p>
+              {% endif %}
+              <span style="font-size: 11px; color: #94a3b8; margin-top: 4px; display: inline-block;">
+                {{ notif.created_at.strftime('%b %d, %Y at %H:%M') if notif.created_at else '' }}
+              </span>
+            </div>
+            <div style="display: flex; gap: 6px; flex-shrink: 0;">
+              {% if not notif.is_read %}
+              <form method="POST" action="{{ url_for('mark_notification_read', notif_id=notif.id) }}">
+                <button type="submit" class="btn btn-secondary btn-sm" style="padding: 3px 10px; font-size: 11px;">Mark Read</button>
+              </form>
+              {% endif %}
+              {% if notif.message_id %}
+              <a href="{{ url_for('messages_list') }}" class="btn btn-primary btn-sm" style="padding: 3px 10px; font-size: 11px; text-decoration: none;">View Message</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div style="text-align: center; padding: 60px 20px; color: #94a3b8;">
+    <div style="font-size: 48px; margin-bottom: 16px;">🔔</div>
+    <h3 style="font-size: 16px; color: #64748b; margin-bottom: 8px;">No Notifications</h3>
+    <p style="font-size: 13px;">You're all caught up! Notifications will appear here when you receive new messages.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

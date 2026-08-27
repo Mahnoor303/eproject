@@ -2,6 +2,7 @@
 {% block title %}Compare Students{% endblock %}
 {% block page_title %}Student Comparison Tool{% endblock %}
 
+
 {% block content %}
 <div class="mb-3">
   <h2 class="font-display font-bold" style="font-size:18px;color:var(--text-primary);margin-bottom:4px;">Student Comparison</h2>
@@ -14,7 +15,7 @@
     <h3>Select Students to Compare</h3>
   </div>
   <div class="card-body">
-    <form method="POST" action="{{ url_for('analyst_compare') }}" style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;">
+    <form method="POST" action="{{ request.url }}" style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;">
       <div class="form-group" style="flex:1;min-width:220px;">
         <label class="form-label" style="font-size:12px;font-weight:600;color:var(--text-secondary);">Student A</label>
         <select name="student_a" class="form-control" required>

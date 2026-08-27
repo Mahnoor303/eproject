@@ -68,11 +68,16 @@
         </div>
         <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:4px;">{{ msg.subject }}</div>
         <p style="font-size:13px;color:var(--text-secondary);margin:0;line-height:1.6;">{{ msg.body }}</p>
-        {% if not msg.is_read %}
-        <form method="POST" action="{{ url_for('mark_message_read', msg_id=msg.id) }}" style="margin-top:8px;">
-          <button type="submit" class="btn btn-secondary btn-sm" style="padding:3px 10px;font-size:11px;">Mark as Read</button>
-        </form>
-        {% endif %}
+        <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+          {% if not msg.is_read %}
+          <form method="POST" action="{{ url_for('mark_message_read', msg_id=msg.id) }}">
+            <button type="submit" class="btn btn-secondary btn-sm" style="padding:3px 10px;font-size:11px;">Mark as Read</button>
+          </form>
+          {% endif %}
+          <form method="POST" action="{{ url_for('delete_message', msg_id=msg.id) }}" onsubmit="return confirm('Delete this message?');">
+            <button type="submit" class="btn btn-danger btn-sm" style="padding:3px 10px;font-size:11px;">🗑 Delete</button>
+          </form>
+        </div>
         <!-- Reply button for students -->
         {% if user.role == 'student' and msg.sender %}
         <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
@@ -120,6 +125,20 @@
         </div>
         <div style="font-size:13px;font-weight:600;color:var(--text-primary);">{{ msg.subject }}</div>
         <p style="font-size:13px;color:var(--text-secondary);margin:4px 0 0;line-height:1.5;">{{ msg.body }}</p>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <!-- Edit -->
+          <details>
+            <summary style="cursor:pointer;font-size:11px;font-weight:600;color:var(--blue);">✏️ Edit</summary>
+            <form method="POST" action="{{ url_for('edit_message', msg_id=msg.id) }}" style="margin-top:8px;">
+              <textarea name="body" class="form-control" rows="2" required style="font-size:13px;">{{ msg.body }}</textarea>
+              <button type="submit" class="btn btn-primary btn-sm" style="margin-top:6px;padding:4px 14px;">Save</button>
+            </form>
+          </details>
+          <!-- Delete -->
+          <form method="POST" action="{{ url_for('delete_message', msg_id=msg.id) }}" onsubmit="return confirm('Delete this message?');">
+            <button type="submit" class="btn btn-danger btn-sm" style="padding:3px 10px;font-size:11px;">🗑 Delete</button>
+          </form>
+        </div>
       </div>
       {% endfor %}
     </div>

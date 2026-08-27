@@ -214,10 +214,10 @@
             </small>
           </div>
 
-          <!-- 8. Batch Code -->
+          <!-- 8. Batch Code (REQUIRED) -->
           <div class="form-group" style="grid-column: 1 / -1;">
             <label class="form-label" for="batch_code" style="font-weight: 600; color: #1e293b;">
-              Batch / Class Code
+              Batch / Class Code <span style="color: #ef4444;">*</span>
             </label>
             <input 
               type="text" 
@@ -227,16 +227,17 @@
               placeholder="e.g. 3975C1" 
               style="text-transform: uppercase;"
               value="{{ student.batch.code if student.batch else '' }}"
+              required
             >
             <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">
-              Enter the class/batch code assigned by your teacher (e.g. 3975C1, 4962C2). Leave blank if not applicable.
+              Enter the class/batch code assigned by your admin. This is required to submit your profile.
             </small>
           </div>
 
         </div>
 
         <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: flex-end; gap: 14px;">
-          <button type="submit" class="btn btn-primary" style="padding: 12px 28px; font-size: 15px; font-weight: 700; border-radius: var(--radius-md); box-shadow: var(--shadow-md);">
+          <button type="submit" id="submit-btn" class="btn btn-primary" disabled style="padding: 12px 28px; font-size: 15px; font-weight: 700; border-radius: var(--radius-md); box-shadow: var(--shadow-md); opacity: 0.5; cursor: not-allowed;">
             Submit &amp; Create My Dashboard &rarr;
           </button>
         </div>
@@ -246,4 +247,26 @@
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var batchInput = document.getElementById('batch_code');
+  var submitBtn = document.getElementById('submit-btn');
+  function checkBatch() {
+    if (batchInput && batchInput.value.trim().length > 0) {
+      submitBtn.disabled = false;
+      submitBtn.style.opacity = '1';
+      submitBtn.style.cursor = 'pointer';
+    } else {
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = '0.5';
+      submitBtn.style.cursor = 'not-allowed';
+    }
+  }
+  if (batchInput) {
+    batchInput.addEventListener('input', checkBatch);
+    checkBatch();
+  }
+});
+</script>
 {% endblock %}

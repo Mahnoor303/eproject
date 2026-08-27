@@ -139,6 +139,22 @@ class Message(db.Model):
     student_record = db.relationship("Student", backref=db.backref("messages", lazy="dynamic"))
 
 
+class Notification(db.Model):
+    __tablename__ = "notifications"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    sender_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    message_id = db.Column(db.Integer, db.ForeignKey("messages.id"), nullable=True)
+    title = db.Column(db.String(200), nullable=False)
+    body = db.Column(db.Text, nullable=True)
+    is_read = db.Column(db.Boolean, default=False, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship("User", foreign_keys=[user_id], backref="notifications")
+    sender = db.relationship("User", foreign_keys=[sender_id], backref="sent_notifications")
+    message = db.relationship("Message", backref="notifications")
+
+
 class SupportTicket(db.Model):
     __tablename__ = "support_tickets"
     id = db.Column(db.Integer, primary_key=True)
@@ -469,10 +485,31 @@ roles_required = role_required
 @app.context_processor
 def inject_current_user():
     user = None
+    unread_count = 0
     if "user_id" in session:
         user = db.session.get(User, session["user_id"])
+        if user:
+            if user.role == "student":
+                student = Student.query.filter_by(user_id=user.id).first()
+                if student:
+                    unread_count = Message.query.filter(
+                        (Message.receiver_id == user.id) | (Message.student_id == student.id),
+                        Message.is_read == False
+                    ).count()
+            elif user.role == "teacher":
+                unread_count = Message.query.filter_by(receiver_id=user.id, is_read=False).count()
+    # Count unread notifications
+    unread_notifications = 0
+    recent_notifications = []
+    if user:
+        unread_notifications = Notification.query.filter_by(user_id=user.id, is_read=False).count()
+        recent_notifications = Notification.query.filter_by(user_id=user.id).order_by(Notification.created_at.desc()).limit(8).all()
+
     return {
         "current_user": user,
+        "unread_messages": unread_count,
+        "unread_notifications": unread_notifications,
+        "recent_notifications": recent_notifications,
         "current_year": datetime.utcnow().year,
         "app_name": "EduPredict",
         "app_subtitle": "AI-Based Student Performance & Educational Analytics"
@@ -523,6 +560,25 @@ def init_database():
         try:
             with db.engine.connect() as conn:
                 conn.execute(db.text("ALTER TABLE predictions ADD COLUMN batch_id INTEGER REFERENCES batches(id)"))
+                conn.commit()
+        except Exception:
+            pass
+
+        # Migrate: notifications table
+        try:
+            with db.engine.connect() as conn:
+                conn.execute(db.text("""
+                    CREATE TABLE IF NOT EXISTS notifications (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER NOT NULL REFERENCES users(id),
+                        sender_id INTEGER REFERENCES users(id),
+                        message_id INTEGER REFERENCES messages(id),
+                        title VARCHAR(200) NOT NULL,
+                        body TEXT,
+                        is_read BOOLEAN DEFAULT 0 NOT NULL,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )
+                """))
                 conn.commit()
         except Exception:
             pass
@@ -676,10 +732,14 @@ def register():
             flash("Password must be at least 6 characters long.", "warning")
             return render_template("register.html")
 
-        # 3. Username uniqueness check
-        if User.query.filter_by(username=username).first():
-            flash("Username already exists. Please choose a different one.", "danger")
-            return render_template("register.html")
+        # 3. Username uniqueness — auto-append number if taken
+        original_username = username
+        counter = 1
+        while User.query.filter_by(username=username).first():
+            username = f"{original_username}{counter}"
+            counter += 1
+        if username != original_username:
+            flash(f"Username '{original_username}' was taken. Your username has been set to: '{username}'", "info")
 
         # 4. Email uniqueness check
         if email and User.query.filter_by(email=email).first():
@@ -841,9 +901,14 @@ def admin_add_user():
             flash("Password must be at least 6 characters long.", "warning")
             return redirect(url_for("admin_add_user", tab=role))
 
-        if User.query.filter(User.username.ilike(username)).first():
-            flash(f"Username '{username}' already exists. Please choose a different username.", "danger")
-            return redirect(url_for("admin_add_user", tab=role))
+        # Auto-append number if username exists (sarah → sarah1 → sarah2)
+        original_username = username
+        counter = 1
+        while User.query.filter(User.username.ilike(username)).first():
+            username = f"{original_username}{counter}"
+            counter += 1
+        if username != original_username:
+            flash(f"Username '{original_username}' was taken. Auto-assigned: '{username}'", "info")
 
         if email and User.query.filter(User.email.ilike(email)).first():
             flash(f"Email '{email}' is already registered.", "danger")
@@ -860,6 +925,17 @@ def admin_add_user():
         db.session.commit()
 
         if role == "student":
+            batch_id_val = request.form.get("batch_id", "").strip()
+            batch_code_val = request.form.get("batch_code", "").strip().upper()
+            batch_obj = None
+            if batch_id_val and batch_id_val.isdigit():
+                batch_obj = db.session.get(Batch, int(batch_id_val))
+            elif batch_code_val:
+                batch_obj = Batch.query.filter_by(code=batch_code_val).first()
+                if not batch_obj:
+                    flash(f"Class code '{batch_code_val}' does not exist. Please enter a valid class code.", "danger")
+                    return redirect(url_for("admin_add_user", tab=role))
+
             stu = Student(
                 student_id=f"STU{user.id + 1000}",
                 name=full_name,
@@ -872,11 +948,13 @@ def admin_add_user():
                 lms_activity=None,
                 participation=None,
                 profile_completed=False,
-                user_id=user.id
+                user_id=user.id,
+                batch_id=batch_obj.id if batch_obj else None
             )
             db.session.add(stu)
             db.session.commit()
-            flash(f"Student account for '{full_name}' (@{username}) successfully created.", "success")
+            batch_msg = f" (Batch: {batch_obj.code})" if batch_obj else ""
+            flash(f"Student account for '{full_name}' (@{username}) successfully created.{batch_msg}", "success")
             return redirect(url_for("admin_students"))
         elif role == "teacher":
             flash(f"Teacher account for '{full_name}' (@{username}) successfully created.", "success")
@@ -885,8 +963,9 @@ def admin_add_user():
             flash(f"Analyst account for '{full_name}' (@{username}) successfully created.", "success")
             return redirect(url_for("admin_analysts"))
 
+    batches = Batch.query.order_by(Batch.code.asc()).all()
     active_tab = request.args.get("tab", "student")
-    return render_template("admin_add_user.html", active_tab=active_tab)
+    return render_template("admin_add_user.html", active_tab=active_tab, batches=batches)
 
 
 # ----------------------------------------------------
@@ -2113,6 +2192,19 @@ def send_message():
         body=body
     )
     db.session.add(msg)
+    db.session.flush()
+
+    # Create notification for student
+    if student.user_id:
+        notif = Notification(
+            user_id=student.user_id,
+            sender_id=user.id,
+            message_id=msg.id,
+            title=f"New message from {user.full_name or user.username}",
+            body=f"Subject: {subject}"
+        )
+        db.session.add(notif)
+
     db.session.commit()
 
     flash(f"Message sent to {student.name}!", "success")
@@ -2144,6 +2236,20 @@ def reply_message():
         body=body
     )
     db.session.add(msg)
+    db.session.flush()
+
+    # Create notification for teacher
+    receiver_uid = int(receiver_id) if receiver_id.isdigit() else None
+    if receiver_uid:
+        notif = Notification(
+            user_id=receiver_uid,
+            sender_id=user.id,
+            message_id=msg.id,
+            title=f"New reply from {user.full_name or user.username}",
+            body=f"Subject: {subject or 'Re: Feedback'}"
+        )
+        db.session.add(notif)
+
     db.session.commit()
 
     flash("Reply sent!", "success")
@@ -2160,13 +2266,80 @@ def mark_message_read(msg_id):
     return redirect(url_for("messages_list"))
 
 
+@app.route("/messages/delete/<int:msg_id>", methods=["POST"])
+@role_required("teacher", "student")
+def delete_message(msg_id):
+    user = db.session.get(User, session["user_id"])
+    msg = db.session.get(Message, msg_id)
+    if msg and (msg.sender_id == user.id or msg.receiver_id == user.id):
+        db.session.delete(msg)
+        db.session.commit()
+        flash("Message deleted.", "success")
+    return redirect(url_for("messages_list"))
+
+
+@app.route("/messages/edit/<int:msg_id>", methods=["POST"])
+@role_required("teacher", "student")
+def edit_message(msg_id):
+    user = db.session.get(User, session["user_id"])
+    msg = db.session.get(Message, msg_id)
+    if msg and msg.sender_id == user.id:
+        new_body = request.form.get("body", "").strip()
+        if new_body:
+            msg.body = new_body
+            db.session.commit()
+            flash("Message updated.", "success")
+    return redirect(url_for("messages_list"))
+
+
 # ----------------------------------------------------
-# STUDENT COMPARISON TOOL (Analyst)
+# NOTIFICATION SYSTEM
 # ----------------------------------------------------
-@app.route("/analyst/compare", methods=["GET", "POST"])
-@role_required("analyst")
-def analyst_compare():
-    students = Student.query.order_by(Student.name.asc()).all()
+@app.route("/notifications")
+@login_required
+def notifications_list():
+    user = db.session.get(User, session["user_id"])
+    if not user:
+        flash("Session invalid.", "warning")
+        return redirect(url_for("login"))
+
+    notifications = Notification.query.filter_by(user_id=user.id).order_by(Notification.created_at.desc()).all()
+    return render_template("notifications.html", notifications=notifications, user=user)
+
+
+@app.route("/notifications/mark-read/<int:notif_id>", methods=["POST"])
+@login_required
+def mark_notification_read(notif_id):
+    notif = db.session.get(Notification, notif_id)
+    if notif and notif.user_id == session["user_id"]:
+        notif.is_read = True
+        db.session.commit()
+    return redirect(url_for("notifications_list"))
+
+
+@app.route("/notifications/mark-all-read", methods=["POST"])
+@login_required
+def mark_all_notifications_read():
+    user_id = session["user_id"]
+    Notification.query.filter_by(user_id=user_id, is_read=False).update({"is_read": True})
+    db.session.commit()
+    flash("All notifications marked as read.", "success")
+    return redirect(url_for("notifications_list"))
+
+
+# ----------------------------------------------------
+# STUDENT COMPARISON TOOL (Teacher)
+# ----------------------------------------------------
+@app.route("/teacher/compare", methods=["GET", "POST"])
+@role_required("teacher")
+def teacher_compare():
+    teacher_user = db.session.get(User, session.get("user_id"))
+    assigned_batch_ids = [b.id for b in Batch.query.filter_by(teacher_id=teacher_user.id).all()] if teacher_user else []
+    if assigned_batch_ids:
+        students = Student.query.filter(Student.batch_id.in_(assigned_batch_ids)).order_by(Student.name.asc()).all()
+    else:
+        students = Student.query.order_by(Student.name.asc()).all()
+
     student_a = None
     student_b = None
     pred_a = None
@@ -2193,6 +2366,68 @@ def analyst_compare():
         student_b=student_b,
         pred_a=pred_a,
         pred_b=pred_b
+    )
+
+
+# ----------------------------------------------------
+# CLASS COMPARISON TOOL (Analyst)
+# ----------------------------------------------------
+@app.route("/analyst/class-compare", methods=["GET", "POST"])
+@role_required("analyst")
+def analyst_class_compare():
+    batches = Batch.query.order_by(Batch.code.asc()).all()
+    batch_a = None
+    batch_b = None
+    stats_a = None
+    stats_b = None
+
+    if request.method == "POST":
+        id_a = request.form.get("batch_a", "").strip()
+        id_b = request.form.get("batch_b", "").strip()
+
+        if id_a.isdigit():
+            batch_a = db.session.get(Batch, int(id_a))
+        if id_b.isdigit():
+            batch_b = db.session.get(Batch, int(id_b))
+
+        def compute_batch_stats(batch):
+            if not batch:
+                return None
+            students = Student.query.filter_by(batch_id=batch.id).all()
+            active = [s for s in students if s.attendance is not None and s.previous_marks is not None]
+            total = len(students)
+            active_count = len(active)
+            if active_count == 0:
+                return {"total": total, "active": 0, "avg_att": 0, "avg_marks": 0, "at_risk": 0, "perf": {"Excellent": 0, "Good": 0, "Average": 0, "At Risk": 0}, "risk": {"Low": 0, "Medium": 0, "High": 0, "Not Assessed": total}}
+            avg_att = round(sum(s.attendance for s in active) / active_count, 1)
+            avg_marks = round(sum(s.previous_marks for s in active) / active_count, 1)
+            at_risk = sum(1 for s in students if (s.attendance is not None and s.attendance < 65) or (s.previous_marks is not None and s.previous_marks < 50))
+            perf = {"Excellent": 0, "Good": 0, "Average": 0, "At Risk": 0}
+            for s in active:
+                m = s.previous_marks or 0
+                if m >= 85: perf["Excellent"] += 1
+                elif m >= 70: perf["Good"] += 1
+                elif m >= 50: perf["Average"] += 1
+                else: perf["At Risk"] += 1
+            risk = {"Low": 0, "Medium": 0, "High": 0, "Not Assessed": 0}
+            for s in students:
+                if (s.attendance is not None and s.previous_marks is not None):
+                    if (s.attendance or 100) < 65 or (s.previous_marks or 100) < 50: risk["High"] += 1
+                    elif (s.attendance or 0) >= 80 and (s.previous_marks or 0) >= 70: risk["Low"] += 1
+                    else: risk["Medium"] += 1
+                else: risk["Not Assessed"] += 1
+            return {"total": total, "active": active_count, "avg_att": avg_att, "avg_marks": avg_marks, "at_risk": at_risk, "perf": perf, "risk": risk}
+
+        stats_a = compute_batch_stats(batch_a)
+        stats_b = compute_batch_stats(batch_b)
+
+    return render_template(
+        "analyst_class_compare.html",
+        batches=batches,
+        batch_a=batch_a,
+        batch_b=batch_b,
+        stats_a=stats_a,
+        stats_b=stats_b
     )
 
 
@@ -2347,14 +2582,24 @@ def complete_profile():
         student.participation = parsed["participation"]
         student.profile_completed = True
 
-        # Save batch code if provided
+        # REQUIRE valid batch code before submission
         batch_code = request.form.get("batch_code", "").strip().upper()
-        if batch_code:
-            batch = Batch.query.filter_by(code=batch_code).first()
-            if batch:
-                student.batch_id = batch.id
-            else:
-                flash(f"Batch '{batch_code}' not found. Please enter a valid batch code.", "warning")
+        if not batch_code:
+            student.profile_completed = False
+            db.session.commit()
+            batches = Batch.query.order_by(Batch.code.asc()).all()
+            flash("Batch / Class Code is required. Please enter the code assigned by your admin.", "danger")
+            return render_template("complete_profile.html", student=student, form_data=request.form, batches=batches)
+
+        batch = Batch.query.filter_by(code=batch_code).first()
+        if not batch:
+            student.profile_completed = False
+            db.session.commit()
+            batches = Batch.query.order_by(Batch.code.asc()).all()
+            flash(f"Batch '{batch_code}' does not exist. Please check with your admin for the correct code.", "danger")
+            return render_template("complete_profile.html", student=student, form_data=request.form, batches=batches)
+
+        student.batch_id = batch.id
 
         db.session.commit()
 
@@ -2539,14 +2784,18 @@ def student_academic_profile():
         student.participation = parsed["participation"]
         student.profile_completed = True
 
-        # Save batch code if provided
+        # Save batch code (REQUIRED)
         batch_code = request.form.get("batch_code", "").strip().upper()
-        if batch_code:
-            batch = Batch.query.filter_by(code=batch_code).first()
-            if batch:
-                student.batch_id = batch.id
-            else:
-                flash(f"Batch '{batch_code}' not found. Please enter a valid batch code.", "warning")
+        if not batch_code:
+            flash("Class/Batch code is required. Please enter the code assigned by your admin.", "danger")
+            return render_template("student_academic_profile.html", student=student)
+
+        batch = Batch.query.filter_by(code=batch_code).first()
+        if not batch:
+            flash(f"Class code '{batch_code}' does not exist. Please check with your admin for the correct code.", "danger")
+            return render_template("student_academic_profile.html", student=student)
+
+        student.batch_id = batch.id
 
         db.session.commit()
         flash("Academic profile metrics updated successfully!", "success")

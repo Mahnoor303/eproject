@@ -252,10 +252,10 @@
             <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">Discussion &amp; interactive rating</small>
           </div>
 
-          <!-- Batch Code -->
+          <!-- Batch Code (REQUIRED) -->
           <div class="form-group" style="grid-column: 1 / -1;">
             <label class="form-label" for="batch_code" style="font-weight: 600; color: #1e293b;">
-              Batch / Class Code
+              Batch / Class Code <span style="color: #ef4444;">*</span>
             </label>
             <input 
               type="text" 
@@ -265,9 +265,10 @@
               placeholder="e.g. 3975C1" 
               style="text-transform: uppercase;"
               value="{{ student.batch.code if student.batch else '' }}"
+              required
             >
             <small style="display: block; margin-top: 4px; font-size: 12px; color: #64748b;">
-              Enter the class/batch code assigned by your teacher (e.g. 3975C1). Leave blank if not applicable.
+              Enter the class/batch code assigned by your admin. This is required to save your profile.
             </small>
           </div>
 
@@ -276,16 +277,38 @@
         <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
           <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary" style="text-decoration: none;">
             &larr; Back to Dashboard
-          </a>
-          <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-weight: 600;">
+          </a>          <button type="submit" id="submit-btn" class="btn btn-primary" disabled style="padding: 10px 24px; font-weight: 600; opacity: 0.5; cursor: not-allowed;">
             💾 Save Academic Profile
           </button>
         </div>
 
       </form>
+
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var batchInput = document.getElementById('batch_code');
+  var submitBtn = document.getElementById('submit-btn');
+  function checkBatch() {
+    if (batchInput && batchInput.value.trim().length > 0) {
+      submitBtn.disabled = false;
+      submitBtn.style.opacity = '1';
+      submitBtn.style.cursor = 'pointer';
+    } else {
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = '0.5';
+      submitBtn.style.cursor = 'not-allowed';
+    }
+  }
+  if (batchInput) {
+    batchInput.addEventListener('input', checkBatch);
+    checkBatch();
+  }
+});
+</script>
 {% else %}
 <div class="card">
   <div class="card-body" style="text-align: center; padding: 40px;">
